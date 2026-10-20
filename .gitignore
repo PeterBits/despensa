@@ -1,0 +1,9 @@
+# Claude Code: ajustes personales de cada máquina
+.claude/settings.local.json
+
+# Bocetos del brainstorming (servidor visual de superpowers)
+.superpowers/
+
+# Capturas de revisión de diseño (Playwright e impeccable)
+.playwright-mcp/
+.impeccable/review/

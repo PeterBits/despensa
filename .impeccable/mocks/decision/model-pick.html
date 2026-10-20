@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Despensa · Etiquetas de tupper</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Kalam:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--fridge:#eef1f1;--shelf:#dfe5e6;--ink:#1d1d1b;--ink-2:#5b5f60;--tape:#e6d6a8;--tape-edge:#d6c48f;--lid-a:#2a62c4;--lid-b:#b93a2f;--glass:rgba(255,255,255,.7)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:390px;height:844px;overflow:hidden}
+body{position:relative;background:var(--fridge);color:var(--ink);font-family:'Atkinson Hyperlegible',system-ui,sans-serif}
+.status{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:15px;font-weight:700}
+header{padding:8px 22px 0}
+.when{font-size:15px;color:var(--ink-2)}
+h1{font-size:30px;line-height:1.1;font-weight:700;margin-top:2px}
+.shelf{margin:22px 0 0;padding:0 22px 18px;border-bottom:6px solid var(--shelf);display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tup{position:relative;height:214px;border-radius:18px;background:var(--glass);border:2px solid #cfd8da;overflow:visible}
+.lid{height:30px;border-radius:16px 16px 6px 6px;margin:-2px -2px 0}
+.a .lid{background:var(--lid-a)}.b .lid{background:var(--lid-b)}
+.tape{position:absolute;left:12px;right:12px;top:44px;padding:10px 12px 12px;background:var(--tape);border-left:1px dashed var(--tape-edge);border-right:1px dashed var(--tape-edge);
+  font-family:Kalam,cursive;font-size:21px;line-height:1.05;transform:rotate(-2.5deg)}
+.b .tape{transform:rotate(1.8deg)}
+.tape span{display:block;font-size:19px;margin-top:6px;letter-spacing:.06em}
+.food{position:absolute;left:14px;right:14px;bottom:12px;font-size:13px;color:var(--ink-2)}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:16px 22px 0}
+.day{height:52px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff}
+.day small{font-weight:400;font-size:11px;opacity:.9}
+.day.a{background:var(--lid-a)}.day.b{background:var(--lid-b)}.day.f{background:var(--shelf);color:var(--ink-2)}
+.day.on{box-shadow:inset 0 -5px 0 rgba(0,0,0,.28)}
+.legend{margin:8px 22px 0;font-size:13px;color:var(--ink-2)}
+h2{font-size:20px;font-weight:700;margin:26px 22px 8px}
+.sug{display:flex;justify-content:space-between;align-items:center;padding:12px 22px;border-top:1px solid var(--shelf)}
+.sug p{font-size:17px;font-weight:700}
+.sug small{display:block;font-size:13px;color:var(--ink-2);font-weight:400;margin-top:2px}
+.score{font-family:Kalam,cursive;font-size:22px;background:var(--tape);padding:2px 10px;transform:rotate(-3deg)}
+.cta{position:absolute;left:22px;right:22px;bottom:104px;height:54px;border-radius:14px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px}
+.tabs{position:absolute;left:0;right:0;bottom:0;height:84px;background:#fff;border-top:1px solid var(--shelf);display:grid;grid-template-columns:repeat(4,1fr);padding:10px 8px 0}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--ink-2)}
+.tab.on{color:var(--lid-a)}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<div class="status"><span>9:41</span><span>100 %</span></div>
+<header>
+  <p class="when">La semana que viene</p>
+  <h1>Del 26 oct al 1 nov</h1>
+</header>
+
+<div class="shelf">
+  <div class="tup a"><div class="lid"></div>
+    <div class="tape">Lentejas estofadas<span>L · X · V</span></div>
+    <p class="food">Hidratos, proteína, fibra</p></div>
+  <div class="tup b"><div class="lid"></div>
+    <div class="tape">Merluza en salsa verde<span>M · J · S</span></div>
+    <p class="food">Proteína, grasas</p></div>
+</div>
+
+<div class="days">
+  <div class="day a on">L<small>26</small></div><div class="day b">M<small>27</small></div>
+  <div class="day a on">X<small>28</small></div><div class="day b">J<small>29</small></div>
+  <div class="day a on">V<small>30</small></div><div class="day b">S<small>31</small></div>
+  <div class="day f">D<small>1</small></div>
+</div>
+<p class="legend">Barra oscura: día activo · Domingo fuera</p>
+
+<h2>Hace tiempo que no coméis</h2>
+<div class="sug"><p>Arroz con pollo<small>Hace 6 semanas</small></p><span class="score">9</span></div>
+<div class="sug"><p>Garbanzos con espinacas<small>Hace 9 semanas</small></p><span class="score">8,5</span></div>
+
+<a class="cta">Hacer la lista de la compra</a>
+<nav class="tabs">
+  <a class="tab on"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semana</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z"/><path d="M5 16.5a3 3 0 0 1 3-3h11"/></svg>Recetas</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2"/><circle cx="5" cy="18" r="1"/></svg>Lista</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Registro</a>
+</nav>
+</body>
+</html>

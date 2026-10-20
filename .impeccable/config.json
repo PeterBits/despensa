@@ -1,0 +1,44 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "files": [
+          ".impeccable/mocks/decision/canon.html"
+        ],
+        "createdAt": "2026-10-20T11:11:27.079Z",
+        "reason": "Claude: the canon card is the deliberate category-standard sketch shown as the standing exit in the direction round; Inter is part of what it represents"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "prototipo/semana.html"
+        ],
+        "createdAt": "2026-10-20T11:17:53.970Z",
+        "reason": "finish reviewer: false positive, the only hit is div.seg, the iOS segmented control whose 2px inset thumb is the native control's"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/*.html"
+        ],
+        "createdAt": "2026-10-20T11:25:12.073Z",
+        "reason": "Claude: decision-round sketches of the unchosen and pre-steer directions, written before DESIGN.md existed; they are the spent hand, not product UI"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/lista-reparto.html"
+        ],
+        "createdAt": "2026-10-20T11:43:31.466Z",
+        "reason": "finish reviewer ruled the iOS segmented control (2px inset thumb) a false positive on Semana; same component in this sketch"
+      }
+    ]
+  }
+}

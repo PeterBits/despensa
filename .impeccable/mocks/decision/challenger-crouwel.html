@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Despensa · Cuadrícula</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700&family=Chakra+Petch:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#ffffff;--grid:#e6ebf2;--ink:#111111;--ink-2:#5a6170;--blue:#0057ff;--blue-soft:#d9e5ff}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:390px;height:844px;overflow:hidden}
+body{position:relative;background:var(--paper);color:var(--ink);font-family:Archivo,system-ui,sans-serif;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px;background-position:-1px -1px}
+.status{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:15px;font-weight:700;background:var(--paper)}
+header{padding:12px 26px 0}
+.when{font-size:14px;color:var(--ink-2);font-weight:500}
+h1{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:44px;line-height:.95;text-transform:uppercase;margin-top:6px}
+h1 em{font-style:normal;color:var(--blue)}
+.cells{position:relative;display:grid;grid-template-columns:repeat(7,1fr);margin:24px 26px 0;border:1.5px solid var(--ink)}
+.c{height:78px;border-right:1.5px solid var(--ink);display:flex;flex-direction:column;justify-content:space-between;padding:6px 6px 5px;font-family:'Chakra Petch',sans-serif;font-weight:600}
+.c:last-child{border-right:0}
+.c b{font-size:22px;line-height:1}.c small{font-size:12px;font-weight:500}
+.c.a{background:linear-gradient(to top right,transparent calc(50% - 1.5px),#fff calc(50% - 1.5px),#fff calc(50% + 1.5px),transparent calc(50% + 1.5px)),var(--blue);color:#fff}
+.c.b{background:repeating-linear-gradient(135deg,var(--ink) 0 2px,transparent 2px 7px)}
+.c.b b,.c.b small{background:var(--paper);padding:0 2px;align-self:flex-start}
+.c.f{background:var(--paper);color:var(--ink-2)}
+.diag{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.legend{display:flex;gap:16px;margin:10px 26px 0;font-size:13px;color:var(--ink-2)}
+.legend i{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px}
+.legend .la{background:var(--blue)}.legend .lb{background:repeating-linear-gradient(135deg,var(--ink) 0 2px,transparent 2px 5px);border:1px solid var(--ink)}
+h2{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:20px;text-transform:uppercase;margin:28px 26px 0;padding-bottom:8px;border-bottom:1.5px solid var(--ink)}
+.dish{display:grid;grid-template-columns:26px 1fr auto;gap:12px;align-items:baseline;padding:12px 26px 0;background:transparent}
+.key{width:26px;height:26px;align-self:center}
+.key.a{background:var(--blue)}.key.b{background:repeating-linear-gradient(135deg,var(--ink) 0 2px,transparent 2px 6px);border:1.5px solid var(--ink)}
+.dish p{font-size:19px;font-weight:700;background:var(--paper)}
+.dish p small{display:block;font-size:13px;font-weight:400;color:var(--ink-2)}
+.dish span{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:16px;background:var(--paper)}
+.sug .key{border:1.5px dashed var(--ink-2)}
+.sug span{color:var(--blue)}
+.cta{position:absolute;left:26px;right:26px;bottom:104px;height:54px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;
+  font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:17px;text-transform:uppercase}
+.cta svg{width:28px;height:28px;stroke:#fff;stroke-width:2}
+.tabs{position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--paper);border-top:1.5px solid var(--ink);display:grid;grid-template-columns:repeat(4,1fr);padding:10px 8px 0}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em}
+.tab.on{color:var(--blue)}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:square}
+</style>
+</head>
+<body>
+<div class="status"><span>9:41</span><span>100 %</span></div>
+<header>
+  <p class="when">La semana que viene</p>
+  <h1>Semana<br><em>26.10 — 01.11</em></h1>
+</header>
+
+<div class="cells">
+  <div class="c a"><b>L</b><small>26</small></div><div class="c b"><b>M</b><small>27</small></div>
+  <div class="c a"><b>X</b><small>28</small></div><div class="c b"><b>J</b><small>29</small></div>
+  <div class="c a"><b>V</b><small>30</small></div><div class="c b"><b>S</b><small>31</small></div>
+  <div class="c f"><b>D</b><small>01</small></div>
+</div>
+<p class="legend"><span><i class="la"></i>Plato A · días activos</span><span><i class="lb"></i>Plato B</span></p>
+
+<h2>Menú</h2>
+<div class="dish"><i class="key a"></i><p>Lentejas estofadas<small>Hidratos · proteína · fibra</small></p><span>L X V</span></div>
+<div class="dish"><i class="key b"></i><p>Merluza en salsa verde<small>Proteína · grasas</small></p><span>M J S</span></div>
+
+<h2>Hace tiempo que no</h2>
+<div class="dish sug"><i class="key"></i><p>Arroz con pollo<small>Hace 6 semanas</small></p><span>9,0</span></div>
+<div class="dish sug"><i class="key"></i><p>Garbanzos con espinacas<small>Hace 9 semanas</small></p><span>8,5</span></div>
+
+<a class="cta">Hacer la lista<svg viewBox="0 0 28 28"><path d="M4 24 L24 4"/></svg></a>
+<nav class="tabs">
+  <a class="tab on"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semana</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M5 4.5h14v15H5zM9 4.5v15"/></svg>Recetas</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 5h2v2H4zM4 11h2v2H4zM4 17h2v2H4z"/></svg>Lista</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Registro</a>
+</nav>
+</body>
+</html>

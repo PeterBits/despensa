@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e2422">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:,">
+<title>Despensa · Lista</title>
+<style>
+:root{
+  --ground:#ffffff;--bar:#f6f6f3;--ink:#1b1f1d;--ink-2:#5c6360;--ink-3:#6b726e;
+  --rule:rgba(27,31,29,.22);--hair:rgba(27,31,29,.14);
+  --tint:#ff9f0a;--tint-ink:#a65200;--on-tint:#1b1f1d;--fill:#1b1f1d;--on-fill:#ffffff;
+  --seg:#ecece8;--seg-on:#ffffff;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#1e2422;--bar:#161b19;--ink:#f2f1ec;--ink-2:#a7aea9;--ink-3:#8d9590;
+  --rule:rgba(242,241,236,.2);--hair:rgba(242,241,236,.12);
+  --tint:#ff9f0a;--tint-ink:#ff9f0a;--on-tint:#161b19;--fill:#f2f1ec;--on-fill:#161b19;
+  --seg:#2a312e;--seg-on:#47504c;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ground:#1e2422;--bar:#161b19;--ink:#f2f1ec;--ink-2:#a7aea9;--ink-3:#8d9590;
+  --rule:rgba(242,241,236,.2);--hair:rgba(242,241,236,.12);
+  --tint:#ff9f0a;--tint-ink:#ff9f0a;--on-tint:#161b19;--fill:#f2f1ec;--on-fill:#161b19;
+  --seg:#2a312e;--seg-on:#47504c;
+  color-scheme:dark}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:var(--ground);scrollbar-width:thin;scrollbar-color:var(--rule) transparent}
+body{min-height:100dvh;background:var(--ground);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.35;
+  font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;caret-color:var(--tint)}
+::selection{background:var(--tint);color:var(--on-tint)}
+button,input{font:inherit;color:inherit;background:none;border:0}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--tint);outline-offset:3px;border-radius:6px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.screen{max-width:440px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 0 calc(env(safe-area-inset-bottom) + 176px)}
+header{padding:24px 20px 0}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+h1{font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.sub{margin-top:8px;font-size:15px;color:var(--ink-2);text-wrap:balance}
+.live{display:flex;align-items:center;gap:8px}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--ink-2);flex:none}
+
+.sec{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:24px 20px 2px;
+  font-size:19px;font-weight:600;letter-spacing:-.01em}
+.sec small{font-size:13px;font-weight:500;color:var(--ink-2)}
+ul{list-style:none}
+.row{display:block;width:100%;text-align:left;padding:10px 20px}
+.row:focus-visible{outline-offset:-2px}
+.row:active .line,.row:active .from{opacity:.6}
+.line{display:flex;align-items:baseline;align-items:last baseline;gap:10px}
+.name{transition:color .3s var(--ease)}
+.txt{background:linear-gradient(currentColor,currentColor) no-repeat 0 60%/0 1.5px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule);transform:translateY(-5px)}
+.qty{white-space:nowrap}
+.tag{font-size:13px;font-weight:600;color:var(--ink-2)}
+.from{display:block;margin-top:2px;font-size:13px;font-weight:500;color:var(--ink-3)}
+.done .name,.done .qty{color:var(--ink-3)}
+.done .txt{background-size:100% 1.5px}
+.fresh .txt{animation:tachar .3s var(--ease)}
+.fresh-off .txt{animation:destachar .25s var(--ease)}
+@keyframes tachar{from{background-size:0 1.5px}}
+@keyframes destachar{from{background-size:100% 1.5px}}
+.entering{animation:entrar .34s var(--ease)}
+@keyframes entrar{from{opacity:0;transform:translateY(6px)}}
+
+.add{display:flex;align-items:center;gap:8px;margin:32px 20px 0;height:44px;padding:0 12px;border-radius:9px;background:var(--seg)}
+.add:focus-within{outline:2px solid var(--tint);outline-offset:3px}
+.add svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--ink-2);stroke-width:2;stroke-linecap:round}
+.add input{flex:1;min-width:0;height:100%;font-size:17px;outline:0}
+.add input::placeholder{color:var(--ink-2);opacity:1}
+.usual-lab{margin:16px 20px 0;font-size:13px;font-weight:500;color:var(--ink-2)}
+.usual{display:flex;flex-wrap:wrap;column-gap:20px;margin:0 20px}
+.usual button{display:inline-flex;align-items:center;gap:5px;min-height:44px;font-size:15px;font-weight:600}
+.usual button:active{opacity:.6}
+.usual svg{width:13px;height:13px;fill:none;stroke:var(--ink-2);stroke-width:2.4;stroke-linecap:round}
+.end{margin:28px 20px 0}
+
+.link{position:relative;color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--rule);text-underline-offset:3px}
+.link::before{content:"";position:absolute;inset:-14px -10px}
+.head .link{font-size:17px}
+.end .link,.status .link{font-size:15px}
+.link:active{opacity:.6}
+
+.dock{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 64px);background:var(--ground);padding:10px 20px 14px}
+.dock-in{max-width:400px;margin:0 auto}
+.status{margin-bottom:8px;font-size:13px;color:var(--ink-2);text-align:center;text-wrap:balance}
+.status:empty{display:none}
+.cta{width:100%;height:52px;border-radius:14px;background:var(--fill);color:var(--on-fill);font-size:17px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;transition:transform .12s var(--ease),background-color .2s var(--ease)}
+.cta:active{transform:scale(.98)}
+.cta.quiet{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--hair)}
+
+
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--bar);border-top:.5px solid var(--hair);padding:6px 8px env(safe-area-inset-bottom)}
+.tabs-in{max-width:440px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:58px}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:500;color:var(--ink-3)}
+.tab[aria-current="page"]{color:var(--tint-ink)}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+@media (prefers-reduced-motion:reduce){*,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="screen">
+  <header>
+    <div class="head"><h1 id="titulo"></h1><button class="link" id="repasar" type="button" hidden>Repasar</button></div>
+    <p class="sub" id="sub"></p>
+  </header>
+  <div id="contenido"></div>
+  <form class="add" id="add">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    <label class="sr" for="nuevo">Añadir a la lista</label>
+    <input id="nuevo" type="text" placeholder="Añadir algo más" autocomplete="off" autocapitalize="sentences" enterkeyhint="done">
+  </form>
+  <p class="usual-lab" id="usual-lab">Lo de siempre</p>
+  <div class="usual" id="usual"></div>
+  <div id="hechos"></div>
+  <p class="end" id="end"><button class="link" id="vaciar" type="button">Vaciar la lista</button></p>
+</main>
+
+<div class="dock" id="dock">
+  <div class="dock-in">
+    <p class="status" id="status" aria-live="polite"></p>
+    <button class="cta" id="cta" type="button"></button>
+  </div>
+</div>
+
+<nav class="tabs" aria-label="Secciones">
+  <div class="tabs-in">
+    <a class="tab" href="semana.html"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semana</a>
+    <a class="tab" href="#"><svg viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z"/><path d="M5 16.5a3 3 0 0 1 3-3h11"/></svg>Recetas</a>
+    <a class="tab" aria-current="page" href="lista.html"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2"/><circle cx="5" cy="18" r="1"/></svg>Lista</a>
+    <a class="tab" href="#"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Registro</a>
+  </div>
+</nav>
+
+<script>
+const params = new URLSearchParams(location.search);
+const tema = params.get('tema');
+if (tema === 'claro') document.documentElement.dataset.theme = 'light';
+if (tema === 'oscuro') document.documentElement.dataset.theme = 'dark';
+document.querySelectorAll('.tab[href$=".html"]').forEach(a => { a.search = location.search; });
+
+// Orden de las secciones según el recorrido del súper
+const SECCIONES = ['Frutería y verdura', 'Panadería', 'Carnicería', 'Pescadería', 'Despensa', 'Lácteos y huevos', 'Congelados', 'Limpieza y hogar', 'Otros'];
+const CONOCIDOS = {'café': 'Despensa', 'yogures': 'Lácteos y huevos', 'pan de molde': 'Panadería', 'pan': 'Panadería', 'bolsas de basura': 'Limpieza y hogar',
+  'tomates': 'Frutería y verdura', 'manzanas': 'Frutería y verdura', 'arroz': 'Despensa', 'aceite de oliva': 'Despensa', 'queso': 'Lácteos y huevos',
+  'pollo': 'Carnicería', 'guisantes congelados': 'Congelados', 'detergente': 'Limpieza y hogar', 'servilletas': 'Limpieza y hogar'};
+
+// Datos de ejemplo inventados: ingredientes de las lentejas y la merluza más lo añadido a mano
+let ultimo = 0;
+const producto = (nombre, cant, sec, de, estado = 'pendiente') => ({id: ++ultimo, nombre, cant, sec, de, estado, quien: null});
+let lista = [
+  producto('Patatas', '1,5 kg', 'Frutería y verdura', 'merluza'),
+  producto('Zanahorias', '3', 'Frutería y verdura', 'lentejas'),
+  producto('Cebolla', '2', 'Frutería y verdura', 'lentejas', 'casa'),
+  producto('Pimiento verde', '1', 'Frutería y verdura', 'lentejas'),
+  producto('Ajo', '1 cabeza', 'Frutería y verdura', 'lentejas · merluza', 'casa'),
+  producto('Perejil', '1 manojo', 'Frutería y verdura', 'merluza'),
+  producto('Plátanos', '1 kg', 'Frutería y verdura', null),
+  producto('Chorizo', '200 g', 'Carnicería', 'lentejas'),
+  producto('Merluza en rodajas', '1 kg', 'Pescadería', 'merluza'),
+  producto('Almejas', '300 g', 'Pescadería', 'merluza'),
+  producto('Lentejas pardinas', '500 g', 'Despensa', 'lentejas'),
+  producto('Pimentón dulce', '1 bote', 'Despensa', 'lentejas'),
+  producto('Vino blanco', '1 botella', 'Despensa', 'merluza'),
+  producto('Leche', '6 l', 'Lácteos y huevos', null),
+  producto('Huevos', '12', 'Lácteos y huevos', null),
+  producto('Papel de cocina', '2 rollos', 'Limpieza y hogar', null),
+  producto('Lavavajillas', '1', 'Limpieza y hogar', null),
+];
+const SIEMPRE = [['Café', '1 paquete'], ['Yogures', '8'], ['Pan de molde', '1'], ['Bolsas de basura', '1 rollo']];
+
+let fase = params.get('fase') === 'compra' ? 'super' : 'casa';
+const conPareja = params.get('pareja') !== 'no';
+if (params.has('vacia')) lista = [];
+let aviso = null;              // {texto, deshacer}
+const plegando = new Map();    // productos ya en el carro que aún se ven en su sección
+const frescos = new Map();     // id → 'on' | 'off': el tachado se dibuja en el próximo pintado
+let entrando = null;
+
+const $ = id => document.getElementById(id);
+const sinMovimiento = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = s => s.replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const ICONO_MAS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+
+function fila(p) {
+  const marcado = p.estado !== 'pendiente';
+  const etiqueta = fase === 'casa' && marcado ? (p.estado === 'casa' ? 'en casa' : 'en el carro') : null;
+  const der = etiqueta ? `<span class="qty tag">${etiqueta}</span>` : p.cant ? `<span class="qty">${esc(p.cant)}</span>` : '';
+  const origen = p.quien === 'pareja' && p.estado === 'carro' ? 'lo cogió tu pareja' : p.de || 'añadido a mano';
+  const clases = ['row', marcado && 'done', frescos.get(p.id) === 'on' && 'fresh', frescos.get(p.id) === 'off' && 'fresh-off'].filter(Boolean).join(' ');
+  return `<li data-id="${p.id}"${entrando === p.id ? ' class="entering"' : ''}><button class="${clases}" type="button" aria-pressed="${marcado}">`
+    + `<span class="line"><span class="name"><span class="txt">${esc(p.nombre)}</span></span>`
+    + (der ? '<span class="leader" aria-hidden="true"></span>' + der : '') + '</span>'
+    + `<span class="from">${esc(origen)}</span></button></li>`;
+}
+
+const grupo = (titulo, items, cuenta) => items.length
+  ? `<h2 class="sec">${titulo}${cuenta ? `<small>${items.length}</small>` : ''}</h2><ul>${items.map(fila).join('')}</ul>` : '';
+
+function pintar() {
+  const vacia = !lista.length;
+  $('titulo').textContent = vacia ? 'Lista' : fase === 'casa' ? 'Antes de salir' : 'En el súper';
+  $('repasar').hidden = vacia || fase === 'casa';
+  $('sub').className = 'sub' + (!vacia && fase === 'super' && conPareja ? ' live' : '');
+  $('sub').innerHTML = vacia
+    ? 'No queda nada por comprar. Cuando hagáis la lista desde Semana, aquí aparecerán los ingredientes del menú por secciones.'
+    : fase === 'casa' ? 'Menú del 26 oct al 1 nov. Toca lo que ya tenéis en casa.'
+    : conPareja ? '<i aria-hidden="true"></i>Tu pareja también está comprando' : 'Menú del 26 oct al 1 nov. Toca lo que metáis en el carro.';
+
+  // En casa se ve todo en su sitio; en el súper, solo lo pendiente y lo cogido baja al final
+  const visible = p => fase === 'casa' || p.estado === 'pendiente' || plegando.has(p.id);
+  $('contenido').innerHTML = SECCIONES.map(s => grupo(s, lista.filter(p => p.sec === s && visible(p)))).join('');
+  $('hechos').innerHTML = fase === 'super' ? grupo('En el carro', lista.filter(p => p.estado === 'carro' && !plegando.has(p.id)), true)
+    + grupo('En casa', lista.filter(p => p.estado === 'casa'), true) : '';
+  frescos.clear();
+  entrando = null;
+
+  const usuales = SIEMPRE.filter(([n]) => !lista.some(p => p.nombre === n));
+  $('usual').innerHTML = usuales.map(([n]) => `<button type="button" data-siempre="${n}">${ICONO_MAS}${n}</button>`).join('');
+  $('usual').hidden = $('usual-lab').hidden = !usuales.length || fase === 'super';
+  $('end').hidden = vacia || fase === 'super';
+  pintarDock();
+}
+
+function pintarDock() {
+  const cta = $('cta'), st = $('status');
+  const vacia = !lista.length, pend = lista.filter(p => p.estado === 'pendiente').length;
+  const casa = lista.filter(p => p.estado === 'casa').length, carro = lista.filter(p => p.estado === 'carro').length;
+  st.innerHTML = aviso ? esc(aviso.texto) + (aviso.deshacer ? ' · <button class="link" type="button" id="deshacer">Deshacer</button>' : '')
+    : vacia ? ''
+    : fase === 'casa' ? (pend ? [casa && `${casa} en casa`, carro && `${carro} en el carro`, `${pend} por comprar`].filter(Boolean).join(' · ') : carro ? 'Ya está todo en el carro' : 'Lo tenéis todo en casa')
+    : pend ? `${carro} en el carro · faltan ${pend}` : 'Ya está todo en el carro';
+  cta.hidden = vacia || (fase === 'casa' && !pend && !carro);
+  cta.className = 'cta' + (fase === 'super' && pend ? ' quiet' : '');
+  cta.textContent = fase === 'casa' ? 'Ir a comprar' : 'Terminar la compra';
+  $('dock').hidden = vacia && !aviso;
+}
+
+// Cada acción que quita o cambia mucho deja una copia para deshacer
+const copia = () => { const l = lista.map(p => ({...p})), f = fase; return () => { lista = l; fase = f; }; };
+// Un aviso sin deshacer deja paso al recuento al cabo de unos segundos
+let caduca;
+function avisar(texto, deshacer) {
+  const este = aviso = {texto, deshacer};
+  clearTimeout(caduca);
+  if (!deshacer) caduca = setTimeout(() => { if (aviso === este) { aviso = null; pintarDock(); } }, 4000);
+}
+
+// En el súper, el producto tachado espera un momento en su sitio y luego baja al carro
+function plegar(id) {
+  const fin = () => { if (!plegando.delete(id)) return; entrando = id; pintar(); };
+  const li = document.querySelector(`.screen li[data-id="${id}"]`);
+  if (!li || sinMovimiento()) return fin();
+  li.style.overflow = 'hidden';
+  li.animate([{height: li.offsetHeight + 'px', opacity: 1}, {height: '0px', opacity: 0}],
+    {duration: 260, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards'});
+  setTimeout(fin, 260);
+}
+function alCarro(p, quien) {
+  p.estado = 'carro';
+  p.quien = quien;
+  frescos.set(p.id, 'on');
+  plegando.set(p.id, setTimeout(() => plegar(p.id), sinMovimiento() ? 0 : 800));
+}
+
+document.querySelector('.screen').addEventListener('click', e => {
+  const li = e.target.closest('li[data-id]');
+  if (!li) return;
+  const p = lista.find(x => x.id === +li.dataset.id);
+  aviso = null;
+  if (plegando.has(p.id)) {
+    clearTimeout(plegando.get(p.id));
+    plegando.delete(p.id);
+    p.estado = 'pendiente';
+    frescos.set(p.id, 'off');
+  } else if (p.estado !== 'pendiente') {
+    p.estado = 'pendiente';
+    p.quien = null;
+    if (fase === 'casa') frescos.set(p.id, 'off'); else entrando = p.id;
+  } else if (fase === 'casa') {
+    p.estado = 'casa';
+    frescos.set(p.id, 'on');
+  } else alCarro(p, 'tú');
+  pintar();
+});
+
+function anadir(nombre, cant) {
+  const existe = lista.find(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+  if (existe && existe.estado === 'pendiente') return avisar(`${existe.nombre} ya está en la lista`);
+  const deshacer = copia();
+  if (existe) { existe.estado = 'pendiente'; existe.quien = null; entrando = existe.id; }
+  else {
+    const p = producto(nombre, cant || '', CONOCIDOS[nombre.toLowerCase()] || 'Otros', null);
+    lista.push(p);
+    entrando = p.id;
+  }
+  avisar(`Añadido a ${(existe || lista.at(-1)).sec}: ${nombre}`, deshacer);
+}
+
+// "2 tomates" o "tomates 1 kg" separan nombre y cantidad; sin cantidad, una unidad
+const DELANTE = /^(\d+(?:[.,]\d+)?(?:\s*(?:kg|g|l|ml))?)\s+(.+)$/i, DETRAS = /^(.+?)\s+(\d+(?:[.,]\d+)?(?:\s*(?:kg|g|l|ml))?)$/i;
+function leer(texto) {
+  const delante = texto.match(DELANTE), detras = texto.match(DETRAS);
+  const [nombre, cant] = delante ? [delante[2], delante[1]] : detras ? [detras[1], detras[2]] : [texto, '1'];
+  return [nombre[0].toUpperCase() + nombre.slice(1), cant.replace('.', ',').replace(/(\d)\s*([a-z])/i, '$1 $2')];
+}
+
+$('add').addEventListener('submit', e => {
+  e.preventDefault();
+  const t = $('nuevo').value.trim();
+  if (!t) return;
+  anadir(...leer(t));
+  $('nuevo').value = '';
+  pintar();
+});
+$('usual').addEventListener('click', e => {
+  const b = e.target.closest('[data-siempre]');
+  if (!b) return;
+  anadir(b.dataset.siempre, SIEMPRE.find(([n]) => n === b.dataset.siempre)[1]);
+  pintar();
+});
+
+$('vaciar').addEventListener('click', () => {
+  avisar('Lista vaciada', copia());
+  lista = [];
+  fase = 'casa';
+  pintar();
+});
+$('repasar').addEventListener('click', () => { aviso = null; fase = 'casa'; pintar(); scrollTo(0, 0); });
+
+$('status').addEventListener('click', e => {
+  if (!e.target.closest('#deshacer') || !aviso) return;
+  aviso.deshacer();
+  aviso = null;
+  pintar();
+});
+
+// Simulación: si compráis los dos, lo que coge tu pareja aparece aquí sin recargar
+let parejaHecha = params.get('pareja') === 'no';
+function parejaCoge() {
+  const p = lista.find(x => x.nombre === 'Merluza en rodajas' && x.estado === 'pendiente');
+  if (!p || fase !== 'super') return;
+  alCarro(p, 'pareja');
+  avisar('Tu pareja ha cogido merluza en rodajas');
+  pintar();
+}
+function irAComprar() {
+  aviso = null;
+  fase = 'super';
+  pintar();
+  scrollTo(0, 0);
+  if (!parejaHecha) { parejaHecha = true; setTimeout(parejaCoge, 4000); }
+}
+
+$('cta').addEventListener('click', () => {
+  if (fase === 'casa') return irAComprar();
+  plegando.forEach(t => clearTimeout(t));
+  plegando.clear();
+  const deshacer = copia();
+  lista = lista.filter(p => p.estado === 'pendiente');
+  fase = 'casa';
+  avisar('Compra terminada', deshacer);
+  pintar();
+  scrollTo(0, 0);
+});
+
+if (fase === 'super') { fase = 'casa'; irAComprar(); } else pintar();
+</script>
+</body>
+</html>

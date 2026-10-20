@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-20T13:30:00Z",
+  "title": "Design System: Despensa",
+  "extensions": {
+    "colorMeta": {
+      "tint": { "role": "primary", "displayName": "Naranja actividad", "canonical": "#ff9f0a", "tonalRamp": ["oklch(15% 0.05 62)", "oklch(27% 0.08 62)", "oklch(39% 0.11 62)", "oklch(51% 0.14 62)", "oklch(63% 0.16 62)", "oklch(75% 0.17 62)", "oklch(85% 0.12 62)", "oklch(95% 0.04 62)"] },
+      "tint-ink": { "role": "primary", "displayName": "Naranja tinta (claro)", "canonical": "#a65200", "tonalRamp": ["oklch(15% 0.05 55)", "oklch(27% 0.08 55)", "oklch(39% 0.11 55)", "oklch(51% 0.13 55)", "oklch(63% 0.15 55)", "oklch(75% 0.15 55)", "oklch(85% 0.1 55)", "oklch(95% 0.03 55)"] },
+      "tint-ink-dark": { "role": "primary", "displayName": "Naranja tinta (oscuro)", "canonical": "#ff9f0a" },
+      "ground": { "role": "neutral", "displayName": "Blanco", "canonical": "#ffffff" },
+      "ground-dark": { "role": "neutral", "displayName": "Grafito verdoso", "canonical": "#1e2422", "tonalRamp": ["oklch(15% 0.008 165)", "oklch(25% 0.009 165)", "oklch(36% 0.009 165)", "oklch(47% 0.009 165)", "oklch(58% 0.008 165)", "oklch(70% 0.007 165)", "oklch(83% 0.005 165)", "oklch(95% 0.003 165)"] },
+      "bar": { "role": "neutral", "displayName": "Barra (claro)", "canonical": "#f6f6f3" },
+      "bar-dark": { "role": "neutral", "displayName": "Barra (oscuro)", "canonical": "#161b19" },
+      "ink": { "role": "neutral", "displayName": "Tinta grafito", "canonical": "#1b1f1d", "tonalRamp": ["oklch(15% 0.006 160)", "oklch(23% 0.007 160)", "oklch(35% 0.008 160)", "oklch(47% 0.008 160)", "oklch(58% 0.008 160)", "oklch(70% 0.007 160)", "oklch(83% 0.005 160)", "oklch(95% 0.003 160)"] },
+      "ink-dark": { "role": "neutral", "displayName": "Tinta blanca cálida", "canonical": "#f2f1ec", "tonalRamp": ["oklch(15% 0.006 100)", "oklch(27% 0.007 100)", "oklch(39% 0.008 100)", "oklch(51% 0.008 100)", "oklch(63% 0.008 100)", "oklch(75% 0.007 100)", "oklch(86% 0.006 100)", "oklch(95.5% 0.006 100)"] },
+      "ink-2": { "role": "neutral", "displayName": "Tinta secundaria (claro)", "canonical": "#5c6360" },
+      "ink-2-dark": { "role": "neutral", "displayName": "Tinta secundaria (oscuro)", "canonical": "#a7aea9" },
+      "ink-3": { "role": "neutral", "displayName": "Tinta apagada (claro)", "canonical": "#6b726e" },
+      "ink-3-dark": { "role": "neutral", "displayName": "Tinta apagada (oscuro)", "canonical": "#8d9590" },
+      "rule": { "role": "neutral", "displayName": "Raya (claro)", "canonical": "rgba(27,31,29,.22)" },
+      "rule-dark": { "role": "neutral", "displayName": "Raya (oscuro)", "canonical": "rgba(242,241,236,.2)" },
+      "hair": { "role": "neutral", "displayName": "Pelo (claro)", "canonical": "rgba(27,31,29,.14)" },
+      "hair-dark": { "role": "neutral", "displayName": "Pelo (oscuro)", "canonical": "rgba(242,241,236,.12)" },
+      "fill": { "role": "neutral", "displayName": "Relleno del botón (claro)", "canonical": "#1b1f1d" },
+      "fill-dark": { "role": "neutral", "displayName": "Relleno del botón (oscuro)", "canonical": "#f2f1ec" },
+      "seg": { "role": "neutral", "displayName": "Pista del segmentado (claro)", "canonical": "#ecece8" },
+      "seg-dark": { "role": "neutral", "displayName": "Pista del segmentado (oscuro)", "canonical": "#2a312e" },
+      "seg-on": { "role": "neutral", "displayName": "Pulgar del segmentado (claro)", "canonical": "#ffffff" },
+      "seg-on-dark": { "role": "neutral", "displayName": "Pulgar del segmentado (oscuro)", "canonical": "#47504c" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Título grande", "purpose": "Rango de fechas de la semana; uno por pantalla." },
+      "headline": { "displayName": "Título de sección", "purpose": "Menú, Hace tiempo que no coméis." },
+      "title": { "displayName": "Plato", "purpose": "Nombre del plato en el menú y sus días a la derecha." },
+      "body": { "displayName": "Cuerpo", "purpose": "Texto base, números de día, botón principal, filas secundarias en 500. Cifras tabulares." },
+      "body-secondary": { "displayName": "Descripción", "purpose": "Tipos de ingrediente y destino del plato; enlaces de acción." },
+      "label": { "displayName": "Rótulo", "purpose": "Letras de día, leyenda, estado, 'nota', 'En lugar de'." },
+      "tab-label": { "displayName": "Rótulo de pestaña", "purpose": "Barra de pestañas." }
+    },
+    "shadows": [
+      { "name": "seg-shadow", "value": "0 1px 3px rgba(27,31,29,.14), 0 1px 1px rgba(27,31,29,.06)", "purpose": "Pulgar seleccionado del control segmentado (claro). La única sombra del sistema." },
+      { "name": "seg-shadow-dark", "value": "0 1px 3px rgba(0,0,0,.35)", "purpose": "Pulgar seleccionado del control segmentado (oscuro)." }
+    ],
+    "motion": [
+      { "name": "ease", "value": "cubic-bezier(.16,1,.3,1)", "purpose": "Curva única de todas las transiciones y del FLIP." },
+      { "name": "press", "value": "120ms", "purpose": "Encogimiento al pulsar (día a 0,9, botón a 0,98)." },
+      { "name": "day-state", "value": "180ms", "purpose": "Cambio de relleno y anillo de un día." },
+      { "name": "control-bg", "value": "200ms", "purpose": "Fondo del segmentado y del botón principal." },
+      { "name": "strike", "value": "300ms", "purpose": "Trazo que tacha el plato sustituido (el cambio se aplica a los 340ms)." },
+      { "name": "enter", "value": "340ms", "purpose": "Entrada del plato nuevo desde 6px abajo con opacidad." },
+      { "name": "flip-letters", "value": "420ms", "purpose": "Viaje de cada letra de día a su nueva fila." },
+      {"name": "strike-list", "value": "300ms", "purpose": "Trazo de 1,5px que tacha un producto de la lista."},
+      {"name": "unstrike", "value": "250ms", "purpose": "El trazo se retira al destachar un producto."},
+      {"name": "fold-hold", "value": "800ms", "purpose": "En el súper, el producto tachado espera en su sitio antes de plegarse; otro toque lo destacha."},
+      {"name": "fold", "value": "260ms", "purpose": "Plegado de la fila (altura y opacidad a cero); luego reaparece en 'En el carro' con 'enter'."},
+      {"name": "notice-expire", "value": "4000ms", "purpose": "Un aviso sin Deshacer deja paso al recuento; los avisos con Deshacer se quedan hasta la siguiente acción."},
+      { "name": "reduced-motion", "value": "none", "purpose": "Con prefers-reduced-motion se anulan transiciones, animaciones y FLIP." }
+    ],
+    "breakpoints": [
+      { "name": "column-max", "value": "440px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Control segmentado",
+      "kind": "nav",
+      "refersTo": "segmented-control",
+      "description": "Esta semana / La que viene, copia del segmentado nativo de iOS; lleva la única sombra del sistema.",
+      "html": "<div class=\"ds-seg\" role=\"tablist\"><button role=\"tab\" aria-selected=\"false\">Esta semana</button><button role=\"tab\" aria-selected=\"true\">La que viene</button></div>",
+      "css": ".ds-seg{display:grid;grid-template-columns:1fr 1fr;width:335px;padding:2px;border-radius:9px;background:var(--seg,#ecece8);font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif}.ds-seg button{height:32px;border:0;border-radius:7px;background:none;font:inherit;font-size:14px;font-weight:500;color:var(--ink,#1b1f1d);cursor:pointer;transition:background-color .2s cubic-bezier(.16,1,.3,1)}.ds-seg button[aria-selected=\"true\"]{background:var(--seg-on,#fff);box-shadow:0 1px 3px rgba(27,31,29,.14),0 1px 1px rgba(27,31,29,.06);font-weight:600}.ds-seg button:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px}"
+    },
+    {
+      "name": "Tira de días",
+      "kind": "custom",
+      "refersTo": "day-chip",
+      "description": "L–D con días activos en círculo naranja, hoy con anillo de tinta, pasados tachados, domingo fuera.",
+      "html": "<div class=\"ds-days\"><button class=\"ds-day is-past on\"><b>L</b><span>19</span></button><button class=\"ds-day is-today\"><b>M</b><span>20</span></button><button class=\"ds-day on\"><b>X</b><span>21</span></button><button class=\"ds-day\"><b>J</b><span>22</span></button><button class=\"ds-day on\"><b>V</b><span>23</span></button><button class=\"ds-day\"><b>S</b><span>24</span></button><button class=\"ds-day is-out\" disabled><b>D</b><span>25</span></button></div>",
+      "css": ".ds-days{display:grid;grid-template-columns:repeat(7,1fr);width:351px;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-feature-settings:\"tnum\" 1}.ds-day{display:flex;flex-direction:column;align-items:center;gap:6px;padding:2px 0;border:0;background:none;color:var(--ink,#1b1f1d);cursor:pointer;font:inherit}.ds-day b{font-size:13px;font-weight:600;color:var(--ink-2,#5c6360);letter-spacing:.02em}.ds-day span{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;font-size:17px;font-weight:600;transition:background-color .18s cubic-bezier(.16,1,.3,1),transform .12s cubic-bezier(.16,1,.3,1)}.ds-day:not(:disabled):active span{transform:scale(.9)}.ds-day.on span{background:var(--tint,#ff9f0a);color:var(--on-tint,#1b1f1d)}.ds-day.is-today span{box-shadow:inset 0 0 0 2px var(--ink,#1b1f1d)}.ds-day.is-past span{color:var(--ink-3,#6b726e);font-weight:500;text-decoration:line-through;text-decoration-thickness:1.5px}.ds-day.is-past.on span{background:transparent;box-shadow:inset 0 0 0 2px var(--tint,#ff9f0a)}.ds-day.is-out span{color:var(--ink-3,#6b726e);font-weight:500}.ds-day:disabled{cursor:default}.ds-day:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px;border-radius:6px}"
+    },
+    {
+      "name": "Fila de menú",
+      "kind": "custom",
+      "refersTo": "menu-row",
+      "description": "Firma del sistema: plato a la izquierda, puntos guía, días a la derecha; naranja solo si va a los días activos. Datos de ejemplo inventados.",
+      "html": "<ul class=\"ds-menu\"><li class=\"ds-item\"><div class=\"ds-line\"><span class=\"ds-name\">Lentejas estofadas</span><span class=\"ds-leader\"></span><span class=\"ds-fig on\">L · X · V</span></div><p class=\"ds-meta\">Hidratos, proteína y fibra · va a los días activos</p></li><li class=\"ds-item\"><div class=\"ds-line\"><span class=\"ds-name\">Merluza en salsa verde</span><span class=\"ds-leader\"></span><span class=\"ds-fig\">M · J · S</span></div><p class=\"ds-meta\">Proteína y grasas · con patatas cocidas</p></li><li class=\"ds-item ds-out\"><div class=\"ds-line\"><span class=\"ds-name\">Domingo</span><span class=\"ds-leader\"></span><span class=\"ds-fig\">fuera</span></div></li></ul>",
+      "css": ".ds-menu{list-style:none;margin:0;padding:0;width:375px;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-feature-settings:\"tnum\" 1;color:var(--ink,#1b1f1d);line-height:1.35}.ds-item{padding:0 20px 16px}.ds-line{display:flex;align-items:baseline;gap:10px}.ds-name{font-size:19px;font-weight:600;letter-spacing:-.01em}.ds-leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule,rgba(27,31,29,.22));transform:translateY(-5px)}.ds-fig{font-size:17px;font-weight:600;white-space:nowrap}.ds-fig.on{color:var(--tint-ink,#a65200)}.ds-meta{margin:4px 0 0;font-size:15px;color:var(--ink-2,#5c6360)}.ds-out .ds-name,.ds-out .ds-fig{font-size:17px;font-weight:500;color:var(--ink-3,#6b726e)}"
+    },
+    {
+      "name": "Sustitución tachada",
+      "kind": "custom",
+      "refersTo": "menu-row",
+      "description": "Plato cambiado por una sugerencia: el anterior queda tachado debajo con Deshacer. Pasa el ratón para ver el trazo.",
+      "html": "<div class=\"ds-swap\"><div class=\"ds-line\"><span class=\"ds-name\"><span class=\"ds-txt\">Arroz con pollo</span></span><span class=\"ds-leader\"></span><span class=\"ds-fig\">L · X · V</span></div><p class=\"ds-was\">En lugar de <s>Lentejas estofadas</s> · <button class=\"ds-link\">Deshacer</button></p></div>",
+      "css": ".ds-swap{width:335px;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;color:var(--ink,#1b1f1d);line-height:1.35}.ds-line{display:flex;align-items:baseline;gap:10px}.ds-name{font-size:19px;font-weight:600;letter-spacing:-.01em}.ds-txt{background:linear-gradient(currentColor,currentColor) no-repeat 0 62%/0 2px;transition:background-size .3s cubic-bezier(.16,1,.3,1)}.ds-swap:hover .ds-txt{background-size:100% 2px}.ds-leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule,rgba(27,31,29,.22));transform:translateY(-5px)}.ds-fig{font-size:17px;font-weight:600;color:var(--tint-ink,#a65200)}.ds-was{margin:2px 0 0;font-size:13px;color:var(--ink-3,#6b726e)}.ds-was s{text-decoration-thickness:1.5px}.ds-link{border:0;background:none;padding:0;font:inherit;font-size:15px;font-weight:600;color:var(--ink,#1b1f1d);text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--rule,rgba(27,31,29,.22));text-underline-offset:3px;cursor:pointer}.ds-link:active{opacity:.6}.ds-link:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px;border-radius:6px}"
+    },
+    {
+      "name": "Sugerencia con nota",
+      "kind": "custom",
+      "refersTo": "menu-row",
+      "description": "Plato olvidado con la nota en el sitio del precio y enlace de tinta para cambiarlo. Datos de ejemplo inventados.",
+      "html": "<div class=\"ds-sug\"><div class=\"ds-line\"><span class=\"ds-name\">Pisto con huevo</span><span class=\"ds-leader\"></span><span class=\"ds-fig\"><span class=\"ds-lab\">nota</span>8,5</span></div><p class=\"ds-meta\">Hace 9 semanas · <button class=\"ds-link\">Cambiar por la merluza</button></p></div>",
+      "css": ".ds-sug{width:335px;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-feature-settings:\"tnum\" 1;color:var(--ink,#1b1f1d);line-height:1.35}.ds-line{display:flex;align-items:baseline;gap:10px}.ds-name{font-size:17px;font-weight:500}.ds-leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule,rgba(27,31,29,.22));transform:translateY(-5px)}.ds-fig{font-size:17px;font-weight:600;white-space:nowrap}.ds-lab{font-size:13px;font-weight:500;color:var(--ink-2,#5c6360);margin-right:5px}.ds-meta{margin:4px 0 0;font-size:15px;color:var(--ink-2,#5c6360)}.ds-link{border:0;background:none;padding:0;font:inherit;font-weight:600;color:var(--ink,#1b1f1d);text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--rule,rgba(27,31,29,.22));text-underline-offset:3px;cursor:pointer}.ds-link:active{opacity:.6}.ds-link:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px;border-radius:6px}"
+    },
+    {
+      "name": "Botón principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción de la pantalla a ancho completo, tinta sólida invertida en cada tema.",
+      "html": "<button class=\"ds-cta\">Hacer la lista de la compra</button>",
+      "css": ".ds-cta{width:335px;height:52px;border:0;border-radius:14px;background:var(--fill,#1b1f1d);color:var(--on-fill,#fff);font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-size:17px;font-weight:600;cursor:pointer;transition:transform .12s cubic-bezier(.16,1,.3,1),background-color .2s cubic-bezier(.16,1,.3,1)}.ds-cta:active{transform:scale(.98)}.ds-cta:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px}"
+    },
+    {
+      "name": "Botón tranquilo",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "La acción ya está hecha: transparente con contorno de pelo e icono de trazo.",
+      "html": "<button class=\"ds-cta-quiet\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg>Ver la lista</button>",
+      "css": ".ds-cta-quiet{width:335px;height:52px;border:0;border-radius:14px;background:transparent;color:var(--ink,#1b1f1d);box-shadow:inset 0 0 0 1.5px var(--hair,rgba(27,31,29,.14));display:flex;align-items:center;justify-content:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-size:17px;font-weight:600;cursor:pointer;transition:transform .12s cubic-bezier(.16,1,.3,1)}.ds-cta-quiet svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ds-cta-quiet:active{transform:scale(.98)}.ds-cta-quiet:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px}"
+    },
+    {
+      "name": "Barra de pestañas",
+      "kind": "nav",
+      "refersTo": "tab-bar",
+      "description": "Cuatro pestañas fijas abajo; la actual en naranja tinta.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab\" aria-current=\"page\" href=\"#\"><svg viewBox=\"0 0 24 24\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"2.5\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/></svg>Semana</a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\"><path d=\"M5 4.5h11a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z\"/><path d=\"M5 16.5a3 3 0 0 1 3-3h11\"/></svg>Recetas</a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\"><path d=\"M9 6h11M9 12h11M9 18h11\"/><path d=\"M4 6l1 1 2-2M4 12l1 1 2-2\"/><circle cx=\"5\" cy=\"18\" r=\"1\"/></svg>Lista</a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 20V10M10 20V4M16 20v-7M21 20H3\"/></svg>Registro</a></nav>",
+      "css": ".ds-tabs{display:grid;grid-template-columns:repeat(4,1fr);width:375px;height:58px;padding:6px 8px 0;background:var(--bar,#f6f6f3);border-top:.5px solid var(--hair,rgba(27,31,29,.14));font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif}.ds-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:500;color:var(--ink-3,#6b726e);text-decoration:none}.ds-tab[aria-current=\"page\"]{color:var(--tint-ink,#a65200)}.ds-tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.ds-tab:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px;border-radius:6px}"
+    },
+    {
+      "name": "Fila de lista",
+      "kind": "custom",
+      "refersTo": "list-row",
+      "description": "La fila de carta en la lista de la compra: producto, puntos guía, cantidad y el plato de origen debajo. Tachado en vez de casilla; en el repaso, 'en casa' ocupa el sitio de la cantidad. Pasa el ratón para ver el trazo. Datos de ejemplo inventados.",
+      "html": "<div class=\"ds-list\"><h2 class=\"ds-sec\">Frutería y verdura</h2><ul><li><button class=\"ds-row\" type=\"button\" aria-pressed=\"false\"><span class=\"ds-line\"><span class=\"ds-name\"><span class=\"ds-txt\">Patatas</span></span><span class=\"ds-leader\"></span><span class=\"ds-qty\">1,5 kg</span></span><span class=\"ds-from\">merluza</span></button></li><li><button class=\"ds-row done\" type=\"button\" aria-pressed=\"true\"><span class=\"ds-line\"><span class=\"ds-name\"><span class=\"ds-txt\">Cebolla</span></span><span class=\"ds-leader\"></span><span class=\"ds-qty ds-tag\">en casa</span></span><span class=\"ds-from\">lentejas</span></button></li></ul><h2 class=\"ds-sec\">En el carro<small>1</small></h2><ul><li><button class=\"ds-row done\" type=\"button\" aria-pressed=\"true\"><span class=\"ds-line\"><span class=\"ds-name\"><span class=\"ds-txt\">Chorizo</span></span><span class=\"ds-leader\"></span><span class=\"ds-qty\">200 g</span></span><span class=\"ds-from\">lo cogió tu pareja</span></button></li></ul></div>",
+      "css": ".ds-list{width:375px;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-feature-settings:\"tnum\" 1;color:var(--ink,#1b1f1d);line-height:1.35}.ds-list ul{list-style:none;margin:0;padding:0}.ds-sec{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:24px 20px 2px;font-size:19px;font-weight:600;letter-spacing:-.01em}.ds-sec small{font-size:13px;font-weight:500;color:var(--ink-2,#5c6360)}.ds-row{display:block;width:100%;text-align:left;padding:10px 20px;border:0;background:none;font:inherit;font-size:17px;color:inherit;cursor:pointer}.ds-row:active .ds-line,.ds-row:active .ds-from{opacity:.6}.ds-row:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:-2px}.ds-line{display:flex;align-items:last baseline;gap:10px}.ds-name{transition:color .3s cubic-bezier(.16,1,.3,1)}.ds-txt{background:linear-gradient(currentColor,currentColor) no-repeat 0 60%/0 1.5px;transition:background-size .3s cubic-bezier(.16,1,.3,1)}.ds-row:hover .ds-txt,.ds-row.done .ds-txt{background-size:100% 1.5px}.ds-leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule,rgba(27,31,29,.22));transform:translateY(-5px)}.ds-qty{white-space:nowrap}.ds-tag{font-size:13px;font-weight:600;color:var(--ink-2,#5c6360)}.ds-row.done .ds-name,.ds-row.done .ds-qty:not(.ds-tag){color:var(--ink-3,#6b726e)}.ds-from{display:block;margin-top:2px;font-size:13px;font-weight:500;color:var(--ink-3,#6b726e)}"
+    },
+    {
+      "name": "Campo de añadir",
+      "kind": "input",
+      "refersTo": "add-field",
+      "description": "El único campo de texto: relleno seg y radio de 9px como la pista del segmentado, con un + de trazo.",
+      "html": "<form class=\"ds-add\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg><input type=\"text\" placeholder=\"Añadir algo más\" aria-label=\"Añadir a la lista\"></form>",
+      "css": ".ds-add{display:flex;align-items:center;gap:8px;width:335px;height:44px;padding:0 12px;border-radius:9px;background:var(--seg,#ecece8);font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif}.ds-add:focus-within{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px}.ds-add svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--ink-2,#5c6360);stroke-width:2;stroke-linecap:round}.ds-add input{flex:1;min-width:0;height:100%;border:0;background:none;font:inherit;font-size:17px;color:var(--ink,#1b1f1d);outline:0;caret-color:var(--tint,#ff9f0a)}.ds-add input::placeholder{color:var(--ink-2,#5c6360);opacity:1}"
+    },
+    {
+      "name": "Lo de siempre",
+      "kind": "button",
+      "refersTo": "usual-button",
+      "description": "Botones de un toque para lo que se compra cada semana: tinta de 15px peso 600 con un + de trazo de 13px, sin fondo. Datos de ejemplo inventados.",
+      "html": "<div class=\"ds-usual-wrap\"><p class=\"ds-usual-lab\">Lo de siempre</p><div class=\"ds-usual\"><button type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>Café</button><button type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>Yogures</button><button type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>Pan de molde</button></div></div>",
+      "css": ".ds-usual-wrap{width:335px;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;color:var(--ink,#1b1f1d)}.ds-usual-lab{margin:0;font-size:13px;font-weight:500;color:var(--ink-2,#5c6360)}.ds-usual{display:flex;flex-wrap:wrap;column-gap:20px}.ds-usual button{display:inline-flex;align-items:center;gap:5px;min-height:44px;border:0;background:none;padding:0;font:inherit;font-size:15px;font-weight:600;color:inherit;cursor:pointer}.ds-usual button:active{opacity:.6}.ds-usual button:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px;border-radius:6px}.ds-usual svg{width:13px;height:13px;fill:none;stroke:var(--ink-2,#5c6360);stroke-width:2.4;stroke-linecap:round}"
+    },
+    {
+      "name": "Línea de estado",
+      "kind": "custom",
+      "refersTo": "dock-status",
+      "description": "Recuento y avisos sobre el botón fijo; un aviso con Deshacer se queda hasta la siguiente acción, uno sin deshacer caduca a los 4s.",
+      "html": "<div class=\"ds-dock\"><p class=\"ds-status\">Lista vaciada · <button class=\"ds-link\" type=\"button\">Deshacer</button></p><p class=\"ds-status\">2 en casa · 15 por comprar</p></div>",
+      "css": ".ds-dock{width:335px;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-feature-settings:\"tnum\" 1}.ds-status{margin:0 0 8px;font-size:13px;color:var(--ink-2,#5c6360);text-align:center;text-wrap:balance}.ds-link{border:0;background:none;padding:0;font:inherit;font-size:15px;font-weight:600;color:var(--ink,#1b1f1d);text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--rule,rgba(27,31,29,.22));text-underline-offset:3px;cursor:pointer}.ds-link:active{opacity:.6}.ds-link:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px;border-radius:6px}"
+    },
+    {
+      "name": "Presencia de la pareja",
+      "kind": "custom",
+      "refersTo": "presence-dot",
+      "description": "Punto fijo de 8px en ink-2 al principio del subtítulo, solo mientras la pareja compra a la vez; sin latido ni naranja.",
+      "html": "<p class=\"ds-live\"><i aria-hidden=\"true\"></i>Tu pareja también está comprando</p>",
+      "css": ".ds-live{display:flex;align-items:center;gap:8px;margin:0;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-size:15px;color:var(--ink-2,#5c6360)}.ds-live i{width:8px;height:8px;border-radius:50%;background:var(--ink-2,#5c6360);flex:none}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El menú del día, en limpio",
+    "overview": "La semana se escribe como la pizarra de un bar a mediodía: el plato a la izquierda, sus días a la derecha, unidos por puntos guía; la nota del plato ocupa el sitio del precio. Esa estructura se pasa a limpio con la sobriedad de las apps de Apple (Notas, Recordatorios, Salud): letra del sistema, una sola superficie, un único tinte. De la pizarra sobrevive la forma de leer, no el material: no hay tiza, ni textura, ni letra a mano.\n\nEs una interfaz de una mano y pocos segundos. La jerarquía sale solo del tamaño y del peso; no hay tarjetas, cajas ni fondos de sección. El color tiene un único trabajo, señalar la actividad física, y por eso se reconoce de un vistazo. Lo que cambia no desaparece: se tacha y se escribe al lado, como en una carta corregida a mano, y siempre se puede deshacer.\n\nLos dos temas son de primera clase. Cada miembro de la pareja usa uno (claro y oscuro en iPhone) y la app sigue el ajuste del sistema; ninguno es derivado del otro. El claro es blanco con tinta grafito; el oscuro, grafito verdoso con tinta blanca cálida.",
+    "keyCharacteristics": [
+      "Una superficie plana; jerarquía por escala y peso, nunca por contenedores.",
+      "Un naranja que solo significa actividad.",
+      "Filas de carta con puntos guía y cifras tabulares.",
+      "Tachar en vez de borrar; cada cambio enseña lo que había y ofrece deshacer.",
+      "Claro y oscuro con el mismo peso, emparejados token a token."
+    ],
+    "rules": [
+      { "name": "The Activity Tint Rule", "body": "El naranja significa actividad: días activos, el plato que va a ellos y la pestaña seleccionada. Ningún otro contenido lleva naranja. La única excepción son los indicadores del sistema que en iOS toman el color de acento (cursor, selección y anillo de foco).", "section": "colors" },
+      { "name": "The Ink Links Rule", "body": "Los enlaces son tinta en peso 600 con subrayado fino en `rule`; nunca naranja ni azul.", "section": "colors" },
+      { "name": "The Paired Themes Rule", "body": "Todo token de color existe en claro y en oscuro; no se introduce un color nuevo sin su pareja.", "section": "colors" },
+      { "name": "The Scale-Only Hierarchy Rule", "body": "Un elemento sube de rango con tamaño o peso, nunca con un fondo, un borde o un color. Lo secundario baja a `ink-2`; lo que quedó fuera, a `ink-3` y peso 500.", "section": "typography" },
+      { "name": "The Tabular Figures Rule", "body": "Las cifras siempre tabulares; las notas usan coma decimal (\"8,5\").", "section": "typography" },
+      { "name": "The One Shadow Rule", "body": "La única sombra del sistema es la del pulgar del segmentado. Ninguna tarjeta, botón, barra ni hoja lleva sombra decorativa.", "section": "elevation" },
+      { "name": "The Strike, Don't Erase Rule", "body": "Un cambio nunca borra en silencio. Al sustituir un plato, un trazo de 2px tacha el nombre (0,3s), y el nuevo entra desde 6px abajo (0,34s); debajo queda \"En lugar de ~~plato anterior~~ · Deshacer\" en 13px `ink-3`. Los días pasados se tachan, no se ocultan.", "section": "components" },
+      { "name": "The Moving Letters Rule", "body": "Al activar o desactivar un día, cada letra viaja de su fila a la nueva (FLIP, 420ms, `cubic-bezier(.16,1,.3,1)`), para que se vea a dónde ha ido el día.", "section": "components" }
+    ],
+    "dos": [
+      "**Do** reservar el naranja (`tint` / `tint-ink`) para la actividad: días activos, el plato que va a ellos y la pestaña actual.",
+      "**Do** escribir cada lista de platos como filas de carta: nombre a la izquierda, puntos guía, días o nota a la derecha.",
+      "**Do** tachar lo cambiado o pasado y dejar a la vista lo que había, con \"Deshacer\" cuando aplique.",
+      "**Do** marcar jerarquía con tamaño y peso (34 / 24 / 19 / 17 / 15 / 13 / 11px) y bajar lo secundario a `ink-2` o `ink-3`.",
+      "**Do** definir cada color nuevo en claro y en oscuro y revisar los dos temas.",
+      "**Do** usar la pila del sistema de Apple y cifras tabulares.",
+      "**Do** respetar `prefers-reduced-motion`: sin trazo, entrada ni FLIP; el cambio se aplica directo.",
+      "**Do** escribir la lista de la compra con la misma fila de carta: producto, puntos guía y cantidad, y debajo de qué plato sale en 13px `ink-3`.",
+      "**Do** dejar los avisos con \"Deshacer\" hasta la siguiente acción y retirar los demás a los 4s."
+    ],
+    "donts": [
+      "**Don't** usar tarjetas, cajas, fondos de sección ni sombras decorativas; la única sombra es la del pulgar del segmentado.",
+      "**Don't** usar colores de tiza, texturas de pizarra ni letra a mano.",
+      "**Don't** pintar enlaces de naranja ni de azul.",
+      "**Don't** hacer desaparecer un plato o un día cambiado sin dejar rastro.",
+      "**Don't** volver a la rejilla de siete días por comidas con fotos en tarjetas.",
+      "**Don't** añadir un segundo color de acento.",
+      "**Don't** marcar lo comprado o lo que ya hay en casa con casillas, tarjetas ni naranja; el estado es el tachado."
+    ]
+  }
+}

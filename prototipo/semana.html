@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e2422">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:,">
+<title>Despensa · Semana</title>
+<style>
+:root{
+  --ground:#ffffff;--bar:#f6f6f3;--ink:#1b1f1d;--ink-2:#5c6360;--ink-3:#6b726e;
+  --rule:rgba(27,31,29,.22);--hair:rgba(27,31,29,.14);
+  --tint:#ff9f0a;--tint-ink:#a65200;--on-tint:#1b1f1d;--fill:#1b1f1d;--on-fill:#ffffff;
+  --seg:#ecece8;--seg-on:#ffffff;--seg-shadow:0 1px 3px rgba(27,31,29,.14),0 1px 1px rgba(27,31,29,.06);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#1e2422;--bar:#161b19;--ink:#f2f1ec;--ink-2:#a7aea9;--ink-3:#8d9590;
+  --rule:rgba(242,241,236,.2);--hair:rgba(242,241,236,.12);
+  --tint:#ff9f0a;--tint-ink:#ff9f0a;--on-tint:#161b19;--fill:#f2f1ec;--on-fill:#161b19;
+  --seg:#2a312e;--seg-on:#47504c;--seg-shadow:0 1px 3px rgba(0,0,0,.35);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ground:#1e2422;--bar:#161b19;--ink:#f2f1ec;--ink-2:#a7aea9;--ink-3:#8d9590;
+  --rule:rgba(242,241,236,.2);--hair:rgba(242,241,236,.12);
+  --tint:#ff9f0a;--tint-ink:#ff9f0a;--on-tint:#161b19;--fill:#f2f1ec;--on-fill:#161b19;
+  --seg:#2a312e;--seg-on:#47504c;--seg-shadow:0 1px 3px rgba(0,0,0,.35);
+  color-scheme:dark}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:var(--ground);scrollbar-width:thin;scrollbar-color:var(--rule) transparent}
+body{min-height:100dvh;background:var(--ground);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.35;
+  font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;caret-color:var(--tint)}
+::selection{background:var(--tint);color:var(--on-tint)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--tint);outline-offset:3px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.screen{max-width:440px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 0 calc(env(safe-area-inset-bottom) + 176px)}
+.seg{display:grid;grid-template-columns:1fr 1fr;margin:0 20px;padding:2px;border-radius:9px;background:var(--seg)}
+.seg button{height:32px;border-radius:7px;font-size:14px;font-weight:500;color:var(--ink);transition:background-color .2s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--seg-on);box-shadow:var(--seg-shadow);font-weight:600}
+
+header{padding:24px 20px 0}
+h1{font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.today{margin-top:8px;font-size:17px;color:var(--ink-2)}
+.today strong{color:var(--ink);font-weight:600}
+
+.days{display:grid;grid-template-columns:repeat(7,1fr);margin:20px 12px 0;border:0}
+.day{display:flex;flex-direction:column;align-items:center;gap:6px;padding:2px 0}
+.day b{font-size:13px;font-weight:600;color:var(--ink-2);letter-spacing:.02em}
+.day span{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;font-size:17px;font-weight:600;
+  transition:background-color .18s var(--ease),color .18s var(--ease),box-shadow .18s var(--ease),transform .12s var(--ease)}
+.day:not(:disabled):active span{transform:scale(.9)}
+.day.on span{background:var(--tint);color:var(--on-tint)}
+.day:disabled{cursor:default}
+.day.fuera span{color:var(--ink-3);font-weight:500}
+.day.past span{color:var(--ink-3);font-weight:500;text-decoration:line-through;text-decoration-thickness:1.5px}
+.day.past.on span{background:transparent;box-shadow:inset 0 0 0 2px var(--tint);color:var(--ink-3)}
+.day.is-today span{box-shadow:inset 0 0 0 2px var(--ink)}
+.day.is-today.on span{box-shadow:inset 0 0 0 2px var(--ink),inset 0 0 0 4px var(--ground)}
+.legend{display:flex;align-items:center;gap:8px;margin:12px 20px 0;font-size:13px;color:var(--ink-2)}
+.legend i{width:10px;height:10px;border-radius:50%;background:var(--tint);flex:none}
+
+h2{font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.015em;margin:32px 20px 12px}
+.menu,.sug{list-style:none}
+.item{padding:0 20px 16px}
+.line{display:flex;align-items:baseline;align-items:last baseline;gap:10px}
+.name{font-size:19px;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.txt{background:linear-gradient(currentColor,currentColor) no-repeat 0 62%/0 2px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.name.striking .txt{background-size:100% 2px;transition:background-size .3s var(--ease)}
+.name.entering{animation:enter .34s var(--ease)}
+@keyframes enter{from{opacity:0;transform:translateY(6px)}}
+.leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule);transform:translateY(-5px)}
+.fig{font-size:17px;font-weight:600;white-space:nowrap}
+.fig.on{color:var(--tint-ink)}
+.fig.none{color:var(--ink-3);font-weight:500}
+.dl{display:inline-block}
+.dl.past{position:relative;color:var(--ink-3)}
+.dl.past::after{content:"";position:absolute;left:-4px;right:-4px;top:52%;height:1.5px;border-radius:1px;background:currentColor}
+.fig .lab{font-size:13px;font-weight:500;color:var(--ink-2);margin-right:5px}
+.meta{margin-top:4px;font-size:15px;color:var(--ink-2)}
+.was{margin-top:2px;font-size:13px;color:var(--ink-3)}
+.was s{text-decoration-thickness:1.5px}
+.out .name,.out .fig{font-size:17px;font-weight:500;color:var(--ink-3)}
+.sug .name{font-size:17px;font-weight:500}
+.link{position:relative;color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--rule);text-underline-offset:3px}
+.link::before{content:"";position:absolute;inset:-14px -10px}
+.was .link{font-size:15px}
+.link:active{opacity:.6}
+
+.dock{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 64px);background:var(--ground);padding:10px 20px 14px}
+.dock-in{max-width:400px;margin:0 auto}
+.status{margin-bottom:8px;font-size:13px;color:var(--ink-2);text-align:center}
+.status:empty{display:none}
+.cta{width:100%;height:52px;border-radius:14px;background:var(--fill);color:var(--on-fill);font-size:17px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s var(--ease),background-color .2s var(--ease)}
+.cta:active{transform:scale(.98)}
+.cta.quiet{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--hair)}
+.cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--bar);border-top:.5px solid var(--hair);padding:6px 8px env(safe-area-inset-bottom)}
+.tabs-in{max-width:440px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:58px}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:500;color:var(--ink-3)}
+.tab[aria-current="page"]{color:var(--tint-ink)}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+@media (prefers-reduced-motion:reduce){*,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="seg" role="tablist" aria-label="Semana">
+    <button role="tab" id="t-this" aria-controls="p-this" aria-selected="false">Esta semana</button>
+    <button role="tab" id="t-next" aria-controls="p-next" aria-selected="true">La que viene</button>
+  </div>
+
+  <section id="p-next" role="tabpanel" aria-labelledby="t-next">
+    <header>
+      <h1>Del 26 oct al 1 nov</h1>
+    </header>
+    <fieldset class="days" id="next-days"><legend class="sr">Días activos</legend></fieldset>
+    <p class="legend"><i></i>Días activos · toca un día para cambiarlo</p>
+    <h2>Menú</h2>
+    <ul class="menu" id="next-menu"></ul>
+    <h2>Hace tiempo que no coméis</h2>
+    <ul class="sug" id="next-sug"></ul>
+  </section>
+
+  <section id="p-this" role="tabpanel" aria-labelledby="t-this" hidden>
+    <header>
+      <h1>Del 19 al 25 oct</h1>
+      <p class="today">Hoy toca <strong>crema de calabacín y tortilla</strong></p>
+    </header>
+    <div class="days" id="this-days" aria-label="Días de esta semana"></div>
+    <p class="legend"><i></i>Días activos</p>
+    <h2>Menú</h2>
+    <ul class="menu" id="this-menu"></ul>
+  </section>
+</main>
+
+<div class="dock" id="dock">
+  <div class="dock-in">
+    <p class="status" id="status" aria-live="polite"></p>
+    <button class="cta" id="cta"></button>
+  </div>
+</div>
+
+<nav class="tabs" aria-label="Secciones">
+  <div class="tabs-in">
+    <a class="tab" aria-current="page" href="semana.html"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semana</a>
+    <a class="tab" href="#"><svg viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z"/><path d="M5 16.5a3 3 0 0 1 3-3h11"/></svg>Recetas</a>
+    <a class="tab" href="lista.html"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2"/><circle cx="5" cy="18" r="1"/></svg>Lista</a>
+    <a class="tab" href="#"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Registro</a>
+  </div>
+</nav>
+
+<script>
+const tema = new URLSearchParams(location.search).get('tema');
+if (tema === 'claro') document.documentElement.dataset.theme = 'light';
+if (tema === 'oscuro') document.documentElement.dataset.theme = 'dark';
+document.querySelectorAll('.tab[href$=".html"]').forEach(a => { a.search = location.search; });
+
+// Datos de ejemplo inventados
+const PLATOS = {
+  lentejas: {nombre: 'Lentejas estofadas', corto: 'las lentejas', tipos: ['hidratos', 'proteína', 'fibra'], nota: '8', hace: 'Hace 4 semanas',
+    ing: ['lentejas', 'chorizo', 'zanahoria', 'cebolla', 'pimiento verde', 'ajo', 'pimentón']},
+  merluza: {nombre: 'Merluza en salsa verde', corto: 'la merluza', tipos: ['proteína', 'grasas'], extra: 'con patatas cocidas', nota: '7,5', hace: 'Hace 3 semanas',
+    ing: ['merluza', 'patatas', 'ajo', 'perejil', 'almejas', 'vino blanco']},
+  arroz: {nombre: 'Arroz con pollo', corto: 'el arroz con pollo', tipos: ['hidratos', 'proteína'], nota: '9', hace: 'Hace 6 semanas',
+    ing: ['arroz', 'muslos de pollo', 'pimiento rojo', 'cebolla', 'ajo', 'tomate triturado', 'caldo de pollo']},
+  pisto: {nombre: 'Pisto con huevo', corto: 'el pisto', tipos: ['fibra', 'proteína', 'grasas'], nota: '8,5', hace: 'Hace 9 semanas',
+    ing: ['calabacín', 'berenjena', 'pimiento rojo', 'cebolla', 'tomate triturado', 'huevos']},
+  curry: {nombre: 'Pollo al curry con arroz', tipos: ['hidratos', 'proteína']},
+  crema: {nombre: 'Crema de calabacín y tortilla', tipos: ['fibra', 'proteína', 'grasas']},
+};
+const DIAS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+const NOMBRE_DIA = {L: 'lunes', M: 'martes', X: 'miércoles', J: 'jueves', V: 'viernes', S: 'sábado', D: 'domingo'};
+
+const prox = {fechas: [26, 27, 28, 29, 30, 31, 1], activos: new Set(['L', 'X', 'V']),
+  platos: ['lentejas', 'merluza'], sugerencias: ['arroz', 'pisto'], antes: [null, null], lista: 'pendiente'};
+const esta = {fechas: [19, 20, 21, 22, 23, 24, 25], hoy: 1, activos: new Set(['L', 'X', 'V']), platos: ['curry', 'crema']};
+
+const sinMovimiento = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const energetico = id => PLATOS[id].tipos.includes('hidratos');
+const frase = tipos => { const t = tipos.map((x, i) => i ? x : x[0].toUpperCase() + x.slice(1));
+  return t.length > 1 ? t.slice(0, -1).join(', ') + ' y ' + t.at(-1) : t[0]; };
+
+// El plato energético va a los días activos; el otro, al resto (el domingo se come fuera)
+function reparto(sem) {
+  const iA = Math.max(0, sem.platos.findIndex(energetico));
+  const dias = [[], []];
+  DIAS.slice(0, 6).forEach(d => dias[sem.activos.has(d) ? iA : 1 - iA].push(d));
+  return {dias, iA};
+}
+
+function pintarDias(el, sem, editable) {
+  el.querySelectorAll('.day').forEach(n => n.remove());
+  DIAS.forEach((d, i) => {
+    const b = document.createElement(editable ? 'button' : 'div');
+    b.className = 'day';
+    const fuera = d === 'D';
+    if (fuera) b.classList.add('fuera');
+    if (sem.hoy !== undefined) { if (i < sem.hoy) b.classList.add('past'); if (i === sem.hoy) b.classList.add('is-today'); }
+    if (editable) { b.type = 'button'; b.disabled = fuera; } else b.setAttribute('role', 'img');
+    if (sem.activos.has(d)) b.classList.add('on');
+    if (editable) b.setAttribute('aria-pressed', String(sem.activos.has(d)));
+    b.setAttribute('aria-label', `${NOMBRE_DIA[d]} ${sem.fechas[i]}${fuera ? ', fuera' : sem.activos.has(d) ? ', activo' : ''}`);
+    b.innerHTML = `<b aria-hidden="true">${d}</b><span aria-hidden="true">${sem.fechas[i]}</span>`;
+    if (editable && !fuera) b.addEventListener('click', () => {
+      sem.activos.has(d) ? sem.activos.delete(d) : sem.activos.add(d);
+      if (sem.lista === 'hecha') sem.lista = 'cambiada';
+      pintarProx(true);
+    });
+    el.append(b);
+  });
+}
+
+// Cada letra de día es su propio elemento para poder moverla de una fila a otra
+function letras(dias, sem) {
+  if (!dias.length) return 'sin días';
+  return dias.map(d => {
+    const pasado = sem.hoy !== undefined && DIAS.indexOf(d) < sem.hoy;
+    return `<span class="dl${pasado ? ' past' : ''}" data-d="${d}">${d}</span>`;
+  }).join('<span aria-hidden="true"> · </span>');
+}
+
+function filaMenu(sem, id, dias, activo, antes, slot) {
+  const p = PLATOS[id];
+  const detalle = activo ? 'va a los días activos' : p.extra || '';
+  return `<li class="item"><div class="line"><span class="name"><span class="txt">${p.nombre}</span></span><span class="leader" aria-hidden="true"></span>`
+    + `<span class="fig${dias.length ? (activo ? ' on' : '') : ' none'}">${letras(dias, sem)}</span></div>`
+    + `<p class="meta">${frase(p.tipos)}${detalle ? ' · ' + detalle : ''}</p>`
+    + (antes ? `<p class="was">En lugar de <s>${PLATOS[antes].nombre}</s> · <button class="link" data-undo="${slot}">Deshacer</button></p>` : '')
+    + '</li>';
+}
+const filaFuera = `<li class="item out"><div class="line"><span class="name">Domingo</span><span class="leader" aria-hidden="true"></span><span class="fig">fuera</span></div></li>`;
+
+const posiciones = () => new Map([...document.querySelectorAll('#next-menu .dl')].map(e => [e.dataset.d, e.getBoundingClientRect()]));
+
+// FLIP: cada letra parte de donde estaba y viaja a su nueva fila
+function mover(previas) {
+  if (!previas || sinMovimiento()) return;
+  document.querySelectorAll('#next-menu .dl').forEach(e => {
+    const a = previas.get(e.dataset.d);
+    if (!a) return;
+    const b = e.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
+    if (dx || dy) e.animate([{transform: `translate(${dx}px,${dy}px)`}, {transform: 'none'}], {duration: 420, easing: 'cubic-bezier(.16,1,.3,1)'});
+  });
+}
+
+function pintarProx(animar) {
+  const previas = animar ? posiciones() : null;
+  pintarDias(document.getElementById('next-days'), prox, true);
+  const {dias, iA} = reparto(prox);
+  document.getElementById('next-menu').innerHTML = prox.platos
+    .map((id, i) => filaMenu(prox, id, dias[i], i === iA && dias[i].length > 0, prox.antes[i], i)).join('') + filaFuera;
+  document.getElementById('next-sug').innerHTML = prox.sugerencias.map((id, i) => {
+    const p = PLATOS[id];
+    return `<li class="item"><div class="line"><span class="name">${p.nombre}</span><span class="leader" aria-hidden="true"></span>`
+      + `<span class="fig"><span class="lab">nota</span>${p.nota}</span></div>`
+      + `<p class="meta">${p.hace} · <button class="link" data-sug="${i}">Cambiar por ${PLATOS[prox.platos[destino(id)]].corto}</button></p></li>`;
+  }).join('');
+  mover(previas);
+  pintarDock();
+}
+
+// Una sugerencia sustituye al plato del mismo tipo (energético por energético)
+const destino = id => { const i = prox.platos.findIndex(p => energetico(p) === energetico(id)); return i < 0 ? 1 : i; };
+
+// Tacha el plato del hueco t y escribe en su lugar la sugerencia i
+function sustituir(t, i) {
+  const nuevo = prox.sugerencias[i], viejo = prox.platos[t];
+  const hecho = () => {
+    prox.platos[t] = nuevo;
+    prox.sugerencias[i] = viejo;
+    prox.antes[t] = prox.antes[t] === nuevo ? null : (prox.antes[t] || viejo);
+    if (prox.lista === 'hecha') prox.lista = 'cambiada';
+    pintarProx(true);
+    document.querySelectorAll('#next-menu .name')[t].classList.add('entering');
+  };
+  if (sinMovimiento()) return hecho();
+  document.querySelectorAll('#next-menu .name')[t].classList.add('striking');
+  setTimeout(hecho, 340);
+}
+
+document.getElementById('p-next').addEventListener('click', e => {
+  const sug = e.target.closest('[data-sug]'), undo = e.target.closest('[data-undo]');
+  if (sug) sustituir(destino(prox.sugerencias[+sug.dataset.sug]), +sug.dataset.sug);
+  if (undo) { const t = +undo.dataset.undo, i = prox.sugerencias.indexOf(prox.antes[t]); if (i >= 0) sustituir(t, i); }
+});
+
+const productos = () => new Set(prox.platos.flatMap(id => PLATOS[id].ing)).size;
+const ICONO_OK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+function pintarDock() {
+  const cta = document.getElementById('cta'), st = document.getElementById('status');
+  cta.className = 'cta';
+  if (prox.lista === 'pendiente') { st.textContent = ''; cta.textContent = 'Hacer la lista de la compra'; }
+  if (prox.lista === 'hecha') { st.textContent = `Lista hecha con ${productos()} productos`; cta.classList.add('quiet'); cta.innerHTML = ICONO_OK + 'Ver la lista'; }
+  if (prox.lista === 'cambiada') { st.textContent = 'Has cambiado el menú desde que hiciste la lista'; cta.textContent = 'Actualizar la lista de la compra'; }
+}
+document.getElementById('cta').addEventListener('click', () => {
+  if (prox.lista === 'hecha') return;
+  prox.lista = 'hecha';
+  prox.antes = [null, null];
+  pintarProx(false);
+});
+
+function pintarEsta() {
+  pintarDias(document.getElementById('this-days'), esta, false);
+  const {dias, iA} = reparto(esta);
+  document.getElementById('this-menu').innerHTML =
+    esta.platos.map((id, i) => filaMenu(esta, id, dias[i], i === iA, null, i)).join('') + filaFuera;
+}
+
+document.querySelectorAll('[role="tab"]').forEach(tab => tab.addEventListener('click', () => {
+  const next = tab.id === 't-next';
+  document.getElementById('t-next').setAttribute('aria-selected', String(next));
+  document.getElementById('t-this').setAttribute('aria-selected', String(!next));
+  document.getElementById('p-next').hidden = !next;
+  document.getElementById('p-this').hidden = next;
+  document.getElementById('dock').hidden = !next;
+}));
+
+pintarProx(false);
+pintarEsta();
+</script>
+</body>
+</html>

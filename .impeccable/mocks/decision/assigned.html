@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Despensa · Pizarra del menú del día</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+:root{--slate:#232b28;--slate-deep:#1b2220;--chalk:#f1efe6;--chalk-dim:#b4b8ae;--yellow:#f2cf4a;--pink:#f08aa6;--blue:#8cc8e8;--rule:rgba(241,239,230,.2)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:390px;height:844px;overflow:hidden}
+body{position:relative;background:var(--slate);color:var(--chalk);font-family:Figtree,system-ui,sans-serif;
+  background-image:radial-gradient(110% 55% at 25% 18%,rgba(241,239,230,.06),transparent 62%),radial-gradient(70% 35% at 85% 78%,rgba(241,239,230,.04),transparent 70%)}
+.status{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:15px;font-weight:600}
+header{padding:10px 24px 0}
+.when{font-size:15px;color:var(--chalk-dim);font-weight:500}
+h1{font-family:'Patrick Hand',cursive;font-weight:400;font-size:46px;line-height:1;margin-top:2px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);margin:20px 16px 0;text-align:center}
+.d b{display:block;font-family:'Patrick Hand',cursive;font-weight:400;font-size:28px;line-height:1.1}
+.d small{display:block;font-size:12px;color:var(--chalk-dim);margin-top:2px}
+.d.a b{color:var(--yellow)}.d.b b{color:var(--pink)}.d.f b{color:var(--chalk-dim)}
+.d i{display:block;width:24px;height:3px;margin:7px auto 0;border-radius:3px;background:var(--chalk);transform:rotate(-4deg)}
+.d:not(.on) i{visibility:hidden}
+.legend{display:flex;align-items:center;gap:8px;margin:8px 24px 0;font-size:13px;color:var(--chalk-dim)}
+.legend i{width:20px;height:3px;border-radius:3px;background:var(--chalk);transform:rotate(-4deg)}
+h2{font-family:'Patrick Hand',cursive;font-weight:400;font-size:30px;line-height:1;margin:28px 24px 10px}
+.row{display:flex;align-items:baseline;gap:8px;padding:0 24px}
+.dish{font-family:'Patrick Hand',cursive;font-size:29px;line-height:1.15}
+.dots{flex:1;border-bottom:2px dotted var(--rule);transform:translateY(-6px);min-width:16px}
+.fig{font-family:'Patrick Hand',cursive;font-size:26px;white-space:nowrap}
+.a .dish,.a .fig{color:var(--yellow)}.b .dish,.b .fig{color:var(--pink)}
+.meta{padding:2px 24px 14px;font-size:14px;color:var(--chalk-dim)}
+.off .dish,.off .fig{color:var(--chalk-dim);font-size:24px}
+.sug .dish{font-size:25px}.sug .fig{font-size:24px}
+.sug .meta{padding-bottom:10px}
+.swap{color:var(--blue)}
+.cta{position:absolute;left:24px;right:24px;bottom:104px;height:54px;border-radius:12px;background:var(--chalk);color:var(--slate-deep);
+  display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:17px}
+.tabs{position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--slate-deep);border-top:1px solid var(--rule);
+  display:grid;grid-template-columns:repeat(4,1fr);padding:10px 8px 0}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--chalk-dim)}
+.tab.on{color:var(--yellow)}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<div class="status"><span>9:41</span><span>100 %</span></div>
+
+<header>
+  <p class="when">La semana que viene</p>
+  <h1>Del 26 oct al 1 nov</h1>
+</header>
+
+<div class="days">
+  <div class="d a on"><b>L</b><small>26</small><i></i></div>
+  <div class="d b"><b>M</b><small>27</small><i></i></div>
+  <div class="d a on"><b>X</b><small>28</small><i></i></div>
+  <div class="d b"><b>J</b><small>29</small><i></i></div>
+  <div class="d a on"><b>V</b><small>30</small><i></i></div>
+  <div class="d b"><b>S</b><small>31</small><i></i></div>
+  <div class="d f"><b>D</b><small>1</small><i></i></div>
+</div>
+<p class="legend"><i></i>día activo</p>
+
+<h2>Menú</h2>
+<div class="row a"><span class="dish">Lentejas estofadas</span><span class="dots"></span><span class="fig">L · X · V</span></div>
+<p class="meta">Hidratos, proteína y fibra · va a los días activos</p>
+<div class="row b"><span class="dish">Merluza en salsa verde</span><span class="dots"></span><span class="fig">M · J · S</span></div>
+<p class="meta">Proteína y grasas · con patatas cocidas</p>
+<div class="row off"><span class="dish">Domingo</span><span class="dots"></span><span class="fig">fuera</span></div>
+
+<section class="sug">
+  <h2>Hace tiempo que no…</h2>
+  <div class="row"><span class="dish">Arroz con pollo</span><span class="dots"></span><span class="fig">9</span></div>
+  <p class="meta">Hace 6 semanas · <span class="swap">cambiar por la merluza</span></p>
+  <div class="row"><span class="dish">Garbanzos con espinacas</span><span class="dots"></span><span class="fig">8,5</span></div>
+  <p class="meta">Hace 9 semanas · <span class="swap">cambiar por las lentejas</span></p>
+</section>
+
+<a class="cta">Hacer la lista de la compra</a>
+
+<nav class="tabs">
+  <a class="tab on"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semana</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z"/><path d="M5 16.5a3 3 0 0 1 3-3h11"/></svg>Recetas</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2"/><circle cx="5" cy="18" r="1"/></svg>Lista</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Registro</a>
+</nav>
+</body>
+</html>
