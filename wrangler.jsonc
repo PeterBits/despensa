@@ -1,0 +1,19 @@
+{
+  "name": "despensa",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-20",
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "despensa",
+      "database_id": "local",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [{ "binding": "FOTOS", "bucket_name": "despensa-fotos" }],
+  "vars": { "RP_ID": "localhost", "ORIGEN": "http://localhost:5173" }
+}

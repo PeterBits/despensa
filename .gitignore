@@ -7,3 +7,7 @@
 # Capturas de revisión de diseño (Playwright e impeccable)
 .playwright-mcp/
 .impeccable/review/
+node_modules/
+dist/
+.wrangler/
+.dev.vars
