@@ -196,6 +196,65 @@ components:
   recipe-end:
     textColor: "{colors.ink-2}"
     typography: "{typography.body-secondary}"
+  diary-row:
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    padding: "10px 20px"
+  diary-date:
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    width: "36px"
+  diary-date-active:
+    textColor: "{colors.tint-ink}"
+    typography: "{typography.body}"
+    width: "36px"
+  diary-date-today:
+    textColor: "{colors.ink}"
+    typography: "{typography.body-secondary}"
+    rounded: "{rounded.full}"
+    size: "28px"
+  diary-date-out:
+    textColor: "{colors.ink-3}"
+    typography: "{typography.body}"
+  diary-today-dish:
+    textColor: "{colors.ink}"
+    typography: "{typography.title}"
+  week-range:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.label}"
+  rating-columns:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.label}"
+  rating-figure:
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+  rating-figure-missing:
+    textColor: "{colors.ink-3}"
+    typography: "{typography.body}"
+  rating-label:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.label}"
+  rating-circle:
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    rounded: "{rounded.full}"
+    size: "30px"
+  rating-circle-chosen:
+    backgroundColor: "{colors.fill}"
+    textColor: "{colors.on-fill}"
+    typography: "{typography.body}"
+    rounded: "{rounded.full}"
+    size: "30px"
+  partner-line:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.body-secondary}"
+  missing-rating:
+    textColor: "{colors.ink-3}"
+    typography: "{typography.label}"
+  cancel-quiet:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.body-secondary}"
+    height: "44px"
 ---
 
 # Design System: Despensa
@@ -274,6 +333,8 @@ La tira de días es una rejilla de siete columnas iguales (L M X J V S D): letra
 
 En una pantalla sin botón fijo (Recetas) el contenido reserva 112px más el área segura al final: la barra de pestañas y, cuando aparece, la línea de estado. Una pestaña puede tener dos vistas en la misma columna (índice y detalle), enlazadas por el hash de la URL; al volver, el índice recupera la posición donde estaba.
 
+Registro tampoco tiene botón fijo y reserva los mismos 112px más el área segura. Cada día es una fila en rejilla de dos columnas: 36px para la fecha y el resto para el cuerpo, separadas 10px, con 10px de relleno vertical y el margen de 20px. La escala de nota y el panel "Comimos otra cosa" ocupan el ancho entero de la fila, por debajo de las dos columnas. Las semanas van de la más reciente a la más antigua y, dentro de cada una, el día más reciente arriba.
+
 ## Elevation & Depth
 
 Plano. La profundidad se expresa con el paso de `ground` a `bar` y con un filete de 0,5px, no con sombras.
@@ -291,6 +352,8 @@ Esquinas suaves de tipo iOS: pulgar 7px dentro de una pista de 9px, botón princ
 En la lista de la compra, el nombre del producto se tacha con 1,5px, y el campo de añadir toma el radio de la pista del segmentado (9px).
 
 En la receta, el paso hecho y el ingrediente gastado se tachan con el mismo trazo de 1,5px; en el ingrediente, el trazo cruza nombre y cantidad. En las filas compactas de 15px los puntos guía suben 4px en vez de 5px para seguir la línea base. El buscador comparte la forma del campo de añadir (9px).
+
+En el registro, hoy lleva en la columna de fechas el mismo anillo interior de 2px en `ink` que en la tira de días, en un círculo de 28px con el número en 15px. Los círculos de la escala del 1 al 10 son de 30px (28px a 380px de ancho o menos) con un anillo interior de 1,5px en `hair`, como el botón tranquilo; el elegido pierde el anillo y se rellena de `fill`. Cuando el nombre del plato parte línea, los puntos guía siguen siendo el mismo borde punteado de 2px en `rule`: solo el trazo se alarga hacia la izquierda hasta 8px después de la última palabra.
 
 ## Components
 
@@ -319,6 +382,7 @@ El nombre del plato (title) a la izquierda, puntos guía flexibles (mín. 32px) 
 - **Tranquilo mientras falta algo:** en el súper, "Terminar la compra" va como botón tranquilo mientras quedan productos pendientes y pasa a principal cuando todo está en el carro.
 - **Enlace:** texto en tinta, peso 600, subrayado de 1px en `rule` con 3px de separación; área táctil ampliada 14px en vertical y 10px en horizontal. Pulsación: opacidad 0,6.
 - **Foco:** contorno de 2px en `tint` separado 3px.
+- **Cancelar tranquilo:** texto de 15px peso 500 en `ink-2`, sin subrayado ni fondo, con 44px de alto táctil; cierra un panel o una escala sin cambiar nada. Pulsación: opacidad 0,6.
 
 ### Navigation
 Barra de cuatro pestañas fija abajo (Semana, Recetas, Lista, Registro) sobre `bar`, con filete superior de 0,5px en `hair`. Iconos de trazo SVG de 26px (trazo 1,7) y rótulo de 11px en `ink-3`; la pestaña actual pasa a `tint-ink`.
@@ -341,6 +405,8 @@ En la receta, "Ingredientes" y "Pasos" usan este mismo título; "Pasos" lleva a 
 El campo de texto de la app (también la búsqueda de Recetas): 44px de alto, relleno `seg` y radio de 9px, como la pista del segmentado; icono "+" de trazo de 20px en `ink-2`, texto de 17px y marcador en `ink-2`. Foco: el anillo del sistema (2px de `tint`, separado 3px) alrededor del campo entero. Es un control, no un contenedor.
 
 El buscador de Recetas reutiliza el campo de añadir sin cambios (pista, radio, alto, foco y marcador); solo cambia el icono por una lupa de trazo de 20px. Sin resultados, debajo queda una frase de 15px en `ink-2` ("Ninguna receta coincide con «…»."), sin ilustración ni botón.
+
+El campo de "Comimos otra cosa" en Registro es el mismo campo sin icono, con el marcador "¿Qué comisteis?": pista, radio, alto, foco y marcador iguales.
 
 ### Lo de siempre
 Botones de un toque para lo que se compra cada semana: texto en tinta de 15px peso 600 con un "+" de trazo de 13px (trazo 2,4) en `ink-2`, separados 20px y con 44px de alto táctil, sin fondo ni contorno. Encima, el rótulo "Lo de siempre" en 13px peso 500 `ink-2`. Pulsación: opacidad 0,6. Lo que ya está en la lista no aparece aquí.
@@ -377,6 +443,41 @@ Mientras la receta mantiene la pantalla encendida, bajo los tipos, raciones y ti
 ### Recipe End
 Con todos los pasos hechos, bajo el último aparece "Receta terminada · Empezar de nuevo" en 15px `ink-2`, con "Empezar de nuevo" como enlace de tinta. Al pulsarlo se destacha todo, la vista vuelve arriba y la línea de estado ofrece "Progreso borrado · Deshacer" hasta la siguiente acción; deshacer devuelve el progreso y la posición.
 
+### Diary Row (firma, en el registro)
+La fila de carta con fecha. A la izquierda, una columna de 36px con la letra del día (13px peso 600 `ink-2`, en una caja de 12px) y el número (17px peso 600); a 10px, el cuerpo con el plato, los puntos guía y las dos notas a la derecha, alineados por la última línea base con 8px entre piezas. En los días activos el número va en `tint-ink`; la letra, no. Los platos pasados van en 17px peso 400; el de hoy, en title (19px peso 600).
+- **Hoy:** el número baja a 15px dentro de un anillo de 2px en `ink` de 28px, y el cuerpo se separa 6px más. Mientras nadie ha puntuado, la fila no lleva puntos guía ni cifras; en cuanto hay una nota, la tuya o la de tu pareja, los lleva como las demás y la escala sigue debajo.
+- **Fuera:** fecha y "Fuera" en `ink-3` peso 500, sin puntos guía ni cifras.
+- **Nombre en dos líneas:** el nombre se equilibra (`text-wrap: balance`) y los puntos guía empiezan 8px después de la última palabra. Un script mide la última línea y alarga solo el trazo punteado hacia la izquierda, sin tocar la caja, así nada se recoloca; vuelve a medir con cada cambio de tamaño.
+- **Plato cambiado:** debajo, "En lugar de ~~plato planificado~~" en 13px peso 500 `ink-3`, con el tachado de 1,5px.
+
+### Diary Weeks
+Cada semana abre con un headline (24px peso 700, 32px por encima) y, a la derecha, el rango de fechas en 13px peso 500 `ink-2`, como el recuento de List Sections; las semanas antiguas llevan el rango en el propio título ("Del 5 al 11 oct") y nada a la derecha. Debajo del título va el rótulo de las columnas de nota.
+
+### Rating Columns
+Las dos notas son dos columnas fijas a la derecha, como las dos columnas de precio de una carta: la tuya en 22px y la de tu pareja en 40px, alineadas a la derecha y separadas 6px, con cifras de 17px peso 600. Se rotulan una vez por semana, bajo el título, con "tú" y "pareja" en 13px peso 500 `ink-2` sobre esas mismas columnas. Una nota que falta es "–" en `ink-3` peso 500. El lector de pantalla oye las dos con nombre ("tú 8, tu pareja 9", o "sin nota"); el rótulo y las cifras sueltas se le ocultan.
+
+**The Two Columns Rule.** Las notas de cada fila van siempre en el mismo orden y en el mismo sitio: la tuya y luego la de tu pareja, en columnas de ancho fijo rotuladas una vez por semana, para que se lean en vertical.
+
+### Rating Scale
+Diez botones del 1 al 10 en una rejilla de ancho completo, cada uno de 44px de alto con un círculo de 30px (28px a 380px de ancho o menos) y la cifra en 17px peso 600. Encima, el rótulo "Tu nota" en 13px peso 500 `ink-2`; en un día pasado, "Tu nota del lunes 19". Es un grupo con nombre y cada botón lleva `aria-pressed`; al elegir hoy, el foco se queda en la cifra elegida.
+- **Reposo:** anillo interior de 1,5px en `hair`.
+- **Elegido:** relleno `fill` con la cifra en `on-fill`, sin anillo (180ms). La nota es tinta, no naranja: no es actividad.
+- **Pulsación:** el círculo se encoge a 0,9 (120ms).
+- **Foco:** el anillo del sistema en `tint` rodea el círculo, no el botón.
+
+### Partner Line
+Bajo la escala de hoy, en 15px `ink-2`: "Tu pareja aún no ha puntuado" o "Tu pareja le ha puesto **7**", con la nota en `ink` peso 600. Es una región `aria-live` educada; cuando la nota llega sin recargar, la línea sube desde 6px abajo con opacidad (0,34s), y la fila de hoy gana sus puntos guía y sus cifras.
+
+### Today's Actions
+12px por debajo, enlaces de tinta de 15px: "Comimos otra cosa" y, tras un cambio, "Deshacer · Comimos otra cosa". Deshacer recorre una pila: cada toque devuelve el estado anterior de hoy, hasta el plan original.
+
+### Comimos otra cosa
+Un panel en línea bajo la fila de hoy, sin hoja ni fondo; mientras está abierto, la línea de acciones desaparece. Arriba, el campo de añadir sin icono ("¿Qué comisteis?"); debajo, las sugerencias ("Fuera", las sobras de ayer o las recetas que coinciden con lo escrito) como enlaces de tinta de 15px, con 44px de alto táctil y separados 20px, como Lo de siempre; al final, "Cancelar" tranquilo.
+- **Sustitución:** al elegir, el plato de hoy se tacha con el trazo de 2px (0,3s) y el nuevo entra desde 6px abajo (0,34s), como en Semana (The Strike, Don't Erase Rule); debajo queda "En lugar de ~~plato planificado~~", y "Deshacer" pasa a la línea de acciones. Las dos notas de hoy se vacían, porque puntuaban otro plato. Con `prefers-reduced-motion` el cambio es directo.
+
+### Missing Rating
+En un día pasado sin tu nota, debajo del plato: "Te falta tu nota · Puntuar" en 13px peso 500 `ink-3`, con "Puntuar" como enlace de tinta del mismo tamaño. Puntuar abre en la misma fila la escala de ese día, con su rótulo y un "Cancelar" tranquilo; al elegir, la escala se cierra y la cifra ocupa su columna.
+
 ### Pendientes
 Sin decidir y fuera de este sistema hasta que se decidan: icono relleno para la pestaña seleccionada, filete al hacer scroll bajo las barras, título grande que se pliega, qué segmento se abre entre semana y si el domingo es editable.
 
@@ -393,6 +494,7 @@ Sin decidir y fuera de este sistema hasta que se decidan: icono relleno para la 
 - **Do** escribir la lista de la compra con la misma fila de carta: producto, puntos guía y cantidad, y debajo de qué plato sale en 13px `ink-3`.
 - **Do** dejar los avisos con "Deshacer" hasta la siguiente acción y retirar los demás a los 4s.
 - **Do** escribir las cantidades dentro de los pasos en peso 600 y sin partir línea, y tachar arriba el ingrediente cuando ya no queda ningún paso que lo use.
+- **Do** escribir cada día del registro como fila de carta: fecha a la izquierda, plato, puntos guía y las dos notas en sus columnas fijas (tú · pareja).
 
 ### Don't:
 - **Don't** usar tarjetas, cajas, fondos de sección ni sombras decorativas; la única sombra es la del pulgar del segmentado.
@@ -403,3 +505,4 @@ Sin decidir y fuera de este sistema hasta que se decidan: icono relleno para la 
 - **Don't** añadir un segundo color de acento.
 - **Don't** marcar lo comprado o lo que ya hay en casa con casillas, tarjetas ni naranja; el estado es el tachado.
 - **Don't** cambiar el peso ni el tamaño de lo que se tacha con un toque (pasos, ingredientes, productos); solo cambian el trazo y la tinta, para que nada se recoloque.
+- **Don't** pintar de naranja la nota elegida ni la escala; la nota elegida es tinta (`fill`), y en el registro el naranja solo marca los días activos en la columna de fechas.

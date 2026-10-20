@@ -59,7 +59,9 @@ que decide qué sugerir.
 - **Nada de macros.** No se registran calorías ni gramos de nutrientes. Cada ingrediente
   lleva solo su tipo: hidratos, proteína, grasas o fibra. Con eso basta para saber qué plato
   es más energético y llevarlo a los días activos.
-- **Registro**: qué se ha comido cada día, con una nota del 1 al 10.
+- **Registro**: qué se ha comido cada día, con una nota del 1 al 10 de cada uno, puesta ese mismo
+  día desde su móvil; se ven las dos. Si un día no se come lo planificado, se apunta lo que se
+  comió en su lugar (otra receta o un texto, como "Fuera" o "Sobras").
 - **Planificación**: la semana siguiente, asignando los dos o tres platos a los días y
   teniendo en cuenta los días activos.
 - **Recomendaciones sin IA**: sugerir platos con buena nota que hace tiempo que no comen; lo
@@ -81,10 +83,10 @@ que decide qué sugerir.
 
 Decisiones abiertas:
 
-- La nota del 1 al 10: una común por plato o una por persona. Supuesto de trabajo: una común.
+- Qué nota usan Semana y Recetas cuando hay dos (la de cada uno). Supuesto de trabajo: la media.
 - Acceso: cómo entran los dos y cómo se comparte el "hogar". Supuesto de trabajo: un hogar
   compartido al que se une cada uno desde su móvil.
-- Qué pasa con el domingo y cómo se registra un día en que no se comió lo planificado.
+- Qué pasa con el domingo (de momento, siempre fuera).
 
 ## Evidence on Hand
 

@@ -75,14 +75,19 @@ El usuario pidió saltarse las preguntas y diseñar con impeccable. Lo confirmad
   "Cantidades en los pasos": cada paso lleva sus cantidades en negrita y, al tachar un paso,
   se tachan arriba los ingredientes que ya no se usan. Prototipo en `prototipo/recetas.html`;
   contrato en `.impeccable/surfaces/prototipo-recetas-html.md`.
+- Registro: la nota del 1 al 10 se pone ese mismo día y es de cada uno (se ven las dos); si no
+  se comió lo planificado, se apunta lo que se comió (otra receta o un texto). Entre tres
+  bocetos, el usuario eligió "Diario": un día por fila, lo más reciente arriba, con las dos
+  notas en dos columnas a la derecha; hoy abre el diario con la escala. Prototipo en
+  `prototipo/registro.html`; contrato en `.impeccable/surfaces/prototipo-registro-html.md`.
 
 ## Pendiente de hablar
 
-- Nota del 1 al 10: común o por persona (supuesto: común).
+- Qué nota usan Semana y Recetas ahora que hay dos por plato (supuesto: la media).
 - Acceso: cómo entran los dos (login) y si hay un "hogar" compartido.
-- El domingo: siempre fuera o editable; cómo se registra un día en que no se comió lo planificado.
+- El domingo: siempre fuera o editable.
 - Qué se ve al abrir la pestaña Semana entre semana: esta semana o la que viene.
-- La pantalla Registro.
+- Registro: si una nota se puede cambiar días después.
 - Recetas: dónde se crean y editan (con fotos), si se pueden cambiar las raciones y si los
   pasos con tiempo llevan temporizador.
 - Lista: cómo se borra un producto añadido por error (de momento solo "Deshacer") y en qué
