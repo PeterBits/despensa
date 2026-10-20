@@ -54,6 +54,7 @@
       {"name": "fold-hold", "value": "800ms", "purpose": "En el súper, el producto tachado espera en su sitio antes de plegarse; otro toque lo destacha."},
       {"name": "fold", "value": "260ms", "purpose": "Plegado de la fila (altura y opacidad a cero); luego reaparece en 'En el carro' con 'enter'."},
       {"name": "notice-expire", "value": "4000ms", "purpose": "Un aviso sin Deshacer deja paso al recuento; los avisos con Deshacer se quedan hasta la siguiente acción."},
+      {"name": "view", "value": "320ms", "purpose": "Cambio de vista dentro de una pestaña: entra desde 24px a la derecha con opacidad al abrir un detalle y desde 24px a la izquierda al volver, con 'ease'. Los pasos e ingredientes se tachan con 'strike-list' y se destachan con 'unstrike'."},
       { "name": "reduced-motion", "value": "none", "purpose": "Con prefers-reduced-motion se anulan transiciones, animaciones y FLIP." }
     ],
     "breakpoints": [
@@ -164,6 +165,22 @@
       "description": "Punto fijo de 8px en ink-2 al principio del subtítulo, solo mientras la pareja compra a la vez; sin latido ni naranja.",
       "html": "<p class=\"ds-live\"><i aria-hidden=\"true\"></i>Tu pareja también está comprando</p>",
       "css": ".ds-live{display:flex;align-items:center;gap:8px;margin:0;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-size:15px;color:var(--ink-2,#5c6360)}.ds-live i{width:8px;height:8px;border-radius:50%;background:var(--ink-2,#5c6360);flex:none}"
+    },
+    {
+      "name": "Receta en curso",
+      "kind": "custom",
+      "refersTo": "step-row",
+      "description": "Firma de la receta: ingredientes en filas compactas de 15px y pasos con número, cantidades en 600 sin partir línea y tiempo debajo. Al terminar todos los pasos que usan un ingrediente, este se tacha arriba (The Linked Strike Rule). Pasa el ratón por un paso para ver el trazo. Datos de ejemplo inventados.",
+      "html": "<div class=\"ds-rec\"><h2 class=\"ds-sec\">Ingredientes</h2><ul class=\"ds-ing\"><li class=\"used\"><span><span class=\"ds-txt\">Lentejas pardinas</span></span><span class=\"ds-leader\"></span><span class=\"ds-qty\"><span class=\"ds-txt\">500 g</span></span></li><li><span><span class=\"ds-txt\">Cebolla</span></span><span class=\"ds-leader\"></span><span class=\"ds-qty\"><span class=\"ds-txt\">2</span></span></li><li><span><span class=\"ds-txt\">Aceite de oliva</span></span><span class=\"ds-leader\"></span><span class=\"ds-qty\"><span class=\"ds-txt\">3 cucharadas</span></span></li></ul><h2 class=\"ds-sec\">Pasos <small>1 de 3</small></h2><ol class=\"ds-steps\"><li><button class=\"ds-step done\" type=\"button\" aria-pressed=\"true\"><span class=\"ds-n\">1</span><span class=\"ds-t\"><span class=\"ds-txt\">Lava <b>500 g de lentejas</b> y escúrrelas.</span></span></button></li><li><button class=\"ds-step now\" type=\"button\" aria-pressed=\"false\" aria-current=\"step\"><span class=\"ds-n\">2</span><span class=\"ds-t\"><span class=\"ds-txt\">Pica <b>2 cebollas</b> y sofríelas con <b>3 cucharadas de aceite</b>.</span><span class=\"ds-time\">10 min</span></span></button></li><li><button class=\"ds-step\" type=\"button\" aria-pressed=\"false\"><span class=\"ds-n\">3</span><span class=\"ds-t\"><span class=\"ds-txt\">Echa las lentejas y cuece a fuego suave.</span><span class=\"ds-time\">40 min</span></span></button></li></ol></div>",
+      "css": ".ds-rec{width:375px;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-feature-settings:\"tnum\" 1;color:var(--ink,#1b1f1d);line-height:1.35;font-size:17px}.ds-rec ul,.ds-rec ol{list-style:none;margin:0;padding:0}.ds-sec{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:24px 20px 2px;font-size:19px;font-weight:600;letter-spacing:-.01em}.ds-sec small{font-size:13px;font-weight:500;color:var(--ink-2,#5c6360)}.ds-ing li{display:flex;align-items:baseline;gap:8px;padding:4px 20px;font-size:15px}.ds-leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule,rgba(27,31,29,.22));transform:translateY(-4px)}.ds-qty{white-space:nowrap;color:var(--ink-2,#5c6360)}.ds-ing .used,.ds-ing .used .ds-qty{color:var(--ink-3,#6b726e)}.ds-txt{background:linear-gradient(currentColor,currentColor) no-repeat 0 60%/0 1.5px;-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background-size .3s cubic-bezier(.16,1,.3,1),color .3s cubic-bezier(.16,1,.3,1)}.used .ds-txt,.done .ds-txt{background-size:100% 1.5px}.ds-step{display:grid;grid-template-columns:28px 1fr;gap:8px;width:100%;text-align:left;padding:10px 20px;border:0;background:none;font:inherit;color:inherit;cursor:pointer}.ds-step:hover:not(.done) .ds-txt{background-size:100% 1.5px}.ds-step:active .ds-t{opacity:.6}.ds-step:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:-2px}.ds-n{font-size:19px;line-height:1.2;font-weight:600;color:var(--ink-2,#5c6360)}.now .ds-n{color:var(--ink,#1b1f1d);font-weight:700}.ds-step b{font-weight:600;white-space:nowrap}.ds-time{display:block;margin-top:3px;font-size:13px;font-weight:500;color:var(--ink-3,#6b726e)}.done .ds-t,.done .ds-n{color:var(--ink-3,#6b726e)}"
+    },
+    {
+      "name": "Volver",
+      "kind": "nav",
+      "refersTo": "back-button",
+      "description": "Vuelta del detalle al índice: tinta de 17px peso 600 con chevrón de trazo de 22px, 44px de alto, sin fondo.",
+      "html": "<button class=\"ds-back\" type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M15 5l-7 7 7 7\"/></svg>Recetas</button>",
+      "css": ".ds-back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 20px 0 12px;border:0;background:none;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",system-ui,sans-serif;font-size:17px;font-weight:600;color:var(--ink,#1b1f1d);cursor:pointer}.ds-back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}.ds-back:active{opacity:.6}.ds-back:focus-visible{outline:2px solid var(--tint,#ff9f0a);outline-offset:3px;border-radius:6px}"
     }
   ],
   "narrative": {
@@ -184,7 +201,8 @@
       { "name": "The Tabular Figures Rule", "body": "Las cifras siempre tabulares; las notas usan coma decimal (\"8,5\").", "section": "typography" },
       { "name": "The One Shadow Rule", "body": "La única sombra del sistema es la del pulgar del segmentado. Ninguna tarjeta, botón, barra ni hoja lleva sombra decorativa.", "section": "elevation" },
       { "name": "The Strike, Don't Erase Rule", "body": "Un cambio nunca borra en silencio. Al sustituir un plato, un trazo de 2px tacha el nombre (0,3s), y el nuevo entra desde 6px abajo (0,34s); debajo queda \"En lugar de ~~plato anterior~~ · Deshacer\" en 13px `ink-3`. Los días pasados se tachan, no se ocultan.", "section": "components" },
-      { "name": "The Moving Letters Rule", "body": "Al activar o desactivar un día, cada letra viaja de su fila a la nueva (FLIP, 420ms, `cubic-bezier(.16,1,.3,1)`), para que se vea a dónde ha ido el día.", "section": "components" }
+      { "name": "The Moving Letters Rule", "body": "Al activar o desactivar un día, cada letra viaja de su fila a la nueva (FLIP, 420ms, `cubic-bezier(.16,1,.3,1)`), para que se vea a dónde ha ido el día.", "section": "components" },
+      { "name": "The Linked Strike Rule", "body": "Un ingrediente se tacha cuando están hechos todos los pasos que lo usan, en el mismo gesto que tacha el último de ellos, y se destacha si uno de esos pasos se deshace. Un ingrediente que ningún paso marca no se tacha nunca.", "section": "components" }
     ],
     "dos": [
       "**Do** reservar el naranja (`tint` / `tint-ink`) para la actividad: días activos, el plato que va a ellos y la pestaña actual.",
@@ -195,7 +213,8 @@
       "**Do** usar la pila del sistema de Apple y cifras tabulares.",
       "**Do** respetar `prefers-reduced-motion`: sin trazo, entrada ni FLIP; el cambio se aplica directo.",
       "**Do** escribir la lista de la compra con la misma fila de carta: producto, puntos guía y cantidad, y debajo de qué plato sale en 13px `ink-3`.",
-      "**Do** dejar los avisos con \"Deshacer\" hasta la siguiente acción y retirar los demás a los 4s."
+      "**Do** dejar los avisos con \"Deshacer\" hasta la siguiente acción y retirar los demás a los 4s.",
+      "**Do** escribir las cantidades dentro de los pasos en peso 600 y sin partir línea, y tachar arriba el ingrediente cuando ya no queda ningún paso que lo use."
     ],
     "donts": [
       "**Don't** usar tarjetas, cajas, fondos de sección ni sombras decorativas; la única sombra es la del pulgar del segmentado.",
@@ -204,7 +223,8 @@
       "**Don't** hacer desaparecer un plato o un día cambiado sin dejar rastro.",
       "**Don't** volver a la rejilla de siete días por comidas con fotos en tarjetas.",
       "**Don't** añadir un segundo color de acento.",
-      "**Don't** marcar lo comprado o lo que ya hay en casa con casillas, tarjetas ni naranja; el estado es el tachado."
+      "**Don't** marcar lo comprado o lo que ya hay en casa con casillas, tarjetas ni naranja; el estado es el tachado.",
+      "**Don't** cambiar el peso ni el tamaño de lo que se tacha con un toque (pasos, ingredientes, productos); solo cambian el trazo y la tinta, para que nada se recoloque."
     ]
   }
 }

@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e2422">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:,">
+<title>Despensa · Recetas</title>
+<style>
+:root{
+  --ground:#ffffff;--bar:#f6f6f3;--ink:#1b1f1d;--ink-2:#5c6360;--ink-3:#6b726e;
+  --rule:rgba(27,31,29,.22);--hair:rgba(27,31,29,.14);
+  --tint:#ff9f0a;--tint-ink:#a65200;--on-tint:#1b1f1d;--fill:#1b1f1d;--on-fill:#ffffff;
+  --seg:#ecece8;--seg-on:#ffffff;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#1e2422;--bar:#161b19;--ink:#f2f1ec;--ink-2:#a7aea9;--ink-3:#8d9590;
+  --rule:rgba(242,241,236,.2);--hair:rgba(242,241,236,.12);
+  --tint:#ff9f0a;--tint-ink:#ff9f0a;--on-tint:#161b19;--fill:#f2f1ec;--on-fill:#161b19;
+  --seg:#2a312e;--seg-on:#47504c;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ground:#1e2422;--bar:#161b19;--ink:#f2f1ec;--ink-2:#a7aea9;--ink-3:#8d9590;
+  --rule:rgba(242,241,236,.2);--hair:rgba(242,241,236,.12);
+  --tint:#ff9f0a;--tint-ink:#ff9f0a;--on-tint:#161b19;--fill:#f2f1ec;--on-fill:#161b19;
+  --seg:#2a312e;--seg-on:#47504c;
+  color-scheme:dark}
+
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;background:var(--ground);scrollbar-width:thin;scrollbar-color:var(--rule) transparent}
+body{min-height:100dvh;background:var(--ground);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.35;
+  font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;caret-color:var(--tint)}
+::selection{background:var(--tint);color:var(--on-tint)}
+button,input{font:inherit;color:inherit;background:none;border:0}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--tint);outline-offset:3px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.screen{max-width:440px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 0 calc(env(safe-area-inset-bottom) + 112px)}
+header{padding:24px 20px 0}
+h1{font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.meta{margin-top:8px;font-size:15px;color:var(--ink-2);text-wrap:balance}
+.awake{margin-top:4px;font-size:13px;font-weight:500;color:var(--ink-3);text-wrap:pretty}
+
+.search{display:flex;align-items:center;gap:8px;margin:16px 20px 0;height:44px;padding:0 12px;border-radius:9px;background:var(--seg)}
+.search:focus-within{outline:2px solid var(--tint);outline-offset:3px}
+.search svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--ink-2);stroke-width:2;stroke-linecap:round}
+.search input{flex:1;min-width:0;height:100%;font-size:17px;outline:0}
+.search input::placeholder{color:var(--ink-2);opacity:1}
+
+.sec{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:24px 20px 2px;
+  font-size:19px;font-weight:600;letter-spacing:-.01em}
+.sec small{font-size:13px;font-weight:500;color:var(--ink-2)}
+#indice .sec{margin-top:32px;font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.015em}
+ul,ol{list-style:none}
+.row{display:block;padding:10px 20px}
+.row:active .line,.row:active .from{opacity:.6}
+.row:focus-visible{outline-offset:-2px}
+.line{display:flex;align-items:baseline;align-items:last baseline;gap:10px}
+.leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule);transform:translateY(-5px)}
+.fig{font-weight:600;white-space:nowrap}
+.fig.on{color:var(--tint-ink)}
+.fig .lab{font-size:13px;font-weight:500;color:var(--ink-2);margin-right:5px}
+.dl.past{position:relative;color:var(--ink-3)}
+.dl.past::after{content:"";position:absolute;left:-4px;right:-4px;top:52%;height:1.5px;border-radius:1px;background:currentColor}
+.from{display:block;margin-top:2px;font-size:13px;font-weight:500;color:var(--ink-3)}
+/* Los platos de la semana se escriben como en Semana; "Todas" baja un paso porque son decenas */
+.menu .name{font-size:19px;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.menu .from{margin-top:4px;font-size:15px;font-weight:400;color:var(--ink-2)}
+.vacio{margin:16px 20px 0;font-size:15px;color:var(--ink-2)}
+
+.back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 20px 0 12px;font-weight:600}
+.back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.back:active{opacity:.6}
+#receta header{padding-top:4px}
+
+.ing li{display:flex;align-items:baseline;gap:8px;padding:4px 20px;font-size:15px}
+.ing .leader{transform:translateY(-4px)}
+.ing .qty{white-space:nowrap;color:var(--ink-2)}
+.ing .used,.ing .used .qty{color:var(--ink-3)}
+.txt{background:linear-gradient(currentColor,currentColor) no-repeat 0 60%/0 1.5px;-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:color .3s var(--ease)}
+.used .txt,.done .txt{background-size:100% 1.5px}
+.fresh .txt{animation:tachar .3s var(--ease)}
+.fresh-off .txt{animation:destachar .25s var(--ease)}
+@keyframes tachar{from{background-size:0 1.5px}}
+@keyframes destachar{from{background-size:100% 1.5px}}
+
+.step{display:grid;grid-template-columns:28px 1fr;gap:8px;width:100%;text-align:left;padding:10px 20px}
+.step:active .t{opacity:.6}
+.step:focus-visible{outline-offset:-2px}
+.n{font-size:19px;line-height:1.2;font-weight:600;color:var(--ink-2)}
+.now .n{color:var(--ink);font-weight:700}
+.step b{font-weight:600;white-space:nowrap}
+.time{display:block;margin-top:3px;font-size:13px;font-weight:500;color:var(--ink-3)}
+.done .t,.done .n{color:var(--ink-3)}
+.end{margin:20px 20px 0;font-size:15px;color:var(--ink-2)}
+.link{position:relative;color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--rule);text-underline-offset:3px}
+.link::before{content:"";position:absolute;inset:-14px -10px}
+.link:active{opacity:.6}
+.dock{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 64px);background:var(--ground);padding:10px 20px 14px}
+.status{max-width:400px;margin:0 auto;font-size:13px;color:var(--ink-2);text-align:center}
+.status .link{font-size:15px}
+
+.entra{animation:entra .32s var(--ease)}
+.vuelve{animation:vuelve .32s var(--ease)}
+@keyframes entra{from{opacity:0;transform:translateX(24px)}}
+@keyframes vuelve{from{opacity:0;transform:translateX(-24px)}}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--bar);border-top:.5px solid var(--hair);padding:6px 8px env(safe-area-inset-bottom)}
+.tabs-in{max-width:440px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:58px}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:500;color:var(--ink-3)}
+.tab[aria-current="page"]{color:var(--tint-ink)}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+@media (prefers-reduced-motion:reduce){*,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="screen">
+  <section id="indice" aria-labelledby="t-indice">
+    <header><h1 id="t-indice">Recetas</h1></header>
+    <form class="search" role="search" id="buscar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>
+      <label class="sr" for="q">Buscar receta</label>
+      <input id="q" type="search" placeholder="Buscar por plato o ingrediente" autocomplete="off" enterkeyhint="search">
+    </form>
+    <div id="recetario"></div>
+  </section>
+
+  <section id="receta" aria-labelledby="r-titulo" hidden>
+    <button class="back" id="volver" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Recetas</button>
+    <header>
+      <h1 id="r-titulo"></h1>
+      <p class="meta" id="r-meta"></p>
+      <p class="awake" id="r-despierta" hidden>La pantalla no se apagará mientras cocináis</p>
+    </header>
+    <h2 class="sec">Ingredientes</h2>
+    <ul class="ing" id="r-ing"></ul>
+    <h2 class="sec">Pasos <small id="r-cuenta"></small></h2>
+    <ol class="steps" id="r-pasos"></ol>
+    <p class="end" id="r-fin" hidden>Receta terminada · <button class="link" id="reiniciar" type="button">Empezar de nuevo</button></p>
+  </section>
+</main>
+
+<div class="dock" id="dock" hidden><p class="status" id="status" aria-live="polite"></p></div>
+
+<nav class="tabs" aria-label="Secciones">
+  <div class="tabs-in">
+    <a class="tab" href="semana.html"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semana</a>
+    <a class="tab" aria-current="page" href="recetas.html"><svg viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z"/><path d="M5 16.5a3 3 0 0 1 3-3h11"/></svg>Recetas</a>
+    <a class="tab" href="lista.html"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2"/><circle cx="5" cy="18" r="1"/></svg>Lista</a>
+    <a class="tab" href="#"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Registro</a>
+  </div>
+</nav>
+
+<script>
+const params = new URLSearchParams(location.search);
+const tema = params.get('tema');
+if (tema === 'claro') document.documentElement.dataset.theme = 'light';
+if (tema === 'oscuro') document.documentElement.dataset.theme = 'dark';
+document.querySelectorAll('.tab[href$=".html"]').forEach(a => { a.search = location.search; });
+
+// Datos de ejemplo inventados. En los pasos, {texto|ingrediente} marca la cantidad que se echa
+const RECETAS = {
+  lentejas: {nombre: 'Lentejas estofadas', tipos: ['hidratos', 'proteína', 'fibra'], raciones: 6, tiempo: '1 h', nota: '8',
+    ing: [['lentejas', 'Lentejas pardinas', '500 g'], ['cebolla', 'Cebolla', '2'], ['pimiento', 'Pimiento verde', '1'], ['zanahoria', 'Zanahorias', '3'],
+      ['ajo', 'Ajo', '2 dientes'], ['chorizo', 'Chorizo', '200 g'], ['aceite', 'Aceite de oliva', '3 cucharadas'], ['pimenton', 'Pimentón dulce', '1 cucharadita'],
+      ['laurel', 'Laurel', '1 hoja'], ['agua', 'Agua', '1,5 l'], ['sal', 'Sal', 'al gusto']],
+    pasos: [['Lava {500 g de lentejas|lentejas} y escúrrelas.'],
+      ['Pica {2 cebollas|cebolla}, {1 pimiento verde|pimiento} y {2 dientes de ajo|ajo}; corta {3 zanahorias|zanahoria} en rodajas.'],
+      ['Sofríe la verdura con {3 cucharadas de aceite|aceite} a fuego medio.', '10 min'],
+      ['Añade {200 g de chorizo|chorizo} en rodajas y {1 cucharadita de pimentón|pimenton}; remueve un minuto sin que se queme.'],
+      ['Echa las lentejas, cubre con {1,5 l de agua|agua} y añade {la hoja de laurel|laurel}. Cuece a fuego suave.', '40 min'],
+      ['Prueba, ajusta de {sal|sal} y deja reposar antes de servir.', '5 min']]},
+  merluza: {nombre: 'Merluza en salsa verde', tipos: ['proteína', 'grasas'], raciones: 6, tiempo: '45 min', nota: '7,5',
+    ing: [['merluza', 'Merluza en rodajas', '1 kg'], ['almejas', 'Almejas', '300 g'], ['patatas', 'Patatas', '1,5 kg'], ['ajo', 'Ajo', '4 dientes'],
+      ['perejil', 'Perejil', '1 manojo'], ['vino', 'Vino blanco', '1 vaso'], ['harina', 'Harina', '1 cucharada'], ['aceite', 'Aceite de oliva', '4 cucharadas'], ['sal', 'Sal', 'al gusto']],
+    pasos: [['Pon {las almejas|almejas} en agua con sal para que suelten la arena.', '30 min'],
+      ['Pela {1,5 kg de patatas|patatas}, córtalas en trozos y cuécelas en agua con sal.', '20 min'],
+      ['Dora {4 dientes de ajo|ajo} picados en {4 cucharadas de aceite|aceite} y añade {1 cucharada de harina|harina}.'],
+      ['Vierte {1 vaso de vino blanco|vino}, deja que reduzca y añade {el perejil picado|perejil}.', '3 min'],
+      ['Coloca {la merluza|merluza} y las almejas, sala con {sal|sal} y mueve la cazuela hasta que ligue la salsa.', '8 min']]},
+  arroz: {nombre: 'Arroz con pollo', tipos: ['hidratos', 'proteína'], raciones: 6, tiempo: '50 min', nota: '9',
+    ing: [['pollo', 'Muslos de pollo', '6'], ['arroz', 'Arroz', '400 g'], ['pimiento', 'Pimiento rojo', '1'], ['cebolla', 'Cebolla', '1'], ['ajo', 'Ajo', '2 dientes'],
+      ['tomate', 'Tomate triturado', '200 g'], ['caldo', 'Caldo de pollo', '1 l'], ['aceite', 'Aceite de oliva', '3 cucharadas'], ['sal', 'Sal', 'al gusto']],
+    pasos: [['Salpimienta {6 muslos de pollo|pollo} y dóralos en {3 cucharadas de aceite|aceite}.', '10 min'],
+      ['Añade {1 cebolla|cebolla}, {1 pimiento rojo|pimiento} y {2 dientes de ajo|ajo} picados y sofríe.', '8 min'],
+      ['Incorpora {200 g de tomate triturado|tomate} y deja que pierda el agua.', '5 min'],
+      ['Echa {400 g de arroz|arroz}, remueve y vierte {1 l de caldo caliente|caldo}. Sala con {sal|sal}.'],
+      ['Cuece sin remover y deja reposar tapado antes de servir.', '20 min']]},
+  pisto: {nombre: 'Pisto con huevo', tipos: ['fibra', 'proteína', 'grasas'], raciones: 6, tiempo: '1 h', nota: '8,5',
+    ing: [['calabacin', 'Calabacín', '2'], ['berenjena', 'Berenjena', '1'], ['pimiento', 'Pimiento rojo', '1'], ['cebolla', 'Cebolla', '2'],
+      ['tomate', 'Tomate triturado', '400 g'], ['huevos', 'Huevos', '6'], ['aceite', 'Aceite de oliva', '5 cucharadas'], ['sal', 'Sal', 'al gusto']],
+    pasos: [['Corta en dados {2 calabacines|calabacin}, {1 berenjena|berenjena}, {1 pimiento rojo|pimiento} y {2 cebollas|cebolla}.'],
+      ['Pocha la cebolla y el pimiento en {5 cucharadas de aceite|aceite}.', '15 min'],
+      ['Añade la berenjena y el calabacín y cocina a fuego medio.', '15 min'],
+      ['Incorpora {400 g de tomate triturado|tomate}, sala con {sal|sal} y deja que espese.', '15 min'],
+      ['Cuaja {6 huevos|huevos} encima del pisto, tapado, justo antes de comer.', '5 min']]},
+  curry: {nombre: 'Pollo al curry con arroz', tipos: ['hidratos', 'proteína'], raciones: 6, tiempo: '45 min', nota: '8',
+    ing: [['pollo', 'Pechugas de pollo', '2'], ['arroz', 'Arroz basmati', '400 g'], ['cebolla', 'Cebolla', '1'], ['ajo', 'Ajo', '2 dientes'], ['jengibre', 'Jengibre', '1 trozo'],
+      ['curry', 'Curry en polvo', '2 cucharadas'], ['coco', 'Leche de coco', '400 ml'], ['aceite', 'Aceite de oliva', '2 cucharadas'], ['sal', 'Sal', 'al gusto']],
+    pasos: [['Corta {2 pechugas|pollo} en dados y pica {1 cebolla|cebolla}, {2 dientes de ajo|ajo} y {un trozo de jengibre|jengibre}.'],
+      ['Sofríe la cebolla, el ajo y el jengibre en {2 cucharadas de aceite|aceite}.', '6 min'],
+      ['Dora el pollo y espolvorea {2 cucharadas de curry|curry}.', '5 min'],
+      ['Vierte {400 ml de leche de coco|coco}, sala con {sal|sal} y cuece a fuego suave.', '15 min'],
+      ['Mientras, cuece {400 g de arroz basmati|arroz} en agua con sal.', '12 min']]},
+  crema: {nombre: 'Crema de calabacín y tortilla', tipos: ['fibra', 'proteína', 'grasas'], raciones: 6, tiempo: '40 min', nota: '7',
+    ing: [['calabacin', 'Calabacín', '3'], ['puerro', 'Puerro', '1'], ['patata', 'Patata', '1'], ['quesitos', 'Quesitos', '4'],
+      ['huevos', 'Huevos', '8'], ['aceite', 'Aceite de oliva', '4 cucharadas'], ['sal', 'Sal', 'al gusto']],
+    pasos: [['Trocea {3 calabacines|calabacin}, {1 puerro|puerro} y {1 patata|patata}.'],
+      ['Rehoga la verdura en {2 cucharadas de aceite|aceite} y cúbrela de agua.', '20 min'],
+      ['Tritura con {4 quesitos|quesitos} y ajusta de {sal|sal}.'],
+      ['Bate {8 huevos|huevos} y cuaja la tortilla en una sartén con {2 cucharadas de aceite|aceite}.', '8 min']]},
+  garbanzos: {nombre: 'Garbanzos con espinacas', tipos: ['hidratos', 'proteína', 'fibra'], raciones: 6, tiempo: '30 min', nota: '8',
+    ing: [['garbanzos', 'Garbanzos cocidos', '800 g'], ['espinacas', 'Espinacas', '300 g'], ['ajo', 'Ajo', '3 dientes'], ['pan', 'Pan duro', '2 rebanadas'],
+      ['pimenton', 'Pimentón dulce', '1 cucharadita'], ['comino', 'Comino molido', '1 pizca'], ['vinagre', 'Vinagre', '1 chorrito'], ['aceite', 'Aceite de oliva', '4 cucharadas'], ['sal', 'Sal', 'al gusto']],
+    pasos: [['Fríe {3 dientes de ajo|ajo} y {2 rebanadas de pan|pan} en {4 cucharadas de aceite|aceite}.', '4 min'],
+      ['Machaca el ajo y el pan con {1 cucharadita de pimentón|pimenton}, {una pizca de comino|comino} y {un chorrito de vinagre|vinagre}.'],
+      ['Saltea {300 g de espinacas|espinacas} en la misma sartén.', '3 min'],
+      ['Añade {800 g de garbanzos|garbanzos} escurridos, el majado y un poco de agua. Sala con {sal|sal}.', '10 min']]},
+  salmon: {nombre: 'Salmón al horno con patatas', tipos: ['proteína', 'grasas', 'hidratos'], raciones: 6, tiempo: '50 min', nota: '7',
+    ing: [['salmon', 'Lomos de salmón', '6'], ['patatas', 'Patatas', '1 kg'], ['cebolla', 'Cebolla', '1'], ['limon', 'Limón', '1'],
+      ['eneldo', 'Eneldo', '1 cucharadita'], ['aceite', 'Aceite de oliva', '4 cucharadas'], ['sal', 'Sal', 'al gusto']],
+    pasos: [['Precalienta el horno a 200 °C.'],
+      ['Corta {1 kg de patatas|patatas} y {1 cebolla|cebolla} en láminas y alíñalas con {3 cucharadas de aceite|aceite}.'],
+      ['Hornea las patatas.', '25 min'],
+      ['Coloca encima {6 lomos de salmón|salmon} con {el zumo de 1 limón|limon}, {1 cucharadita de eneldo|eneldo}, {1 cucharada de aceite|aceite} y {sal|sal}.'],
+      ['Hornea hasta que el salmón esté hecho.', '12 min']]},
+  macarrones: {nombre: 'Macarrones con tomate y atún', tipos: ['hidratos', 'proteína'], raciones: 6, tiempo: '25 min', nota: '6,5',
+    ing: [['macarrones', 'Macarrones', '500 g'], ['tomate', 'Tomate frito', '400 g'], ['atun', 'Atún en aceite', '3 latas'], ['cebolla', 'Cebolla', '1'],
+      ['queso', 'Queso rallado', '100 g'], ['sal', 'Sal', 'al gusto']],
+    pasos: [['Cuece {500 g de macarrones|macarrones} en agua con {sal|sal}.', '11 min'],
+      ['Pocha {1 cebolla|cebolla} picada y añade {400 g de tomate frito|tomate}.', '8 min'],
+      ['Mezcla con la pasta escurrida y {3 latas de atún|atun}.'],
+      ['Sirve con {100 g de queso rallado|queso} por encima.']]},
+  albondigas: {nombre: 'Albóndigas en salsa', tipos: ['proteína', 'grasas'], raciones: 6, tiempo: '1 h 15 min', nota: '9',
+    ing: [['carne', 'Carne picada mixta', '750 g'], ['huevo', 'Huevo', '1'], ['pan', 'Pan rallado', '4 cucharadas'], ['ajo', 'Ajo', '2 dientes'],
+      ['harina', 'Harina', '3 cucharadas'], ['cebolla', 'Cebolla', '1'], ['zanahoria', 'Zanahoria', '1'], ['tomate', 'Tomate triturado', '200 g'],
+      ['aceite', 'Aceite de oliva', '4 cucharadas'], ['sal', 'Sal', 'al gusto']],
+    pasos: [['Mezcla {750 g de carne picada|carne} con {1 huevo|huevo}, {4 cucharadas de pan rallado|pan}, {2 dientes de ajo|ajo} picados y {sal|sal}.'],
+      ['Forma las albóndigas, pásalas por {harina|harina} y dóralas en {4 cucharadas de aceite|aceite}.', '10 min'],
+      ['En el mismo aceite pocha {1 cebolla|cebolla} y {1 zanahoria|zanahoria}.', '10 min'],
+      ['Añade {200 g de tomate triturado|tomate}, tritura la salsa y cuece las albóndigas en ella.', '25 min']]},
+};
+// Lo que toca según Semana (hoy es martes 20); el plato energético va a los días activos
+const SEMANAS = [
+  {titulo: 'Esta semana', hoy: 1, platos: [['curry', ['L', 'X', 'V'], true], ['crema', ['M', 'J', 'S'], false]]},
+  {titulo: 'La que viene', platos: [['lentejas', ['L', 'X', 'V'], true], ['merluza', ['M', 'J', 'S'], false]]},
+];
+const DIAS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
+const $ = id => document.getElementById(id);
+const sinMovimiento = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = s => s.replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const llano = s => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+const frase = tipos => { const t = tipos.map((x, i) => i ? x : x[0].toUpperCase() + x.slice(1));
+  return t.length > 1 ? t.slice(0, -1).join(', ') + ' y ' + t.at(-1) : t[0]; };
+const MARCA = /\{([^|}]+)\|([^}]+)\}/g;
+const usa = paso => [...paso[0].matchAll(MARCA)].map(m => m[2]);
+
+// Índice
+function filaIndice(id, der, extra) {
+  const r = RECETAS[id];
+  return `<li><a class="row" href="#${id}"><span class="line"><span class="name">${r.nombre}</span>`
+    + `<span class="leader" aria-hidden="true"></span>${der}</span>`
+    + `<span class="from">${extra ? extra + ' · ' : ''}${frase(r.tipos)} · ${r.tiempo}</span></a></li>`;
+}
+const dias = (letras, activo, hoy) => `<span class="fig${activo ? ' on' : ''}">` + letras.map(d =>
+  `<span class="dl${hoy !== undefined && DIAS.indexOf(d) < hoy ? ' past' : ''}">${d}</span>`).join('<span aria-hidden="true"> · </span>') + '</span>';
+const nota = id => `<span class="fig"><span class="lab">nota</span>${RECETAS[id].nota}</span>`;
+
+function pintarIndice() {
+  const q = llano($('q').value.trim());
+  const todas = Object.keys(RECETAS).sort((a, b) => RECETAS[a].nombre.localeCompare(RECETAS[b].nombre, 'es'));
+  if (q) {
+    const halla = todas.filter(id => llano(RECETAS[id].nombre).includes(q) || RECETAS[id].ing.some(i => llano(i[1]).includes(q)));
+    $('recetario').innerHTML = `<h2 class="sec">Resultados <small>${halla.length}</small></h2>`
+      + (halla.length ? `<ul>${halla.map(id => filaIndice(id, nota(id))).join('')}</ul>`
+        : `<p class="vacio">Ninguna receta coincide con «${esc($('q').value.trim())}».</p>`);
+    return;
+  }
+  $('recetario').innerHTML = SEMANAS.map(s => `<h2 class="sec">${s.titulo}</h2><ul class="menu">`
+    + s.platos.map(([id, letras, activo]) => filaIndice(id, dias(letras, activo, s.hoy),
+      s.hoy !== undefined && letras.includes(DIAS[s.hoy]) ? 'Hoy' : '')).join('') + '</ul>').join('')
+    + `<h2 class="sec">Todas <small>${todas.length}</small></h2><ul>${todas.map(id => filaIndice(id, nota(id))).join('')}</ul>`;
+}
+$('q').addEventListener('input', pintarIndice);
+$('buscar').addEventListener('submit', e => { e.preventDefault(); $('q').blur(); });
+
+// Receta: los pasos hechos se tachan y, con ellos, los ingredientes que ya no se van a usar
+const progreso = {};
+const frescos = new Map();
+let actual = null;
+
+function gastados(id) {
+  const r = RECETAS[id], hechos = progreso[id];
+  return new Set(r.ing.map(i => i[0]).filter(ing => {
+    const en = r.pasos.map((p, n) => usa(p).includes(ing) ? n : -1).filter(n => n >= 0);
+    return en.length && en.every(n => hechos.has(n));
+  }));
+}
+
+function pintarReceta() {
+  const id = actual, r = RECETAS[id], hechos = progreso[id], usados = gastados(id);
+  const ahora = r.pasos.findIndex((p, n) => !hechos.has(n));
+  const clase = (base, on, clave) => [base, on && (base === 'step' ? 'done' : 'used'),
+    frescos.get(clave) === 'on' && 'fresh', frescos.get(clave) === 'off' && 'fresh-off'].filter(Boolean).join(' ');
+  $('r-ing').innerHTML = r.ing.map(([k, nombre, cant]) =>
+    `<li class="${clase('', usados.has(k), 'i' + k)}"><span class="name"><span class="txt">${nombre}</span></span>`
+    + `<span class="leader" aria-hidden="true"></span><span class="qty"><span class="txt">${cant}</span></span></li>`).join('');
+  $('r-pasos').innerHTML = r.pasos.map(([texto, min], n) =>
+    `<li><button class="${clase('step', hechos.has(n), 'p' + n)}${n === ahora ? ' now' : ''}" type="button" aria-pressed="${hechos.has(n)}"`
+    + `${n === ahora ? ' aria-current="step"' : ''}><span class="n" aria-hidden="true">${n + 1}</span>`
+    + `<span class="t"><span class="sr">Paso ${n + 1}: </span><span class="txt">${texto.replace(MARCA, '<b>$1</b>')}</span>`
+    + `${min ? `<span class="time">${min}</span>` : ''}</span></button></li>`).join('');
+  $('r-cuenta').textContent = hechos.size ? `${hechos.size} de ${r.pasos.length}` : '';
+  $('r-fin').hidden = hechos.size < r.pasos.length;
+  frescos.clear();
+}
+
+// "Empezar de nuevo" deja un aviso con deshacer hasta la siguiente acción
+let deshacer = null;
+function avisar(texto, fn) {
+  deshacer = fn;
+  $('status').innerHTML = fn ? texto + ' · <button class="link" type="button" id="deshacer">Deshacer</button>' : '';
+  $('dock').hidden = !fn;
+}
+$('status').addEventListener('click', e => {
+  if (!e.target.closest('#deshacer') || !deshacer) return;
+  deshacer();
+  avisar();
+});
+
+$('r-pasos').addEventListener('click', e => {
+  const b = e.target.closest('.step');
+  if (!b) return;
+  avisar();
+  const n = [...$('r-pasos').children].indexOf(b.closest('li')), hechos = progreso[actual];
+  const antes = gastados(actual);
+  hechos.has(n) ? hechos.delete(n) : hechos.add(n);
+  const despues = gastados(actual);
+  frescos.set('p' + n, hechos.has(n) ? 'on' : 'off');
+  RECETAS[actual].ing.forEach(([k]) => { if (antes.has(k) !== despues.has(k)) frescos.set('i' + k, despues.has(k) ? 'on' : 'off'); });
+  pintarReceta();
+});
+$('reiniciar').addEventListener('click', () => {
+  const id = actual, antes = new Set(progreso[id]), y = scrollY;
+  progreso[id].clear();
+  pintarReceta();
+  scrollTo(0, 0);
+  avisar('Progreso borrado', () => { progreso[id] = antes; if (actual === id) { pintarReceta(); scrollTo(0, y); } });
+});
+
+// Mientras la receta está abierta, la pantalla no se apaga (si el navegador lo permite)
+let bloqueo = null;
+async function despierta() {
+  if (!('wakeLock' in navigator) || bloqueo) return;
+  try {
+    bloqueo = await navigator.wakeLock.request('screen');
+    $('r-despierta').hidden = false;
+    bloqueo.addEventListener('release', () => { bloqueo = null; $('r-despierta').hidden = true; });
+  } catch { $('r-despierta').hidden = true; }
+}
+document.addEventListener('visibilitychange', () => { if (actual && document.visibilityState === 'visible') despierta(); });
+
+// Navegación: #id abre la receta; atrás vuelve al índice donde estaba
+let desdeIndice = false, scrollIndice = 0;
+function ruta() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  avisar();
+  const anim = (el, clase) => { if (sinMovimiento()) return; el.classList.remove('entra', 'vuelve'); void el.offsetWidth; el.classList.add(clase); };
+  if (RECETAS[id]) {
+    if (!actual) scrollIndice = scrollY;
+    actual = id;
+    progreso[id] ||= new Set();
+    const r = RECETAS[id];
+    $('r-titulo').textContent = r.nombre;
+    $('r-meta').textContent = `${frase(r.tipos)} · ${r.raciones} raciones · ${r.tiempo}`;
+    pintarReceta();
+    $('indice').hidden = true;
+    $('receta').hidden = false;
+    document.title = `Despensa · ${r.nombre}`;
+    scrollTo(0, 0);
+    anim($('receta'), 'entra');
+    despierta();
+  } else {
+    const venia = actual;
+    actual = null;
+    bloqueo?.release();
+    $('receta').hidden = true;
+    $('indice').hidden = false;
+    document.title = 'Despensa · Recetas';
+    if (venia) { scrollTo(0, scrollIndice); anim($('indice'), 'vuelve'); }
+  }
+}
+addEventListener('hashchange', () => { desdeIndice = !!location.hash; ruta(); });
+$('volver').addEventListener('click', () => {
+  if (desdeIndice) return history.back();
+  history.replaceState(null, '', location.pathname + location.search);
+  ruta();
+});
+
+pintarIndice();
+ruta();
+</script>
+</body>
+</html>

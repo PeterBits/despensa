@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Recetas · Primero preparar</title>
+<style>
+:root{--ground:#fff;--bar:#f6f6f3;--ink:#1b1f1d;--ink-2:#5c6360;--ink-3:#6b726e;--rule:rgba(27,31,29,.22);--hair:rgba(27,31,29,.14);--tint-ink:#a65200;--fill:#1b1f1d;--on-fill:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:390px;height:844px;overflow:hidden}
+body{position:relative;background:var(--ground);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;font-size:17px;line-height:1.35;font-feature-settings:"tnum" 1}
+.status{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:15px;font-weight:600}
+.back{display:flex;align-items:center;gap:2px;padding:6px 14px 0;font-weight:600}
+.back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+header{padding:10px 20px 0}
+h1{font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.02em}
+.meta{margin-top:6px;font-size:15px;color:var(--ink-2)}
+h2{display:flex;justify-content:space-between;align-items:baseline;font-size:19px;font-weight:600;letter-spacing:-.01em;margin:24px 20px 2px}
+h2 small{font-size:13px;font-weight:500;color:var(--ink-2)}
+ul{list-style:none}
+li{padding:9px 20px}
+.line{display:flex;align-items:baseline;gap:10px}
+.leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule);transform:translateY(-5px)}
+.qty{white-space:nowrap}
+.how{font-size:13px;font-weight:500;color:var(--ink-3);margin-top:2px}
+.done .name,.done .qty{color:var(--ink-3)}
+.done .name{text-decoration:line-through;text-decoration-thickness:1.5px}
+.dock{position:absolute;left:0;right:0;bottom:84px;background:var(--ground);padding:10px 20px 14px}
+.count{margin-bottom:8px;font-size:13px;color:var(--ink-2);text-align:center}
+.cta{height:52px;border-radius:14px;background:var(--fill);color:var(--on-fill);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:17px}
+.tabs{position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--bar);border-top:.5px solid var(--hair);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px 0}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:500;color:var(--ink-3)}
+.tab.on{color:var(--tint-ink)}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<div class="status"><span>9:41</span><span>100 %</span></div>
+<a class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Recetas</a>
+<header>
+  <h1>Lentejas estofadas</h1>
+  <p class="meta">Hidratos, proteína y fibra · 6 raciones · 1 h</p>
+</header>
+
+<h2>Preparar <small>4 de 9 listos</small></h2>
+<ul>
+  <li class="done"><div class="line"><span class="name">Lentejas pardinas</span><span class="leader"></span><span class="qty">500 g</span></div><p class="how">lavadas y escurridas</p></li>
+  <li class="done"><div class="line"><span class="name">Cebolla</span><span class="leader"></span><span class="qty">2</span></div><p class="how">picada</p></li>
+  <li class="done"><div class="line"><span class="name">Pimiento verde</span><span class="leader"></span><span class="qty">1</span></div><p class="how">picado</p></li>
+  <li class="done"><div class="line"><span class="name">Ajo</span><span class="leader"></span><span class="qty">2 dientes</span></div><p class="how">picado</p></li>
+  <li><div class="line"><span class="name">Zanahorias</span><span class="leader"></span><span class="qty">3</span></div><p class="how">en rodajas</p></li>
+  <li><div class="line"><span class="name">Chorizo</span><span class="leader"></span><span class="qty">200 g</span></div><p class="how">en rodajas</p></li>
+  <li><div class="line"><span class="name">Pimentón dulce</span><span class="leader"></span><span class="qty">1 cucharadita</span></div></li>
+</ul>
+
+<div class="dock">
+  <p class="count">Quedan 5 por preparar · la pantalla no se apagará</p>
+  <a class="cta">Empezar a cocinar</a>
+</div>
+<nav class="tabs">
+  <a class="tab"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semana</a>
+  <a class="tab on"><svg viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z"/><path d="M5 16.5a3 3 0 0 1 3-3h11"/></svg>Recetas</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2"/><circle cx="5" cy="18" r="1"/></svg>Lista</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Registro</a>
+</nav>
+</body>
+</html>

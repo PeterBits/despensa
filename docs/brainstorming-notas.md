@@ -70,6 +70,11 @@ El usuario pidió saltarse las preguntas y diseñar con impeccable. Lo confirmad
   así que se construyó el que salió por sorteo, y lo aprobó ("Todo perfecto, diseño
   correcto"). Prototipo en `prototipo/lista.html`; contrato en
   `.impeccable/surfaces/prototipo-lista-html.md`.
+- Recetas: se abre sobre todo para cocinar con la receta delante; habrá entre 30 y 100 recetas
+  al cabo de un año; cada receta lleva pasos. Entre tres bocetos, el usuario eligió
+  "Cantidades en los pasos": cada paso lleva sus cantidades en negrita y, al tachar un paso,
+  se tachan arriba los ingredientes que ya no se usan. Prototipo en `prototipo/recetas.html`;
+  contrato en `.impeccable/surfaces/prototipo-recetas-html.md`.
 
 ## Pendiente de hablar
 
@@ -77,6 +82,8 @@ El usuario pidió saltarse las preguntas y diseñar con impeccable. Lo confirmad
 - Acceso: cómo entran los dos (login) y si hay un "hogar" compartido.
 - El domingo: siempre fuera o editable; cómo se registra un día en que no se comió lo planificado.
 - Qué se ve al abrir la pestaña Semana entre semana: esta semana o la que viene.
-- El resto de pantallas: Recetas y Registro.
+- La pantalla Registro.
+- Recetas: dónde se crean y editan (con fotos), si se pueden cambiar las raciones y si los
+  pasos con tiempo llevan temporizador.
 - Lista: cómo se borra un producto añadido por error (de momento solo "Deshacer") y en qué
   sección cae un producto que la app no conoce (de momento "Otros").

@@ -54,7 +54,8 @@ que decide qué sugerir.
 
 ## Capabilities and Constraints
 
-- **Recetas**: recetario propio, con ingredientes por cantidades y fotos.
+- **Recetas**: recetario propio, con ingredientes por cantidades, pasos de preparación y fotos.
+  Se usa sobre todo para cocinar con la receta delante. Al cabo de un año habrá entre 30 y 100.
 - **Nada de macros.** No se registran calorías ni gramos de nutrientes. Cada ingrediente
   lleva solo su tipo: hidratos, proteína, grasas o fibra. Con eso basta para saber qué plato
   es más energético y llevarlo a los días activos.

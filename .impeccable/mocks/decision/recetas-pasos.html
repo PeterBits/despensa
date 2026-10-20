@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Recetas · Cantidades en los pasos</title>
+<style>
+:root{--ground:#fff;--bar:#f6f6f3;--ink:#1b1f1d;--ink-2:#5c6360;--ink-3:#6b726e;--rule:rgba(27,31,29,.22);--hair:rgba(27,31,29,.14);--tint-ink:#a65200}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:390px;height:844px;overflow:hidden}
+body{position:relative;background:var(--ground);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;font-size:17px;line-height:1.35;font-feature-settings:"tnum" 1}
+.status{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:15px;font-weight:600}
+.back{display:flex;align-items:center;gap:2px;padding:6px 14px 0;font-weight:600}
+.back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+header{padding:10px 20px 0}
+h1{font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.02em}
+.meta{margin-top:6px;font-size:15px;color:var(--ink-2)}
+h2{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:22px 20px 4px}
+ul,ol{list-style:none}
+.ing li{display:flex;align-items:baseline;gap:8px;padding:3px 20px;font-size:15px}
+.leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule);transform:translateY(-4px)}
+.ing .qty{white-space:nowrap;color:var(--ink-2)}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:8px;padding:9px 20px}
+.steps b{font-weight:600}
+.n{font-size:19px;font-weight:600;color:var(--ink-2)}
+.time{display:block;margin-top:3px;font-size:13px;font-weight:500;color:var(--ink-3)}
+.done .t,.done .n{color:var(--ink-3)}
+.done .t{text-decoration:line-through;text-decoration-thickness:1.5px}
+.done b{font-weight:400}
+.tabs{position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--bar);border-top:.5px solid var(--hair);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px 0}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:500;color:var(--ink-3)}
+.tab.on{color:var(--tint-ink)}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<div class="status"><span>9:41</span><span>100 %</span></div>
+<a class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Recetas</a>
+<header>
+  <h1>Lentejas estofadas</h1>
+  <p class="meta">Hidratos, proteína y fibra · 6 raciones · 1 h</p>
+</header>
+
+<h2>Ingredientes</h2>
+<ul class="ing">
+  <li><span>Lentejas pardinas</span><span class="leader"></span><span class="qty">500 g</span></li>
+  <li><span>Cebolla</span><span class="leader"></span><span class="qty">2</span></li>
+  <li><span>Pimiento verde</span><span class="leader"></span><span class="qty">1</span></li>
+  <li><span>Zanahorias</span><span class="leader"></span><span class="qty">3</span></li>
+  <li><span>Ajo</span><span class="leader"></span><span class="qty">2 dientes</span></li>
+  <li><span>Chorizo</span><span class="leader"></span><span class="qty">200 g</span></li>
+  <li><span>Pimentón dulce, aceite, laurel y sal</span></li>
+</ul>
+
+<h2>Pasos</h2>
+<ol class="steps">
+  <li class="done"><span class="n">1</span><span class="t">Lava <b>500 g de lentejas</b> y escúrrelas.</span></li>
+  <li><span class="n">2</span><span class="t">Pica <b>2 cebollas</b>, <b>1 pimiento verde</b> y <b>2 dientes de ajo</b>; corta <b>3 zanahorias</b> en rodajas.</span></li>
+  <li><span class="n">3</span><span class="t">Sofríe la verdura con <b>3 cucharadas de aceite</b> a fuego medio.<span class="time">10 min</span></span></li>
+</ol>
+
+<nav class="tabs">
+  <a class="tab"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semana</a>
+  <a class="tab on"><svg viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z"/><path d="M5 16.5a3 3 0 0 1 3-3h11"/></svg>Recetas</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2"/><circle cx="5" cy="18" r="1"/></svg>Lista</a>
+  <a class="tab"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Registro</a>
+</nav>
+</body>
+</html>
