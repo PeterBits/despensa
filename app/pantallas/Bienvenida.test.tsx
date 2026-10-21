@@ -1,4 +1,4 @@
-import { startRegistration } from '@simplewebauthn/browser';
+import { startAuthentication, startRegistration } from '@simplewebauthn/browser';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router';
@@ -11,6 +11,7 @@ vi.mock('@simplewebauthn/browser', () => ({ startRegistration: vi.fn(), startAut
 // Datos inventados: ni las opciones ni la respuesta se parecen a una passkey real.
 const OPCIONES = { challenge: 'reto' };
 const RESPUESTA = { id: 'credencial-1' } as unknown as Awaited<ReturnType<typeof startRegistration>>;
+const RESPUESTA_ENTRADA = { id: 'credencial-1' } as unknown as Awaited<ReturnType<typeof startAuthentication>>;
 const SIN_SESION = { error: 'Entra con tu passkey para seguir.' };
 
 // Servidor falso: cada ruta responde lo que diga el test; una ruta no prevista, 404.
@@ -93,7 +94,32 @@ describe('Invitación', () => {
     render(<MemoryRouter initialEntries={['/invitacion#tok']}><Invitacion /></MemoryRouter>);
     await userEvent.click(screen.getByRole('button', { name: 'Entrar con Face ID' }));
     expect(await screen.findByRole('heading', { name: 'Este hogar ya tiene dos personas.' })).toHaveFocus();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Entrar con Face ID' })).not.toBeInTheDocument();
+  });
+
+  it('si ya no vale, "Entrar con mi passkey" entra y lleva a la semana', async () => {
+    servidor.responde('/api/yo', 401, SIN_SESION);
+    servidor.responde('/api/invitaciones/aceptar/opciones', 410, { error: 'Esta invitación ya no vale. Pide otra.' });
+    servidor.responde('/api/entrar/opciones', 200, { retoId: 'reto-3', opciones: OPCIONES });
+    servidor.responde('/api/entrar', 200, { ok: true });
+    vi.mocked(startAuthentication).mockResolvedValueOnce(RESPUESTA_ENTRADA);
+    render(<MemoryRouter initialEntries={['/invitacion#tok']}><Rutas /></MemoryRouter>);
+    await userEvent.click(await screen.findByRole('button', { name: 'Entrar con Face ID' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Entrar con mi passkey' }));
+    expect(await screen.findByRole('heading', { name: 'Semana' })).toBeInTheDocument();
+    expect(servidor.cuerpo('/api/entrar')).toEqual({ retoId: 'reto-3', respuesta: RESPUESTA_ENTRADA });
+  });
+
+  it('si entrar falla tras un 410, la invitación sigue sin valer y se ve el error', async () => {
+    servidor.responde('/api/invitaciones/aceptar/opciones', 410, { error: 'Esta invitación ya no vale. Pide otra.' });
+    servidor.responde('/api/entrar/opciones', 200, { retoId: 'reto-3', opciones: OPCIONES });
+    vi.mocked(startAuthentication).mockRejectedValueOnce(new DOMException('Cancelado.', 'NotAllowedError'));
+    render(<MemoryRouter initialEntries={['/invitacion#tok']}><Invitacion /></MemoryRouter>);
+    await userEvent.click(screen.getByRole('button', { name: 'Entrar con Face ID' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Entrar con mi passkey' }));
+    expect(await screen.findByText('No se pudo usar Face ID. Vuelve a intentarlo.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Esta invitación ya no vale. Pide otra.' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Entrar con Face ID' })).not.toBeInTheDocument();
   });
 
   it('al aceptar con Face ID, lleva a la semana', async () => {

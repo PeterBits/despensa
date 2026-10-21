@@ -1,7 +1,7 @@
 import { env } from 'cloudflare:test';
 import { crearApp } from '../index';
 import { sha256 } from './cripto';
-import { verificadorReal, type Credencial, type VerificadorPasskeys } from './passkeys';
+import { etiquetaPasskey, verificadorReal, type Credencial, type VerificadorPasskeys } from './passkeys';
 import { cookieBorrada } from './sesiones';
 
 const credencialNueva = (id = `credencial-${crypto.randomUUID()}`): Credencial =>
@@ -181,10 +181,14 @@ describe('acceso con passkeys', () => {
     const real = verificadorReal(env);
     const registro = await real.opcionesRegistro('miembro-de-prueba');
     expect(registro).toMatchObject({
-      rp: { id: env.RP_ID },
-      user: { name: 'Despensa' },
+      rp: { id: env.RP_ID, name: 'Despensa' },
       authenticatorSelection: { residentKey: 'required', userVerification: 'required' },
     });
+    // Una etiqueta sin datos personales: "Despensa" y la fecha del alta.
+    expect(registro.user.name).toMatch(/^Despensa · \d{2}\/\d{2}\/\d{4}$/);
+    expect(registro.user.displayName).toBe(registro.user.name);
+    // La fecha es la de Madrid: las 22:30 UTC del 20 de octubre ya son día 21 allí.
+    expect(etiquetaPasskey(new Date('2026-10-20T22:30:00Z'))).toBe('Despensa · 21/10/2026');
     expect(registro.challenge).not.toBe('');
 
     const entrada = await real.opcionesEntrada();

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { aceptarInvitacion, RechazoDelServidor } from '../datos/acceso';
+import { aceptarInvitacion, entrar, RechazoDelServidor } from '../datos/acceso';
 import '../estilos/acceso.css';
 import { useCeremonia } from './ceremonia';
 
@@ -21,7 +21,10 @@ export function Invitacion({ alEntrar }: { alEntrar?: () => void }) {
   }, [hash, pathname, search, navigate]);
 
   const { ocupada, error, lanzar } = useCeremonia(alEntrar);
-  const rechazo = error instanceof RechazoDelServidor && TERMINALES.includes(error.estado) ? error : null;
+  // El rechazo final se queda aunque luego falle "Entrar con mi passkey": esa ceremonia cambia `error`,
+  // y la invitación sigue sin valer.
+  const [rechazo, setRechazo] = useState<RechazoDelServidor | null>(null);
+  if (!rechazo && error instanceof RechazoDelServidor && TERMINALES.includes(error.estado)) setRechazo(error);
 
   // Si el estado final llega tras pulsar, el botón desaparece: el foco pasa al título en vez de caer al body.
   const titulo = useRef<HTMLHeadingElement>(null);
@@ -29,6 +32,7 @@ export function Invitacion({ alEntrar }: { alEntrar?: () => void }) {
     if (rechazo) titulo.current?.focus();
   }, [rechazo]);
 
+  // Quien ya se unió (y, por ejemplo, perdió la respuesta) no necesita otro enlace: le basta entrar con su passkey.
   if (!token || rechazo) {
     return (
       <main className="screen acceso">
@@ -38,6 +42,22 @@ export function Invitacion({ alEntrar }: { alEntrar?: () => void }) {
           </h1>
           {rechazo?.estado !== 409 && <p className="sub">Pídele a tu pareja que te mande un enlace nuevo.</p>}
         </header>
+        <div className="acciones">
+          {error && error !== rechazo && (
+            <p className="status" role="alert">
+              {error.message}
+            </p>
+          )}
+          <button
+            type="button"
+            className="link"
+            aria-busy={ocupada === 'entrar'}
+            aria-disabled={ocupada !== null}
+            onClick={() => lanzar('entrar', entrar)}
+          >
+            Entrar con mi passkey
+          </button>
+        </div>
       </main>
     );
   }

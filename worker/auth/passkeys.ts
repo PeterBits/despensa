@@ -11,6 +11,7 @@ import {
   type RegistrationResponseJSON,
 } from '@simplewebauthn/server';
 import { isoUint8Array } from '@simplewebauthn/server/helpers';
+import { hoyEnMadrid } from '../../shared/fechas';
 
 export type Credencial = { id: string; clavePublica: Uint8Array; contador: number; transportes: string[] };
 
@@ -22,22 +23,30 @@ export interface VerificadorPasskeys {
   verificarEntrada(respuesta: unknown, reto: string, credencial: Credencial): Promise<{ id: string; contador: number } | null>;
 }
 
-// Sin datos personales: la app no pide nombre, así que la passkey lleva una etiqueta fija.
-const ETIQUETA = 'Despensa';
+const NOMBRE = 'Despensa';
+
+// Sin datos personales: la app no pide nombre, email ni teléfono. La fecha del alta (dd/mm/aaaa, en Madrid)
+// basta para distinguir en el selector del móvil una passkey vieja o la de otro hogar.
+export function etiquetaPasskey(ahora: Date): string {
+  const [anio, mes, dia] = hoyEnMadrid(ahora).split('-');
+  return `${NOMBRE} · ${dia}/${mes}/${anio}`;
+}
 
 export function verificadorReal(env: Env): VerificadorPasskeys {
   const esperado = { expectedRPID: env.RP_ID, expectedOrigin: env.ORIGEN };
   return {
-    opcionesRegistro: (miembroId) =>
-      generateRegistrationOptions({
-        rpName: ETIQUETA,
+    opcionesRegistro: (miembroId) => {
+      const etiqueta = etiquetaPasskey(new Date());
+      return generateRegistrationOptions({
+        rpName: NOMBRE,
         rpID: env.RP_ID,
-        userName: ETIQUETA,
-        userDisplayName: ETIQUETA,
+        userName: etiqueta,
+        userDisplayName: etiqueta,
         userID: isoUint8Array.fromUTF8String(miembroId),
         // Descubrible: "Entrar con mi passkey" funciona sin nombre de usuario.
         authenticatorSelection: { residentKey: 'required', userVerification: 'required' },
-      }),
+      });
+    },
 
     async verificarRegistro(respuesta, reto) {
       const r = await intentar(() =>
