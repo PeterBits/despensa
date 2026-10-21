@@ -2,20 +2,30 @@
 // Lo importa también el cliente: nada que sea solo del Worker.
 
 import { z } from 'zod';
+import { SECCIONES } from './secciones';
 
 // Workers Free permite 50 consultas D1 por invocación: el lote lleva 1 + N + 1, además de la sesión y las ya vistas.
 // Además, el INSERT multifila de op_vista usa 2 parámetros por op y D1 admite 100 por sentencia: MAX_OPS debe seguir siendo <= 50.
 export const MAX_OPS = 40;
 
 const idTexto = z.string().min(1).max(100);
-// Texto corriente (nombres, cantidades, secciones): 2000 caracteres de sobra. Los largos, 10000.
+// Texto corriente (nombres, cantidades): 2000 caracteres de sobra. Los largos, 10000.
 const texto = z.string().max(2000);
 const textoOpcional = z.string().max(2000).nullable().default(null);
 const textoLargo = z.string().max(10_000);
 const textoLargoOpcional = z.string().max(10_000).nullable().default(null);
 const entero = z.number().int().min(0);
 const enteroOpcional = entero.nullable().default(null);
-const fecha = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+// Una fecha del calendario: 2026-02-30 tiene la forma, pero al pasar por UTC sale otro día (o ninguno) y no vale.
+const esFechaReal = (f: string) => {
+  const d = new Date(`${f}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === f;
+};
+const fecha = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(esFechaReal, 'No es una fecha del calendario.');
+// Listas cerradas (spec, apartado 5, y shared/secciones.ts): un valor fuera de ellas se rechaza al llegar.
+export const TIPOS_INGREDIENTE = ['hidratos', 'proteína', 'grasas', 'fibra', 'ninguno'] as const;
+const tipo = z.enum(TIPOS_INGREDIENTE).nullable().default(null);
+const seccion = z.enum(SECCIONES).nullable().default(null);
 const booleano = (porDefecto: 0 | 1) => z.union([z.literal(0), z.literal(1)]).default(porDefecto);
 
 // Columnas propias de cada tabla: sin hogar_id, version ni borrado, que pone el servidor.
@@ -28,7 +38,7 @@ export const TABLAS_SYNC = {
   }),
   ingrediente: z.strictObject({
     id: idTexto, receta_id: idTexto, orden: entero.default(0), nombre: texto, cantidad: textoOpcional,
-    compra: textoOpcional, a_la_lista: booleano(1), tipo: textoOpcional, seccion: textoOpcional,
+    compra: textoOpcional, a_la_lista: booleano(1), tipo, seccion,
   }),
   paso: z.strictObject({
     id: idTexto, receta_id: idTexto, orden: entero.default(0), texto: textoLargo, minutos: enteroOpcional,
@@ -50,11 +60,11 @@ export const TABLAS_SYNC = {
     id: idTexto, comida_id: idTexto, miembro_id: idTexto.optional(), valor: z.number().int().min(1).max(10),
   }),
   producto: z.strictObject({
-    id: idTexto, nombre: texto, cantidad: textoOpcional, seccion: textoOpcional, origen: textoOpcional,
+    id: idTexto, nombre: texto, cantidad: textoOpcional, seccion, origen: textoOpcional,
     estado: z.enum(['pendiente', 'carro', 'casa']).default('pendiente'), cogido_por: textoOpcional,
   }),
   frecuente: z.strictObject({
-    id: idTexto, nombre: texto, seccion: textoOpcional, cantidad_habitual: textoOpcional, veces: entero.default(0),
+    id: idTexto, nombre: texto, seccion, cantidad_habitual: textoOpcional, veces: entero.default(0),
   }),
 };
 

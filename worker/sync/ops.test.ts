@@ -105,7 +105,6 @@ describe('aplicarOps', () => {
     await aplicarOps(env.DB, H, pareja, [{ id: id(), tabla: 'nota', fila: { id: suya }, borrar: true }]);
     expect(await fila('SELECT borrado FROM nota WHERE id = ?', suya)).toEqual({ borrado: 1 });
   });
-});
 
   it('con un id repetido en la petición se queda con su primera aparición entera', async () => {
     const M = id();
@@ -139,6 +138,7 @@ describe('aplicarOps', () => {
     const { version } = await aplicarOps(env.DB, H, M, [opProducto(id(), p, { nombre: 'Otra vez' })]);
     expect(await fila('SELECT nombre, borrado, version FROM producto WHERE id = ?', p)).toEqual({ nombre: 'Otra vez', borrado: 0, version });
   });
+});
 
 describe('POST /api/ops y GET /api/cambios', () => {
   async function conSesion() {
@@ -226,6 +226,42 @@ describe('POST /api/ops y GET /api/cambios', () => {
     expect(r.status).toBe(400);
     expect(await r.json()).toMatchObject({ op: 0 });
     expect(await versionDe(H)).toBe(0);
+  });
+
+  // Una operación buena delante de la mala: así se ve que el índice señala la mala.
+  const trasUnaBuena = (mala: unknown) => ({ ops: [opProducto(id(), id()), mala] });
+  const semana = (lunes: string) => ({ id: id(), tabla: 'semana', fila: { id: id(), lunes } });
+  const ingrediente = (extra: Record<string, unknown>) =>
+    ({ id: id(), tabla: 'ingrediente', fila: { id: id(), receta_id: id(), nombre: 'Lentejas pardinas', ...extra } });
+  const frecuente = (seccion: unknown) => ({ id: id(), tabla: 'frecuente', fila: { id: id(), nombre: 'Café', seccion } });
+
+  it('rechaza con 400 una fecha que no existe e indica qué operación falla', async () => {
+    const { H, cookie } = await conSesion();
+    for (const lunes of ['2026-13-45', '2026-02-30']) {
+      const r = await enviar(cookie, trasUnaBuena(semana(lunes)));
+      expect(r.status, lunes).toBe(400);
+      expect(await r.json()).toEqual({ error: expect.any(String), op: 1 });
+    }
+    expect(await versionDe(H)).toBe(0);
+    expect((await enviar(cookie, { ops: [semana('2026-02-28')] })).status).toBe(200);
+  });
+
+  it('rechaza con 400 un tipo de ingrediente desconocido e indica qué operación falla', async () => {
+    const { cookie } = await conSesion();
+    const r = await enviar(cookie, trasUnaBuena(ingrediente({ tipo: 'vitaminas' })));
+    expect(r.status).toBe(400);
+    expect(await r.json()).toEqual({ error: expect.any(String), op: 1 });
+    expect((await enviar(cookie, { ops: [ingrediente({ tipo: 'proteína' }), ingrediente({ tipo: null })] })).status).toBe(200);
+  });
+
+  it('rechaza con 400 una sección desconocida e indica qué operación falla', async () => {
+    const { cookie } = await conSesion();
+    for (const mala of [ingrediente({ seccion: 'Bazar' }), opProducto(id(), id(), { seccion: 'Bazar' }), frecuente('Bazar')]) {
+      const r = await enviar(cookie, trasUnaBuena(mala));
+      expect(r.status, mala.tabla).toBe(400);
+      expect(await r.json()).toEqual({ error: expect.any(String), op: 1 });
+    }
+    expect((await enviar(cookie, { ops: [ingrediente({ seccion: 'Despensa' }), frecuente(null)] })).status).toBe(200);
   });
 
   it('un fallo de la petición entera no lleva índice de operación', async () => {

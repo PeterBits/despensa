@@ -1,4 +1,5 @@
 import { env } from 'cloudflare:test';
+import { columnasDe, NOMBRES_TABLAS } from '../shared/esquema';
 
 const TABLAS_SINCRONIZABLES = [
   'receta', 'ingrediente', 'paso', 'semana', 'semana_dia',
@@ -35,6 +36,17 @@ describe('esquema de D1', () => {
         hay.push(cols.results.map((c) => c.name).join(','));
       }
       expect(hay, t).toContain('hogar_id,version');
+    }
+  });
+
+  // Si la migración y Zod no tienen las mismas columnas, /api/ops responde 500 sin índice de operación
+  // y la cola de un móvil se queda atascada para siempre en esa operación.
+  it('cada tabla sincronizable tiene en D1 las columnas de Zod más hogar_id, version y borrado', async () => {
+    for (const t of NOMBRES_TABLAS) {
+      const columnas = await env.DB.prepare(`PRAGMA table_info(${t})`).all<{ name: string }>();
+      expect(new Set(columnas.results.map((c) => c.name)), t).toEqual(
+        new Set([...columnasDe(t), 'hogar_id', 'version', 'borrado']),
+      );
     }
   });
 });

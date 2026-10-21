@@ -15,6 +15,8 @@ export const SECCIONES = [
 
 export type Seccion = (typeof SECCIONES)[number];
 
+export const esSeccion = (valor: unknown): valor is Seccion => (SECCIONES as readonly unknown[]).includes(valor);
+
 // Minúsculas, sin tildes y sin espacios sobrantes: la clave para comparar nombres.
 export const normalizar = (nombre: string): string =>
   nombre.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim().replace(/\s+/g, ' ');

@@ -1,9 +1,17 @@
 // De las recetas de la semana a las líneas de la lista de la compra, agrupadas por sección.
 
 import { formatearCantidades, leerCantidad, sumarCantidades } from './cantidad';
-import { normalizar, SECCIONES, type Seccion } from './secciones';
+import { esSeccion, normalizar, SECCIONES, type Seccion } from './secciones';
 
-export type IngredienteParaLista = { nombre: string; cantidad: string; compra: string | null; aLaLista: boolean; seccion: Seccion };
+// La sección llega de los datos: vacía o fuera de SECCIONES (un dato viejo o mal escrito) cuenta como 'Otros',
+// en la línea y al ordenar. Si no, indexOf daría -1 y la pondría antes que la frutería.
+export type IngredienteParaLista = {
+  nombre: string;
+  cantidad: string;
+  compra: string | null;
+  aLaLista: boolean;
+  seccion: string | null;
+};
 export type RecetaParaLista = { corto: string; ingredientes: IngredienteParaLista[] };
 export type LineaLista = { nombre: string; cantidad: string; seccion: Seccion; origen: string[] };
 
@@ -33,7 +41,7 @@ export function listaDesdeRecetas(recetas: RecetaParaLista[]): LineaLista[] {
     return {
       nombre: conInicialMayuscula(primera.nombre.trim()),
       cantidad,
-      seccion: primera.seccion,
+      seccion: esSeccion(primera.seccion) ? primera.seccion : 'Otros',
       origen: [...new Set(apariciones.map((a) => a.corto))],
     };
   });

@@ -86,6 +86,21 @@ describe('listaDesdeRecetas', () => {
     expect(l.map((x) => x.nombre)).toEqual(['Pimiento ROJO', 'Aceite de oliva']);
     expect(l.find((x) => x.nombre === 'Aceite de oliva')?.cantidad).toBe('2 l');
   });
+
+  it('una sección vacía o desconocida cuenta como Otros, en la línea y al ordenar', () => {
+    const l = listaDesdeRecetas([
+      {
+        corto: 'a',
+        ingredientes: [ing('Pienso', '1', null), ing('Cebolla', '1', 'Frutería y verdura'), ing('Velas', '2', 'Bazar'), ing('Pan', '1', 'Panadería')],
+      },
+    ]);
+    expect(l.map((x) => [x.nombre, x.seccion])).toEqual([
+      ['Cebolla', 'Frutería y verdura'],
+      ['Pan', 'Panadería'],
+      ['Pienso', 'Otros'],
+      ['Velas', 'Otros'],
+    ]);
+  });
 });
 
 describe('seccionDe', () => {
