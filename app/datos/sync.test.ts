@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from './local';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { abrirCopia, type CopiaLocal } from './local';
 import { SinSesion, escribir, sincronizar } from './sync';
 
 type Llamada = { url: string; cuerpo?: { ops: { id: string; fila: { id: string } }[] } };
@@ -25,9 +25,10 @@ const productoAjeno = (id: string, nombre: string, version: number) => ({
   id, nombre, cantidad: null, seccion: null, origen: null, estado: 'pendiente', cogido_por: null, version, borrado: 0,
 });
 
-beforeEach(async () => {
-  await db.delete();
-  await db.open();
+// Cada prueba abre la copia de un hogar nuevo, que empieza vacía.
+let db: CopiaLocal;
+beforeEach(() => {
+  db = abrirCopia(crypto.randomUUID());
 });
 
 describe('copia local y sincronización', () => {
@@ -152,5 +153,28 @@ describe('copia local y sincronización', () => {
     const [x, y] = await Promise.all([sincronizar(fetcher), sincronizar(fetcher)]);
     expect(llamadas.filter((l) => esOps(l.url))).toHaveLength(1);
     expect(x).toEqual(y);
+  });
+});
+
+describe('una copia por hogar', () => {
+  it('la cola y las filas de un hogar no aparecen en otro, y siguen ahí al volver', async () => {
+    const [A, B] = [crypto.randomUUID(), crypto.randomUUID()];
+    abrirCopia(A);
+    await escribir('producto', { id: 'p1', nombre: 'Leche' });
+
+    const otra = abrirCopia(B);
+    expect(otra.name).toBe('despensa-' + B);
+    expect(await otra.producto.count()).toBe(0);
+    expect(await otra.cola.count()).toBe(0);
+
+    const deVuelta = abrirCopia(A);
+    expect(await deVuelta.producto.get('p1')).toMatchObject({ nombre: 'Leche' });
+    expect(await deVuelta.cola.toArray()).toMatchObject([{ tabla: 'producto', fila: { id: 'p1' } }]);
+  });
+
+  it('sin una copia abierta, escribir lanza un error claro', async () => {
+    vi.resetModules();
+    const { escribir: escribirSinCopia } = await import('./sync');
+    await expect(escribirSinCopia('producto', { id: 'p1', nombre: 'Leche' })).rejects.toThrow('No hay ninguna copia local abierta');
   });
 });

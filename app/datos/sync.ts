@@ -1,7 +1,7 @@
-// Escribir aplica en local y encola; sincronizar envía la cola a /api/ops y trae /api/cambios.
+// Escribir aplica en la copia abierta y encola; sincronizar envía su cola a /api/ops y trae /api/cambios.
 
 import { MAX_OPS, NOMBRES_TABLAS, normalizarOp, type Fila, type Op, type TablaSync } from '../../shared/esquema';
-import { db, type OpEnCola } from './local';
+import { copia, type CopiaLocal, type OpEnCola } from './local';
 
 // El servidor respondió 401: hay que mandar a la persona a /bienvenida.
 export class SinSesion extends Error {
@@ -19,6 +19,7 @@ export async function escribir(
   fila: { id: string } & Record<string, unknown>,
   opciones: { borrar?: boolean } = {},
 ): Promise<void> {
+  const db = copia();
   await db.transaction('rw', db[tabla], db.cola, async () => {
     if (opciones.borrar) {
       const op = normalizarOp({ id: crypto.randomUUID(), tabla, fila: { id: fila.id }, borrar: true });
@@ -43,7 +44,7 @@ async function cuerpoJson(respuesta: Response): Promise<{ error?: string; op?: n
   }
 }
 
-async function enviarCola(fetcher: typeof fetch): Promise<number> {
+async function enviarCola(db: CopiaLocal, fetcher: typeof fetch): Promise<number> {
   let enviadas = 0;
   for (;;) {
     const lote = await db.cola.orderBy('n').limit(MAX_OPS).toArray();
@@ -76,7 +77,7 @@ async function enviarCola(fetcher: typeof fetch): Promise<number> {
 
 type Cambios = { version: number; filas?: Partial<Record<TablaSync, Fila[]>> };
 
-async function traerCambios(fetcher: typeof fetch): Promise<number> {
+async function traerCambios(db: CopiaLocal, fetcher: typeof fetch): Promise<number> {
   const desde = (await db.meta.get('version'))?.valor ?? 0;
   const respuesta = await fetcher('/api/cambios?desde=' + desde);
   if (respuesta.status === 401) throw new SinSesion();
@@ -99,17 +100,26 @@ async function traerCambios(fetcher: typeof fetch): Promise<number> {
   return cambios.version;
 }
 
-let enCurso: Promise<{ enviadas: number; version: number }> | null = null;
+type Resultado = { enviadas: number; version: number };
 
-// Una sola sincronización a la vez: quien llama mientras otra corre recibe la misma promesa.
-export function sincronizar(fetcher: typeof fetch = fetch): Promise<{ enviadas: number; version: number }> {
-  enCurso ??= (async () => {
-    try {
-      const enviadas = await enviarCola(fetcher);
-      return { enviadas, version: await traerCambios(fetcher) };
-    } finally {
-      enCurso = null;
-    }
-  })();
-  return enCurso;
+const enCurso = new WeakMap<CopiaLocal, Promise<Resultado>>();
+
+// Una sola sincronización a la vez por copia: quien llama mientras otra corre comparte su resultado.
+// La copia se fija al empezar, así una sincronización no mezcla dos hogares aunque entretanto se abra otro.
+// Es async para que la falta de copia llegue como rechazo, igual que cualquier otro fallo.
+export async function sincronizar(fetcher: typeof fetch = fetch): Promise<Resultado> {
+  const db = copia();
+  let promesa = enCurso.get(db);
+  if (!promesa) {
+    promesa = (async () => {
+      try {
+        const enviadas = await enviarCola(db, fetcher);
+        return { enviadas, version: await traerCambios(db, fetcher) };
+      } finally {
+        enCurso.delete(db);
+      }
+    })();
+    enCurso.set(db, promesa);
+  }
+  return promesa;
 }
