@@ -20,7 +20,8 @@ h1{font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.02em;text-wr
 .link{position:relative;color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--rule);text-underline-offset:3px}
 .link::before{content:"";position:absolute;inset:-14px -10px}
 .link:active{opacity:.6}
-.cta[aria-busy="true"],.link[aria-busy="true"]{opacity:.6;cursor:progress}
+.cta[aria-disabled="true"],.link[aria-disabled="true"]{opacity:.6;cursor:default}
+.cta[aria-busy="true"],.link[aria-busy="true"]{cursor:progress}
 .cta[aria-disabled="true"]:active{transform:none}
 
 .tabs{position:fixed;left:0;right:0;bottom:0;background:var(--bar);border-top:.5px solid var(--hair);padding:6px 8px env(safe-area-inset-bottom)}

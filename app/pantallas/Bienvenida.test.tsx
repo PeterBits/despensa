@@ -1,36 +1,65 @@
 import { startRegistration } from '@simplewebauthn/browser';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, useLocation } from 'react-router';
 import { Rutas } from '../App';
 import { Bienvenida } from './Bienvenida';
 import { Invitacion } from './Invitacion';
 
 vi.mock('@simplewebauthn/browser', () => ({ startRegistration: vi.fn(), startAuthentication: vi.fn() }));
 
+// Datos inventados: ni las opciones ni la respuesta se parecen a una passkey real.
+const OPCIONES = { challenge: 'reto' };
+const RESPUESTA = { id: 'credencial-1' } as unknown as Awaited<ReturnType<typeof startRegistration>>;
+const SIN_SESION = { error: 'Entra con tu passkey para seguir.' };
+
 // Servidor falso: cada ruta responde lo que diga el test; una ruta no prevista, 404.
+// Una ruta que "no responde" no contesta nunca: solo falla si se aborta la petición, como un fetch real.
+type Respuesta = { estado: number; cuerpo: unknown } | 'nunca';
 const servidor = {
-  respuestas: new Map<string, { estado: number; cuerpo: unknown }>(),
-  peticiones: [] as string[],
+  respuestas: new Map<string, Respuesta>(),
+  peticiones: [] as { ruta: string; cuerpo?: unknown }[],
   responde(ruta: string, estado: number, cuerpo: unknown) {
     servidor.respuestas.set(ruta, { estado, cuerpo });
+  },
+  noResponde(ruta: string) {
+    servidor.respuestas.set(ruta, 'nunca');
+  },
+  cuerpo(ruta: string) {
+    return servidor.peticiones.findLast((p) => p.ruta === ruta)?.cuerpo;
   },
 };
 
 beforeEach(() => {
   servidor.respuestas.clear();
   servidor.peticiones = [];
-  vi.stubGlobal('fetch', async (url: RequestInfo | URL) => {
+  vi.stubGlobal('fetch', async (url: RequestInfo | URL, init?: RequestInit) => {
     const ruta = String(url);
-    servidor.peticiones.push(ruta);
-    const { estado, cuerpo } = servidor.respuestas.get(ruta) ?? { estado: 404, cuerpo: { error: 'Ruta no prevista.' } };
-    return new Response(JSON.stringify(cuerpo), { status: estado, headers: { 'Content-Type': 'application/json' } });
+    servidor.peticiones.push({ ruta, cuerpo: init?.body ? JSON.parse(String(init.body)) : undefined });
+    const respuesta = servidor.respuestas.get(ruta) ?? { estado: 404, cuerpo: { error: 'Ruta no prevista.' } };
+    if (respuesta === 'nunca') {
+      return new Promise<Response>((_, rechazar) => {
+        init?.signal?.addEventListener('abort', () => rechazar(init.signal?.reason));
+      });
+    }
+    return new Response(JSON.stringify(respuesta.cuerpo), {
+      status: respuesta.estado,
+      headers: { 'Content-Type': 'application/json' },
+    });
   });
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
+  vi.resetAllMocks();
 });
+
+// Enseña la ruta en la que está el router, con su hash.
+function Ubicacion() {
+  const { pathname, hash } = useLocation();
+  return <p>{pathname + hash}</p>;
+}
 
 describe('Invitación', () => {
   it('muestra el error del servidor si la invitación ya no vale', async () => {
@@ -46,21 +75,73 @@ describe('Invitación', () => {
     expect(screen.queryByRole('button', { name: 'Entrar con Face ID' })).not.toBeInTheDocument();
     expect(servidor.peticiones).toEqual([]);
   });
+
+  it('quita el token de la URL nada más leerlo', () => {
+    window.history.replaceState(null, '', '/invitacion#tok');
+    render(
+      <MemoryRouter initialEntries={['/invitacion#tok']}>
+        <Invitacion />
+        <Ubicacion />
+      </MemoryRouter>,
+    );
+    expect(screen.getByText('/invitacion')).toBeInTheDocument();
+    expect(window.location.hash).toBe('');
+  });
+
+  it('si el hogar ya está completo, no deja reintentar y lleva el foco al título', async () => {
+    servidor.responde('/api/invitaciones/aceptar/opciones', 409, { error: 'Este hogar ya tiene dos personas.' });
+    render(<MemoryRouter initialEntries={['/invitacion#tok']}><Invitacion /></MemoryRouter>);
+    await userEvent.click(screen.getByRole('button', { name: 'Entrar con Face ID' }));
+    expect(await screen.findByRole('heading', { name: 'Este hogar ya tiene dos personas.' })).toHaveFocus();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('al aceptar con Face ID, lleva a la semana', async () => {
+    servidor.responde('/api/yo', 401, SIN_SESION);
+    servidor.responde('/api/invitaciones/aceptar/opciones', 200, { retoId: 'reto-2', opciones: OPCIONES });
+    servidor.responde('/api/invitaciones/aceptar', 201, { ok: true });
+    vi.mocked(startRegistration).mockResolvedValueOnce(RESPUESTA);
+    render(<MemoryRouter initialEntries={['/invitacion#tok']}><Rutas /></MemoryRouter>);
+    await userEvent.click(await screen.findByRole('button', { name: 'Entrar con Face ID' }));
+    expect(await screen.findByRole('heading', { name: 'Semana' })).toBeInTheDocument();
+    expect(servidor.cuerpo('/api/invitaciones/aceptar')).toEqual({ token: 'tok', retoId: 'reto-2', respuesta: RESPUESTA });
+  });
 });
 
 describe('Bienvenida', () => {
   it('avisa si Face ID se cancela', async () => {
-    servidor.responde('/api/hogar/opciones', 200, { retoId: 'reto-1', opciones: { challenge: 'reto' } });
+    servidor.responde('/api/hogar/opciones', 200, { retoId: 'reto-1', opciones: OPCIONES });
     vi.mocked(startRegistration).mockRejectedValueOnce(new DOMException('Cancelado.', 'NotAllowedError'));
     render(<Bienvenida />);
     await userEvent.click(screen.getByRole('button', { name: 'Crear nuestro hogar' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo usar Face ID. Vuelve a intentarlo.');
   });
+
+  it('al crear el hogar, lleva a la semana', async () => {
+    servidor.responde('/api/yo', 401, SIN_SESION);
+    servidor.responde('/api/hogar/opciones', 200, { retoId: 'reto-1', opciones: OPCIONES });
+    servidor.responde('/api/hogar', 201, { ok: true });
+    vi.mocked(startRegistration).mockResolvedValueOnce(RESPUESTA);
+    render(<MemoryRouter initialEntries={['/bienvenida']}><Rutas /></MemoryRouter>);
+    await userEvent.click(await screen.findByRole('button', { name: 'Crear nuestro hogar' }));
+    expect(await screen.findByRole('heading', { name: 'Semana' })).toBeInTheDocument();
+    expect(servidor.cuerpo('/api/hogar')).toEqual({ retoId: 'reto-1', respuesta: RESPUESTA });
+  });
+
+  it('un doble toque en "Crear nuestro hogar" lanza una sola ceremonia', async () => {
+    servidor.responde('/api/hogar/opciones', 200, { retoId: 'reto-1', opciones: OPCIONES });
+    vi.mocked(startRegistration).mockReturnValueOnce(new Promise(() => {}));
+    render(<Bienvenida />);
+    await userEvent.dblClick(screen.getByRole('button', { name: 'Crear nuestro hogar' }));
+    await waitFor(() => expect(startRegistration).toHaveBeenCalledTimes(1));
+    expect(servidor.peticiones.filter((p) => p.ruta === '/api/hogar/opciones')).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Ya tengo cuenta: entrar' })).toHaveAttribute('aria-disabled', 'true');
+  });
 });
 
 describe('Entrada a la app', () => {
   it('sin sesión, cualquier ruta lleva a la bienvenida', async () => {
-    servidor.responde('/api/yo', 401, { error: 'Entra con tu passkey para seguir.' });
+    servidor.responde('/api/yo', 401, SIN_SESION);
     render(<MemoryRouter initialEntries={['/semana']}><Rutas /></MemoryRouter>);
     expect(await screen.findByRole('heading', { name: 'Despensa' })).toBeInTheDocument();
   });
@@ -69,5 +150,14 @@ describe('Entrada a la app', () => {
     servidor.responde('/api/yo', 200, { miembroId: 'miembro-1', hogarId: 'hogar-1', miembros: 2 });
     render(<MemoryRouter initialEntries={['/bienvenida']}><Rutas /></MemoryRouter>);
     expect(await screen.findByRole('heading', { name: 'Semana' })).toBeInTheDocument();
+  });
+
+  it('si /api/yo no responde en 4 s, abre la app', async () => {
+    vi.useFakeTimers();
+    servidor.noResponde('/api/yo');
+    const { container } = render(<MemoryRouter initialEntries={['/semana']}><Rutas /></MemoryRouter>);
+    expect(container).toBeEmptyDOMElement();
+    await act(() => vi.advanceTimersByTimeAsync(4000));
+    expect(screen.getByRole('heading', { name: 'Semana' })).toBeInTheDocument();
   });
 });

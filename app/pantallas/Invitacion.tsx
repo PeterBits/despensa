@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { aceptarInvitacion, InvitacionCaducada } from '../datos/acceso';
+import { aceptarInvitacion, RechazoDelServidor } from '../datos/acceso';
 import '../estilos/acceso.css';
 import { useCeremonia } from './ceremonia';
 
 // La misma frase que da el servidor con un 410.
 const CADUCADA = 'Esta invitación ya no vale. Pide otra.';
+// Sin vuelta atrás: la invitación ya no vale (410) o el hogar ya está completo (409).
+const TERMINALES = [410, 409];
 
 export function Invitacion({ alEntrar }: { alEntrar?: () => void }) {
   const { hash, pathname, search } = useLocation();
@@ -19,14 +21,22 @@ export function Invitacion({ alEntrar }: { alEntrar?: () => void }) {
   }, [hash, pathname, search, navigate]);
 
   const { ocupada, error, lanzar } = useCeremonia(alEntrar);
-  const caducada = !token ? CADUCADA : error instanceof InvitacionCaducada ? error.message : null;
+  const rechazo = error instanceof RechazoDelServidor && TERMINALES.includes(error.estado) ? error : null;
 
-  if (caducada) {
+  // Si el estado final llega tras pulsar, el botón desaparece: el foco pasa al título en vez de caer al body.
+  const titulo = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (rechazo) titulo.current?.focus();
+  }, [rechazo]);
+
+  if (!token || rechazo) {
     return (
       <main className="screen acceso">
-        <header role="alert">
-          <h1>{caducada}</h1>
-          <p className="sub">Pídele a tu pareja que te mande un enlace nuevo.</p>
+        <header>
+          <h1 ref={titulo} tabIndex={-1}>
+            <span role="alert">{rechazo ? rechazo.message : CADUCADA}</span>
+          </h1>
+          {rechazo?.estado !== 409 && <p className="sub">Pídele a tu pareja que te mande un enlace nuevo.</p>}
         </header>
       </main>
     );

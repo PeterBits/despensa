@@ -13,11 +13,15 @@ export const FALLO_FACE_ID = 'No se pudo usar Face ID. Vuelve a intentarlo.';
 const SIN_CONEXION = 'No hay conexión. Inténtalo otra vez.';
 const FALLO = 'Algo ha fallado. Inténtalo otra vez.';
 
-// El servidor respondió 410: la invitación no existe, ya se usó o caducó.
-export class InvitacionCaducada extends Error {
-  constructor(mensaje: string) {
+// El servidor rechazó la petición: el mensaje es su frase y `estado`, el código HTTP
+// (410: la invitación no existe, ya se usó o caducó; 409: el hogar ya tiene dos personas).
+export class RechazoDelServidor extends Error {
+  readonly estado: number;
+
+  constructor(mensaje: string, estado: number) {
     super(mensaje);
-    this.name = 'InvitacionCaducada';
+    this.name = 'RechazoDelServidor';
+    this.estado = estado;
   }
 }
 
@@ -38,15 +42,22 @@ async function enviar<T>(ruta: string, cuerpo: Record<string, unknown> = {}): Pr
   if (respuesta.ok) return datos as T;
   const error = (datos as { error?: unknown }).error;
   const mensaje = typeof error === 'string' ? error : FALLO;
-  throw respuesta.status === 410 ? new InvitacionCaducada(mensaje) : new Error(mensaje);
+  throw new RechazoDelServidor(mensaje, respuesta.status);
 }
 
-// Cancelar Face ID, o que el móvil no pueda hacer la ceremonia, se cuenta igual: se puede volver a intentar.
+// Cancelar Face ID o que se agote su tiempo llega como NotAllowedError o AbortError; @simplewebauthn los envuelve
+// en un WebAuthnError que conserva ese `name`. Cualquier otro fallo (opciones mal formadas, por ejemplo) es genérico,
+// y solo se apunta su nombre: ni el token ni las opciones.
+const CANCELACIONES = ['NotAllowedError', 'AbortError'];
+
 async function ceremonia<T>(paso: () => Promise<T>): Promise<T> {
   try {
     return await paso();
-  } catch {
-    throw new Error(FALLO_FACE_ID);
+  } catch (e) {
+    const nombre = typeof e === 'object' && e !== null && 'name' in e ? String(e.name) : typeof e;
+    if (CANCELACIONES.includes(nombre)) throw new Error(FALLO_FACE_ID);
+    console.debug('La ceremonia de passkey ha fallado:', nombre);
+    throw new Error(FALLO);
   }
 }
 
@@ -71,12 +82,18 @@ export async function entrar(): Promise<void> {
   await enviar('/api/entrar', { retoId, respuesta });
 }
 
-// Solo un 401 significa que no hay sesión. Sin red no se puede saber, y la app abre con su copia local:
-// si la sesión ya no vale, la sincronización recibirá el 401.
+const ESPERA_SESION = 4000;
+
+// Solo un 401 significa que no hay sesión. Sin red, o si /api/yo tarda más de 4 s, no se puede saber,
+// y la app abre con su copia local: si la sesión ya no vale, la sincronización recibirá el 401.
 export async function haySesion(): Promise<boolean> {
+  const corte = new AbortController();
+  const reloj = setTimeout(() => corte.abort(), ESPERA_SESION);
   try {
-    return (await fetch('/api/yo')).status !== 401;
+    return (await fetch('/api/yo', { signal: corte.signal })).status !== 401;
   } catch {
     return true;
+  } finally {
+    clearTimeout(reloj);
   }
 }
