@@ -38,6 +38,7 @@ async function entrarComo(c: Context<Entorno>, miembroId: string, estado: 200 | 
 }
 
 // El reto de un registro lleva el id del miembro que se creará, que es también el userID de su passkey.
+// Nada garantiza que el userHandle de la passkey sea ese miembroId: entrar busca solo por el id de la credencial.
 async function retoDeRegistro(env: Env, verificador: Verificador) {
   const miembroId = crypto.randomUUID();
   const opciones = await verificador(env).opcionesRegistro(miembroId);
@@ -151,7 +152,8 @@ export function rutasPublicas(app: Hono<Entorno>, verificador: Verificador): voi
     if (!guardada) return c.json({ error: ERROR.passkey }, 401);
     const verificada = await verificador(c.env).verificarEntrada(respuesta, reto, guardada.credencial);
     if (!verificada) return c.json({ error: ERROR.passkey }, 401);
-    await db.prepare('UPDATE credencial SET contador = ? WHERE id = ?')
+    // MAX: dos entradas a la vez no pueden hacer retroceder el contador.
+    await db.prepare('UPDATE credencial SET contador = MAX(contador, ?) WHERE id = ?')
       .bind(verificada.contador, guardada.credencial.id)
       .run();
     return entrarComo(c, guardada.miembroId, 200);

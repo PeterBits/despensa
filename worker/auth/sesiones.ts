@@ -56,6 +56,17 @@ export async function cerrarSesion(db: D1Database, cookie: string | null): Promi
   if (token) await db.prepare('DELETE FROM sesion WHERE id = ?').bind(await sha256(token)).run();
 }
 
+// Contra CSRF: una escritura que llega desde otra web (Origin ajeno o Sec-Fetch-Site cross-site) no pasa,
+// porque un formulario text/plain podría colar JSON y dejar la cookie. Sin ninguna de las dos (curl, tests), sí.
+export const soloMismoOrigen = createMiddleware<Entorno>(async (c, next) => {
+  if (c.req.method !== 'GET' && c.req.method !== 'HEAD') {
+    const origen = c.req.header('Origin');
+    if ((origen !== undefined && origen !== c.env.ORIGEN) || c.req.header('Sec-Fetch-Site') === 'cross-site')
+      return c.json({ error: 'Esta petición no viene de Despensa.' }, 403);
+  }
+  await next();
+});
+
 // Sin sesión, 401. Si le quedan menos de 90 días, la alarga a 180 y reenvía la misma cookie.
 export const requiereSesion = createMiddleware<Entorno>(async (c, next) => {
   const s = await buscar(c.env.DB, c.req.header('Cookie') ?? null);

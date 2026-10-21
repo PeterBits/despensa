@@ -6,19 +6,19 @@ import {
   verifyAuthenticationResponse,
   verifyRegistrationResponse,
   type AuthenticationResponseJSON,
+  type PublicKeyCredentialCreationOptionsJSON,
+  type PublicKeyCredentialRequestOptionsJSON,
   type RegistrationResponseJSON,
 } from '@simplewebauthn/server';
 import { isoUint8Array } from '@simplewebauthn/server/helpers';
 
 export type Credencial = { id: string; clavePublica: Uint8Array; contador: number; transportes: string[] };
 
-// Lo que necesita el navegador para crear o usar una passkey; `challenge` es el reto que se guarda.
-export type OpcionesPasskey = { challenge: string };
-
+// Las opciones viajan tal cual a @simplewebauthn/browser; su `challenge` es el reto que se guarda.
 export interface VerificadorPasskeys {
-  opcionesRegistro(miembroId: string): Promise<OpcionesPasskey>;
+  opcionesRegistro(miembroId: string): Promise<PublicKeyCredentialCreationOptionsJSON>;
   verificarRegistro(respuesta: unknown, reto: string): Promise<Credencial | null>;
-  opcionesEntrada(): Promise<OpcionesPasskey>;
+  opcionesEntrada(): Promise<PublicKeyCredentialRequestOptionsJSON>;
   verificarEntrada(respuesta: unknown, reto: string, credencial: Credencial): Promise<{ id: string; contador: number } | null>;
 }
 
@@ -36,7 +36,7 @@ export function verificadorReal(env: Env): VerificadorPasskeys {
         userDisplayName: ETIQUETA,
         userID: isoUint8Array.fromUTF8String(miembroId),
         // Descubrible: "Entrar con mi passkey" funciona sin nombre de usuario.
-        authenticatorSelection: { residentKey: 'required', userVerification: 'preferred' },
+        authenticatorSelection: { residentKey: 'required', userVerification: 'required' },
       }),
 
     async verificarRegistro(respuesta, reto) {
@@ -48,7 +48,7 @@ export function verificadorReal(env: Env): VerificadorPasskeys {
       return { id, clavePublica: publicKey, contador: counter, transportes: transports ?? [] };
     },
 
-    opcionesEntrada: () => generateAuthenticationOptions({ rpID: env.RP_ID, userVerification: 'preferred' }),
+    opcionesEntrada: () => generateAuthenticationOptions({ rpID: env.RP_ID, userVerification: 'required' }),
 
     async verificarEntrada(respuesta, reto, credencial) {
       const r = await intentar(() =>
