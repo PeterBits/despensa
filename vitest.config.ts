@@ -27,7 +27,7 @@ export default defineConfig({
           name: 'app',
           globals: true,
           environment: 'jsdom',
-          include: ['app/**/*.test.tsx', 'shared/**/*.test.ts'],
+          include: ['app/**/*.test.tsx', 'app/datos/*.test.ts','shared/**/*.test.ts'],
           setupFiles: ['./app/preparar-pruebas.ts'],
         },
       },
