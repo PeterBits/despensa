@@ -9,7 +9,7 @@ export function rutasSync(app: Hono<Entorno>) {
   app.post('/api/ops', async (c) => {
     const cuerpo: unknown = await c.req.json().catch(() => null);
     const validado = validarOps(cuerpo);
-    if (!validado.ok) return c.json({ error: validado.error }, 400);
+    if (!validado.ok) return c.json(validado.op === undefined ? { error: validado.error } : { error: validado.error, op: validado.op }, 400);
     const { hogarId, miembroId } = c.get('sesion');
     const { version } = await aplicarOps(c.env.DB, hogarId, miembroId, validado.ops);
     return c.json({ version });

@@ -40,7 +40,9 @@ export async function aplicarOps(
   ops: Op[],
 ): Promise<{ version: number; aplicadas: number }> {
   if (ops.length > MAX_OPS) throw new Error(`Como mucho ${MAX_OPS} operaciones por lote.`);
-  const porId = new Map(ops.map((op) => [op.id, normalizarOp(op)]));
+  // Un id repetido en la petición cuenta una vez, con su primera aparición entera.
+  const porId = new Map<string, Op>();
+  for (const op of ops) if (!porId.has(op.id)) porId.set(op.id, normalizarOp(op));
   const ids = [...porId.keys()];
   const vistas = ids.length === 0 ? [] : (
     await db.prepare(`SELECT id FROM op_vista WHERE id IN (${marcas(ids.length)})`).bind(...ids).all<{ id: string }>()

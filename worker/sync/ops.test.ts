@@ -107,6 +107,39 @@ describe('aplicarOps', () => {
   });
 });
 
+  it('con un id repetido en la petición se queda con su primera aparición entera', async () => {
+    const M = id();
+    const H = await hogarCon(M);
+    const [p, q] = [id(), id()];
+    const opId = id();
+    const r = await aplicarOps(env.DB, H, M, [opProducto(opId, p, { nombre: 'Primera' }), opProducto(opId, q, { nombre: 'Segunda' })]);
+    expect(r.aplicadas).toBe(1);
+    expect(await cuenta('SELECT COUNT(*) AS n FROM producto WHERE id IN (?, ?)', p, q)).toBe(1);
+    expect(await fila('SELECT nombre FROM producto WHERE id = ?', p)).toEqual({ nombre: 'Primera' });
+  });
+
+  it('en un reenvío parcial solo aplica las nuevas y sube la versión una vez', async () => {
+    const M = id();
+    const H = await hogarCon(M);
+    const vista = opProducto(id(), id());
+    const { version: v1 } = await aplicarOps(env.DB, H, M, [vista]);
+    const nuevas = [opProducto(id(), id()), opProducto(id(), id())];
+    const r = await aplicarOps(env.DB, H, M, [vista, ...nuevas]);
+    expect(r).toEqual({ version: v1 + 1, aplicadas: 2 });
+    expect(await versionDe(H)).toBe(v1 + 1);
+  });
+
+  it('un upsert sobre tu fila borrada en lógico la recupera con borrado = 0', async () => {
+    const M = id();
+    const H = await hogarCon(M);
+    const p = id();
+    await aplicarOps(env.DB, H, M, [opProducto(id(), p)]);
+    await aplicarOps(env.DB, H, M, [{ id: id(), tabla: 'producto', fila: { id: p }, borrar: true }]);
+    expect(await fila('SELECT borrado FROM producto WHERE id = ?', p)).toEqual({ borrado: 1 });
+    const { version } = await aplicarOps(env.DB, H, M, [opProducto(id(), p, { nombre: 'Otra vez' })]);
+    expect(await fila('SELECT nombre, borrado, version FROM producto WHERE id = ?', p)).toEqual({ nombre: 'Otra vez', borrado: 0, version });
+  });
+
 describe('POST /api/ops y GET /api/cambios', () => {
   async function conSesion() {
     const m = id();
@@ -136,7 +169,7 @@ describe('POST /api/ops y GET /api/cambios', () => {
     const bueno = id();
     const r = await enviar(cookie, { ops: [opProducto(id(), bueno), opProducto(id(), id(), { columna_rara: 1 })] });
     expect(r.status).toBe(400);
-    expect(await r.json()).toEqual({ error: expect.any(String) });
+    expect(await r.json()).toEqual({ error: expect.any(String), op: 1 });
     expect(await cuenta('SELECT COUNT(*) AS n FROM producto WHERE id = ?', bueno)).toBe(0);
     expect(await versionDe(H)).toBe(0);
   });
@@ -167,5 +200,37 @@ describe('POST /api/ops y GET /api/cambios', () => {
   it('rechaza un desde que no es un entero no negativo', async () => {
     const { cookie } = await conSesion();
     for (const malo of ['-1', 'abc', '1.5', '']) expect((await pedirCambios(cookie, `?desde=${malo}`)).status).toBe(400);
+  });
+
+  it('rechaza con 400 una fila con hogar_id, version o borrado e indica qué operación falla', async () => {
+    const { cookie } = await conSesion();
+    for (const columna of ['hogar_id', 'version', 'borrado']) {
+      const r = await enviar(cookie, { ops: [opProducto(id(), id()), opProducto(id(), id(), { [columna]: 1 })] });
+      expect(r.status).toBe(400);
+      expect(await r.json()).toEqual({ error: expect.any(String), op: 1 });
+    }
+  });
+
+  it('rechaza un booleano enviado como true en vez de 1', async () => {
+    const { cookie } = await conSesion();
+    const semana = (propuesta_aceptada: unknown) => ({ id: id(), tabla: 'semana', fila: { id: id(), lunes: '2026-10-19', propuesta_aceptada } });
+    const r = await enviar(cookie, { ops: [semana(true)] });
+    expect(r.status).toBe(400);
+    expect(await r.json()).toMatchObject({ op: 0 });
+    expect((await enviar(cookie, { ops: [semana(1)] })).status).toBe(200);
+  });
+
+  it('rechaza un texto demasiado largo con 400', async () => {
+    const { H, cookie } = await conSesion();
+    const r = await enviar(cookie, { ops: [opProducto(id(), id(), { nombre: 'x'.repeat(2001) })] });
+    expect(r.status).toBe(400);
+    expect(await r.json()).toMatchObject({ op: 0 });
+    expect(await versionDe(H)).toBe(0);
+  });
+
+  it('un fallo de la petición entera no lleva índice de operación', async () => {
+    const { cookie } = await conSesion();
+    const r = await enviar(cookie, { ops: Array.from({ length: MAX_OPS + 1 }, () => opProducto(id(), id())) });
+    expect(await r.json()).toEqual({ error: expect.any(String) });
   });
 });

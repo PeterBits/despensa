@@ -4,11 +4,15 @@
 import { z } from 'zod';
 
 // Workers Free permite 50 consultas D1 por invocación: el lote lleva 1 + N + 1, además de la sesión y las ya vistas.
+// Además, el INSERT multifila de op_vista usa 2 parámetros por op y D1 admite 100 por sentencia: MAX_OPS debe seguir siendo <= 50.
 export const MAX_OPS = 40;
 
 const idTexto = z.string().min(1).max(100);
-const texto = z.string();
-const textoOpcional = z.string().nullable().default(null);
+// Texto corriente (nombres, cantidades, secciones): 2000 caracteres de sobra. Los largos, 10000.
+const texto = z.string().max(2000);
+const textoOpcional = z.string().max(2000).nullable().default(null);
+const textoLargo = z.string().max(10_000);
+const textoLargoOpcional = z.string().max(10_000).nullable().default(null);
 const entero = z.number().int().min(0);
 const enteroOpcional = entero.nullable().default(null);
 const fecha = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -19,14 +23,15 @@ const booleano = (porDefecto: 0 | 1) => z.union([z.literal(0), z.literal(1)]).de
 export const TABLAS_SYNC = {
   receta: z.strictObject({
     id: idTexto, nombre: texto, corto: textoOpcional, raciones: enteroOpcional, minutos: enteroOpcional,
-    tipos: textoOpcional, foto_key: textoOpcional, notas: textoOpcional,
+    // tipos viaja como texto JSON ya serializado, en los dos sentidos.
+    tipos: textoOpcional, foto_key: textoOpcional, notas: textoLargoOpcional,
   }),
   ingrediente: z.strictObject({
     id: idTexto, receta_id: idTexto, orden: entero.default(0), nombre: texto, cantidad: textoOpcional,
     compra: textoOpcional, a_la_lista: booleano(1), tipo: textoOpcional, seccion: textoOpcional,
   }),
   paso: z.strictObject({
-    id: idTexto, receta_id: idTexto, orden: entero.default(0), texto, minutos: enteroOpcional,
+    id: idTexto, receta_id: idTexto, orden: entero.default(0), texto: textoLargo, minutos: enteroOpcional,
   }),
   semana: z.strictObject({ id: idTexto, lunes: fecha, propuesta_aceptada: booleano(0) }),
   semana_dia: z.strictObject({
@@ -82,7 +87,8 @@ export function normalizarOp(op: unknown): Op {
   return borrar ? { id, tabla, fila: resultado, borrar: true } : { id, tabla, fila: resultado };
 }
 
-export type ResultadoOps = { ok: true; ops: Op[] } | { ok: false; error: string };
+// `op` es el índice de la operación inválida en la petición; sin él, el problema es de la petición entera.
+export type ResultadoOps = { ok: true; ops: Op[] } | { ok: false; error: string; op?: number };
 
 // Valida la petición entera: si una operación falla, ninguna vale.
 export function validarOps(cuerpo: unknown): ResultadoOps {
@@ -90,10 +96,14 @@ export function validarOps(cuerpo: unknown): ResultadoOps {
   if (!envoltorio.success) return { ok: false, error: 'La petición no es válida.' };
   if (envoltorio.data.ops.length > MAX_OPS)
     return { ok: false, error: `Demasiadas operaciones: como mucho ${MAX_OPS} por petición.` };
-  try {
-    return { ok: true, ops: envoltorio.data.ops.map(normalizarOp) };
-  } catch (e) {
-    if (e instanceof z.ZodError) return { ok: false, error: 'Alguna operación no es válida.' };
-    throw e;
+  const ops: Op[] = [];
+  for (const [i, bruta] of envoltorio.data.ops.entries()) {
+    try {
+      ops.push(normalizarOp(bruta));
+    } catch (e) {
+      if (e instanceof z.ZodError) return { ok: false, error: 'Una operación no es válida.', op: i };
+      throw e;
+    }
   }
+  return { ok: true, ops };
 }
