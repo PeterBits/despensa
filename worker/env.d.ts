@@ -3,7 +3,6 @@
 interface Env {
   DB: D1Database;
   FOTOS: R2Bucket;
-  ASSETS: Fetcher;
   RP_ID: string;
   ORIGEN: string;
 }
