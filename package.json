@@ -11,6 +11,7 @@
     "db:migrar:local": "wrangler d1 migrations apply despensa --local"
   },
   "dependencies": {
+    "@simplewebauthn/server": "^14.0.3",
     "hono": "^4.13.13",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
