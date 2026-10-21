@@ -78,8 +78,7 @@ CREATE TABLE ingrediente (
   receta_id TEXT NOT NULL,
   orden INTEGER NOT NULL DEFAULT 0,
   nombre TEXT NOT NULL,
-  cantidad REAL,
-  unidad TEXT,
+  cantidad TEXT, -- tal como se escribe, con unidad: "1,5 kg", "2 dientes", "al gusto"
   compra TEXT,
   a_la_lista INTEGER NOT NULL DEFAULT 1,
   tipo TEXT,
