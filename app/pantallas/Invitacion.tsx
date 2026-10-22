@@ -4,10 +4,20 @@ import { aceptarInvitacion, entrar, RechazoDelServidor } from '../datos/acceso';
 import '../estilos/acceso.css';
 import { useCeremonia } from './ceremonia';
 
-// La misma frase que da el servidor con un 410.
-const CADUCADA = 'Esta invitación ya no vale. Pide otra.';
 // Sin vuelta atrás: la invitación ya no vale (410) o el hogar ya está completo (409).
-const TERMINALES = [410, 409];
+// El texto sale del estado, no del servidor: dice la salida una vez y explica el enlace de entrar.
+const CADUCADA = {
+  titulo: 'Esta invitación ya no vale',
+  linea: 'Pídele a tu pareja un enlace nuevo. Si ya te uniste, entra con tu passkey.',
+};
+const TEXTOS: Record<number, { titulo: string; linea: string }> = {
+  410: CADUCADA,
+  409: {
+    titulo: 'Este hogar ya tiene dos personas',
+    linea: 'Si eres una de ellas, entra con tu passkey.',
+  },
+};
+const TERMINALES = Object.keys(TEXTOS).map(Number);
 
 export function Invitacion({ alEntrar }: { alEntrar?: () => void }) {
   const { hash, pathname, search } = useLocation();
@@ -34,13 +44,15 @@ export function Invitacion({ alEntrar }: { alEntrar?: () => void }) {
 
   // Quien ya se unió (y, por ejemplo, perdió la respuesta) no necesita otro enlace: le basta entrar con su passkey.
   if (!token || rechazo) {
+    // Sin token cuenta como 410. El título no es una alerta: ya recibe el foco y se leería dos veces.
+    const texto = (rechazo && TEXTOS[rechazo.estado]) || CADUCADA;
     return (
       <main className="screen acceso">
         <header>
           <h1 ref={titulo} tabIndex={-1}>
-            <span role="alert">{rechazo ? rechazo.message : CADUCADA}</span>
+            {texto.titulo}
           </h1>
-          {rechazo?.estado !== 409 && <p className="sub">Pídele a tu pareja que te mande un enlace nuevo.</p>}
+          <p className="sub">{texto.linea}</p>
         </header>
         <div className="acciones">
           {error && error !== rechazo && (

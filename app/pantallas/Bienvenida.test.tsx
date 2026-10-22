@@ -71,12 +71,14 @@ describe('Invitación', () => {
     servidor.responde('/api/invitaciones/aceptar/opciones', 410, { error: 'Esta invitación ya no vale. Pide otra.' });
     render(<MemoryRouter initialEntries={['/invitacion#tok']}><Invitacion /></MemoryRouter>);
     await userEvent.click(screen.getByRole('button', { name: 'Entrar con Face ID' }));
-    expect(await screen.findByText('Esta invitación ya no vale. Pide otra.')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Esta invitación ya no vale' })).toBeInTheDocument();
+    expect(screen.getByText('Pídele a tu pareja un enlace nuevo. Si ya te uniste, entra con tu passkey.')).toBeInTheDocument();
   });
 
   it('sin token en el enlace, la da por caducada sin preguntar al servidor', () => {
     render(<MemoryRouter initialEntries={['/invitacion']}><Invitacion /></MemoryRouter>);
-    expect(screen.getByText('Esta invitación ya no vale. Pide otra.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Esta invitación ya no vale' })).toBeInTheDocument();
+    expect(screen.getByText('Pídele a tu pareja un enlace nuevo. Si ya te uniste, entra con tu passkey.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Entrar con Face ID' })).not.toBeInTheDocument();
     expect(servidor.peticiones).toEqual([]);
   });
@@ -97,8 +99,25 @@ describe('Invitación', () => {
     servidor.responde('/api/invitaciones/aceptar/opciones', 409, { error: 'Este hogar ya tiene dos personas.' });
     render(<MemoryRouter initialEntries={['/invitacion#tok']}><Invitacion /></MemoryRouter>);
     await userEvent.click(screen.getByRole('button', { name: 'Entrar con Face ID' }));
-    expect(await screen.findByRole('heading', { name: 'Este hogar ya tiene dos personas.' })).toHaveFocus();
+    expect(await screen.findByRole('heading', { name: 'Este hogar ya tiene dos personas' })).toHaveFocus();
     expect(screen.queryByRole('button', { name: 'Entrar con Face ID' })).not.toBeInTheDocument();
+  });
+
+  it('con un 409 explica a quién sirve entrar con la passkey', async () => {
+    servidor.responde('/api/invitaciones/aceptar/opciones', 409, { error: 'Este hogar ya tiene dos personas.' });
+    render(<MemoryRouter initialEntries={['/invitacion#tok']}><Invitacion /></MemoryRouter>);
+    await userEvent.click(screen.getByRole('button', { name: 'Entrar con Face ID' }));
+    expect(await screen.findByRole('heading', { name: 'Este hogar ya tiene dos personas' })).toHaveFocus();
+    expect(screen.getByText('Si eres una de ellas, entra con tu passkey.')).toBeInTheDocument();
+  });
+
+  it('el título del estado sin salida no es una alerta', async () => {
+    servidor.responde('/api/invitaciones/aceptar/opciones', 410, { error: 'Esta invitación ya no vale. Pide otra.' });
+    render(<MemoryRouter initialEntries={['/invitacion#tok']}><Invitacion /></MemoryRouter>);
+    await userEvent.click(screen.getByRole('button', { name: 'Entrar con Face ID' }));
+    const titulo = await screen.findByRole('heading', { name: 'Esta invitación ya no vale' });
+    expect(titulo.querySelector('[role="alert"]')).toBeNull();
+    expect(titulo).not.toHaveAttribute('role', 'alert');
   });
 
   it('si ya no vale, "Entrar con mi passkey" entra y lleva a la semana', async () => {
@@ -125,7 +144,7 @@ describe('Invitación', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Entrar con Face ID' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Entrar con mi passkey' }));
     expect(await screen.findByText('No se pudo usar Face ID. Vuelve a intentarlo.')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Esta invitación ya no vale. Pide otra.' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Esta invitación ya no vale' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Entrar con Face ID' })).not.toBeInTheDocument();
   });
 
