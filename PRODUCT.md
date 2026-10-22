@@ -86,7 +86,7 @@ Decisiones abiertas:
 - Qué nota usan Semana y Recetas cuando hay dos (la de cada uno). Supuesto de trabajo: la media.
 - Acceso: cómo entran los dos y cómo se comparte el "hogar". Supuesto de trabajo: un hogar
   compartido al que se une cada uno desde su móvil.
-- Qué pasa con el domingo (de momento, siempre fuera).
+- El domingo empieza fuera, pero se puede cambiar a día de comer (decidido el 22/10/2026).
 
 ## Evidence on Hand
 

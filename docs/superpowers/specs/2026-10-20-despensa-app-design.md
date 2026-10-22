@@ -167,9 +167,11 @@ Son funciones puras en `shared/`, con tests:
 
 - **Platos por semana:** dos en la primera versión, como en la pantalla aprobada; el tercer
   plato que permite `PRODUCT.md` queda para después **[Decisión de Claude]**.
-- **Reparto de la semana:** lunes a sábado; el domingo es fuera (como en los prototipos;
-  editable queda pendiente). El plato con algún ingrediente de tipo hidratos va a los días
-  activos y el otro al resto, igual que `reparto()` en `prototipo/semana.html`.
+- **Reparto de la semana:** el domingo empieza fuera, como en los prototipos, pero se puede
+  cambiar (decidido por el usuario el 22/10/2026): si se marca como día de comer, entra en el
+  reparto como los demás. El plato con algún ingrediente de tipo hidratos va a los días
+  activos y el otro al resto, igual que `reparto()` en `prototipo/semana.html`. El diseño de
+  cómo se cambia el domingo va en el plan 3.
 - **Propuesta de la semana siguiente** **[Decisión de Claude]:** un plato energético y uno que
   no lo sea. Se eligen entre recetas con media de 7 o más que no se hayan comido en las tres
   últimas semanas, empezando por las que hace más tiempo que no se comen. Una receta sin notas
@@ -296,13 +298,38 @@ Todo con capturas descritas en texto y qué hacer si algo falla. El desarrollo l
 13. La app vive en `*.workers.dev`.
 14. Las fotos van en R2 detrás de una interfaz que permite pasar a KV si no se quiere tarjeta.
 
+Del plan 2 (recetas), 22/10/2026:
+
+15. Cada receta tiene su dirección (`/recetas/<id>`), no un hash; al volver, el índice recupera
+    la posición.
+16. Los pasos se escriben como texto normal. Al guardar, la app marca sola los ingredientes que
+    nombra cada paso, con la cantidad que lleve delante ("500 g de lentejas"). Un paso usa los
+    ingredientes que nombra; no hay que marcar nada a mano.
+17. El progreso al cocinar es de cada móvil, no se comparte y se olvida a las 12 horas del
+    último toque.
+18. En el índice, una receta sin notas no lleva puntos guía ni cifra.
+19. Cantidades: "1.000 g" son mil gramos; un rango ("2-3 dientes") cuenta como el número mayor;
+    las fracciones ("1/2", "1 1/2", "½") se leen como número.
+20. El nombre corto que sale en la lista ("lentejas") es la primera palabra del nombre, sin
+    campo propio en el editor.
+21. Por defecto no van a la lista la sal, el aceite, el agua, el laurel, la harina y la
+    pimienta. Se puede cambiar en cada ingrediente.
+22. La foto se sube al elegirla, y para eso hace falta conexión. Cambiar o quitar una foto no
+    borra la anterior: la limpieza de fotos sin receta va en el plan 6.
+23. Borrar una receta se puede deshacer, como cualquier otro cambio.
+
 ## 14. Sigue abierto (no bloquea el plan)
 
-- El domingo: siempre fuera o editable. La primera versión lo deja fuera, como en los
-  prototipos.
-- Qué se ve al abrir Semana entre semana. Supuesto: esta semana hasta el jueves, y la que viene
-  desde el viernes.
+- Qué se ve al abrir Semana entre semana: la semana en curso, con lo que toca hoy, o la
+  siguiente, la que se está planificando. Supuesto: la semana en curso hasta el jueves y la
+  siguiente desde el viernes. Se puede cambiar de una a otra con el control segmentado.
 - Temporizadores en los pasos con tiempo y cambiar las raciones de una receta. Fuera de la
   primera versión.
-- Cómo borrar un producto añadido por error. En la primera versión, deslizar para borrar con
-  "Deshacer".
+
+Decidido por el usuario el 22/10/2026:
+
+- **Sacar a alguien del hogar:** no hace falta por ahora. Si alguien acepta una invitación por
+  error, el hogar se queda completo (la regla R8 del plan 1 sigue como está).
+- **El domingo:** se puede cambiar (ver apartado 8).
+- **Borrar un producto añadido por error:** con un botón de borrar producto, en lugar de
+  deslizar. El diseño va en el plan 4.

@@ -479,7 +479,7 @@ Un panel en línea bajo la fila de hoy, sin hoja ni fondo; mientras está abiert
 En un día pasado sin tu nota, debajo del plato: "Te falta tu nota · Puntuar" en 13px peso 500 `ink-3`, con "Puntuar" como enlace de tinta del mismo tamaño. Puntuar abre en la misma fila la escala de ese día, con su rótulo y un "Cancelar" tranquilo; al elegir, la escala se cierra y la cifra ocupa su columna.
 
 ### Pendientes
-Sin decidir y fuera de este sistema hasta que se decidan: icono relleno para la pestaña seleccionada, filete al hacer scroll bajo las barras, título grande que se pliega, qué segmento se abre entre semana y si el domingo es editable.
+Sin decidir y fuera de este sistema hasta que se decidan: icono relleno para la pestaña seleccionada, filete al hacer scroll bajo las barras, título grande que se pliega y qué segmento se abre entre semana. El domingo se puede cambiar a día de comer (decidido); falta diseñar cómo, en el plan 3.
 
 ## Do's and Don'ts
 

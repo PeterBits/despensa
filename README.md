@@ -109,8 +109,8 @@ planes 2 a 5.
    app instalada en la pantalla de inicio, que no comparte la sesión con Safari.
 
 > Si una invitación ya no vale, pide un enlace nuevo. Si en realidad ya estabas dentro, usa **Entrar
-> con mi passkey**. Hoy no se puede sacar a nadie de un hogar: si alguien acepta una invitación por
-> error, el hogar se queda completo. Esa decisión está pendiente.
+> con mi passkey**. No se puede sacar a nadie de un hogar, y de momento no hace falta: si alguien
+> acepta una invitación por error, el hogar se queda completo.
 
 ## Instalar en tu ordenador
 
