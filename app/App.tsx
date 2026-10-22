@@ -5,6 +5,7 @@ import { LineaEstado } from './componentes/LineaEstado';
 import { abrirCopia } from './datos/local';
 import { iniciarSincronizacion } from './datos/sincronizacion';
 import { Bienvenida } from './pantallas/Bienvenida';
+import { Editor } from './pantallas/Editor';
 import { Invitacion } from './pantallas/Invitacion';
 import { Pantalla } from './pantallas/Pantalla';
 import { Receta } from './pantallas/Receta';
@@ -63,9 +64,9 @@ export function Rutas() {
       <Routes>
         <Route path="/semana" element={<Pantalla titulo="Semana" />} />
         <Route path="/recetas" element={<Recetas />} />
-        <Route path="/recetas/nueva" element={<Pantalla titulo="Nueva receta" />} />
+        <Route path="/recetas/nueva" element={<Editor />} />
         <Route path="/recetas/:id" element={<Receta />} />
-        <Route path="/recetas/:id/editar" element={<Pantalla titulo="Editar receta" />} />
+        <Route path="/recetas/:id/editar" element={<Editor />} />
         <Route path="/lista" element={<Pantalla titulo="Lista" />} />
         <Route path="/registro" element={<Pantalla titulo="Registro" />} />
         <Route path="*" element={<Navigate to="/semana" replace />} />

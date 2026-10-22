@@ -18,6 +18,8 @@ h1{font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.02em;text-wr
 /* Línea de estado sola sobre la barra de pestañas (58px + 6px de relleno) */
 .dock{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 64px);background:var(--ground);padding:10px 20px 14px}
 .dock .status{max-width:400px;margin:0 auto}
+/* Sin barra de pestañas (el editor), abajo del todo y con el filete de la barra */
+.dock.abajo{bottom:0;border-top:.5px solid var(--hair);padding-bottom:calc(env(safe-area-inset-bottom) + 14px)}
 .cta{width:100%;height:52px;border-radius:14px;background:var(--fill);color:var(--on-fill);font-size:17px;font-weight:600;
   display:flex;align-items:center;justify-content:center;transition:transform .12s var(--ease),opacity .2s var(--ease)}
 .cta:active{transform:scale(.98)}

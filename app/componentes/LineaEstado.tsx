@@ -1,13 +1,18 @@
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router';
+import { matchPath, useLocation } from 'react-router';
 import { ponerAviso, useAviso } from '../datos/avisos';
 
-// La línea de estado de la app: "texto · Deshacer", sobre `ground` y encima de la barra de pestañas.
+// Las rutas sin barra de pestañas: el editor, que se cierra con Cancelar o Guardar.
+const SIN_PESTANAS = ['/recetas/nueva', '/recetas/:id/editar'];
+
+// La línea de estado de la app: "texto · Deshacer", sobre `ground` y encima de la barra de pestañas
+// (en una ruta sin barra, abajo del todo y con el filete de la barra).
 // Hay una sola, montada en Rutas: ve todos los cambios de ruta. Solo se ve en la ruta del aviso y, cuando
 // la ruta pasa a otra, el aviso se retira (uno puesto justo antes de navegar a su propia ruta se conserva).
 export function LineaEstado() {
   const aviso = useAviso();
   const { pathname } = useLocation();
+  const abajo = SIN_PESTANAS.some((ruta) => matchPath(ruta, pathname) !== null);
 
   const anterior = useRef(pathname);
   useEffect(() => {
@@ -31,7 +36,7 @@ export function LineaEstado() {
   return (
     <div role="status">
       {visible && (
-        <div className="dock">
+        <div className={abajo ? 'dock abajo' : 'dock'}>
           <p className="status">
             {aviso.texto} ·{' '}
             <button className="link" type="button" onClick={deshacer}>

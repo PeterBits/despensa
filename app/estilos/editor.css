@@ -1,0 +1,98 @@
+/* El editor de receta (prototipo/editor.html): sin barra de pestañas, se cierra con Cancelar o Guardar.
+   Todo va bajo .editor: el CSS de la app es uno solo y recetas.css ya usa .top, .n y .entra. */
+.editor [hidden]{display:none!important}
+.editor input,.editor select,.editor textarea{font:inherit;color:inherit;background:none;border:0}
+.screen.editor{padding-bottom:calc(env(safe-area-inset-bottom) + 96px)}
+.editor .top{display:flex;justify-content:space-between;align-items:center;min-height:44px;padding:0 20px}
+.editor .cancel{min-height:44px;font-size:15px;font-weight:500;color:var(--ink-2)}
+.editor .save{min-height:44px;font-weight:600}
+.editor .cancel:active,.editor .save:active{opacity:.6}
+.editor header{padding:4px 20px 0}
+.editor .vacio-todo{margin:12px 20px 0;font-size:17px;line-height:1.35;font-weight:400;letter-spacing:0;color:var(--ink-2);text-wrap:pretty}
+.editor .link{font-size:15px}
+
+.editor .descarte{margin:8px 20px 0;font-size:13px;color:var(--ink-2)}
+.editor .descarte-acc{display:flex;gap:20px;margin-top:2px}
+.editor .quiet{position:relative;min-height:44px;font-size:15px;font-weight:500;color:var(--ink-2)}
+.editor .quiet:active{opacity:.6}
+
+.editor .seg{display:grid;grid-template-columns:repeat(3,1fr);margin:16px 20px 0;padding:2px;border-radius:9px;background:var(--seg)}
+.editor .seg button{height:32px;border-radius:7px;font-size:14px;font-weight:500;transition:background-color .2s var(--ease)}
+.editor .seg button[aria-selected="true"]{background:var(--seg-on);box-shadow:var(--seg-shadow);font-weight:600}
+
+.editor .parte{padding-top:8px}
+.editor .parte.llega{animation:parte-llega .32s var(--ease)}
+@keyframes parte-llega{from{opacity:0;transform:translateY(6px)}}
+
+/* Campos: la forma del campo de añadir (pista seg, 9px, 44px) con su rótulo encima */
+.editor .campo{display:block;margin:16px 20px 0}
+.editor .rot{display:block;margin-bottom:6px;font-size:13px;font-weight:500;color:var(--ink-2)}
+.editor .caja{display:flex;align-items:center;gap:6px;height:44px;padding:0 12px;border-radius:9px;background:var(--seg)}
+.editor .caja:focus-within{outline:2px solid var(--tint);outline-offset:3px}
+.editor .caja input{flex:1;min-width:0;height:100%;font-size:17px;outline:0}
+.editor .caja input::placeholder,.editor textarea::placeholder{color:var(--ink-2);opacity:1}
+.editor .caja .uni{font-size:15px;color:var(--ink-2)}
+.editor .fila{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 20px 0}
+.editor .fila .campo{margin:0;min-width:0}
+.editor .error{margin:6px 20px 0;font-size:13px;font-weight:600}
+.editor .tipos{margin:12px 20px 0;font-size:15px;color:var(--ink-2);text-wrap:pretty}
+
+/* Foto: hueco de 88px con la foto o un icono; las acciones son enlaces de tinta */
+.editor .foto{display:flex;align-items:center;gap:16px;margin:0 20px}
+.editor .hueco{flex:none;display:grid;place-items:center;width:88px;height:88px;border-radius:9px;background:var(--seg);overflow:hidden}
+.editor .hueco img{width:100%;height:100%;object-fit:cover}
+.editor .hueco svg{width:28px;height:28px;fill:none;stroke:var(--ink-2);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.editor .foto-acc{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.editor .foto-acc p{font-size:13px;color:var(--ink-2)}
+.editor .borrar{margin:40px 20px 0}
+
+/* Ingredientes: nombre y cantidad en una fila, el tipo debajo y el resto plegado */
+.editor .ings>li{list-style:none;padding:16px 20px 4px}
+.editor .ings>li+li{border-top:.5px solid var(--hair)}
+.editor .ing-linea{display:grid;grid-template-columns:minmax(0,1fr) 136px;gap:8px}
+.editor .ing-linea .caja{padding:0 10px}
+.editor .tipo{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.editor .tipo button{height:32px;border-radius:9px;font-size:14px;font-weight:500;color:var(--ink-2);box-shadow:inset 0 0 0 1.5px var(--hair);
+  transition:background-color .18s var(--ease),color .18s var(--ease),transform .12s var(--ease)}
+.editor .tipo button[aria-pressed="true"]{background:var(--fill);color:var(--on-fill);box-shadow:none;font-weight:600}
+.editor .tipo button:active{transform:scale(.96)}
+.editor .ing-pie{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.editor .resumen{display:inline-flex;align-items:center;gap:4px;min-height:44px;min-width:0;font-size:13px;font-weight:500;color:var(--ink-3);text-align:left}
+.editor .resumen span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.editor .resumen svg{flex:none;width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s var(--ease)}
+.editor .resumen[aria-expanded="true"] svg{transform:rotate(180deg)}
+.editor .resumen:active{opacity:.6}
+.editor .mas{padding-bottom:8px}
+.editor .mas .campo{margin:4px 0 0}
+.editor .select{position:relative;display:block}
+.editor .select select{appearance:none;width:100%;height:44px;padding:0 36px 0 12px;border-radius:9px;background:var(--seg);font-size:17px;outline:0}
+.editor .select select:focus-visible{outline:2px solid var(--tint);outline-offset:3px}
+.editor .select svg{position:absolute;right:12px;top:15px;width:14px;height:14px;fill:none;stroke:var(--ink-2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.editor .interruptor{display:flex;justify-content:space-between;align-items:center;min-height:44px;margin-top:8px;font-size:15px}
+.editor .interruptor input{appearance:none;flex:none;position:relative;width:44px;height:26px;border-radius:13px;background:var(--seg);box-shadow:inset 0 0 0 1.5px var(--hair);cursor:pointer;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
+.editor .interruptor input::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--ink-2);transition:transform .2s var(--ease),background-color .2s var(--ease)}
+.editor .interruptor input:checked{background:var(--fill);box-shadow:none}
+.editor .interruptor input:checked::after{transform:translateX(18px);background:var(--on-fill)}
+.editor .interruptor input:focus-visible{outline:2px solid var(--tint);outline-offset:3px}
+
+/* Pasos: el número en su columna de 28px, como en la receta, y el texto en un campo que crece */
+.editor .pasos>li{list-style:none;display:grid;grid-template-columns:28px 1fr;gap:8px;padding:16px 20px 4px}
+.editor .pasos>li+li{border-top:.5px solid var(--hair)}
+.editor .n{padding-top:9px;font-size:19px;line-height:1.2;font-weight:600;color:var(--ink-2)}
+.editor .pasos textarea{display:block;width:100%;min-height:44px;padding:10px 12px;border-radius:9px;background:var(--seg);font-size:17px;line-height:1.35;resize:none;outline:0;field-sizing:content}
+.editor .pasos textarea:focus-visible{outline:2px solid var(--tint);outline-offset:3px}
+.editor .usa{margin-top:6px;font-size:13px;font-weight:500;color:var(--ink-3);text-wrap:pretty}
+.editor .usa b{font-weight:600;color:var(--ink-2)}
+.editor .usa .nuevo{display:inline-block;animation:usa-sube .34s var(--ease)}
+@keyframes usa-sube{from{opacity:0;transform:translateY(6px)}}
+.editor .paso-pie{display:flex;justify-content:space-between;align-items:center}
+.editor .min{display:flex;align-items:center;gap:6px;width:112px;height:36px;padding:0 10px;border-radius:9px;background:var(--seg)}
+.editor .min:focus-within{outline:2px solid var(--tint);outline-offset:3px}
+.editor .min input{width:100%;min-width:0;font-size:15px;outline:0}
+.editor .min input::placeholder{color:var(--ink-2);opacity:1}
+.editor .min span{font-size:13px;color:var(--ink-2)}
+
+/* Añadir: el campo de añadir hecho botón */
+.editor .anadir{display:flex;align-items:center;gap:8px;width:calc(100% - 40px);height:44px;margin:16px 20px 0;padding:0 12px;border-radius:9px;background:var(--seg);color:var(--ink-2);text-align:left}
+.editor .anadir svg{width:20px;height:20px;fill:none;stroke:var(--ink-2);stroke-width:2;stroke-linecap:round}
+.editor .anadir:active{opacity:.6}
