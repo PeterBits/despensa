@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useNavigationType, useParams } from 'react-router';
 import { ingredientesGastados, trozos } from '../../shared/pasos';
 import { formatearMinutos, fraseTipos, leerTipos } from '../../shared/recetas';
@@ -83,6 +83,16 @@ function Cocina({ completa }: { completa: RecetaCompleta }) {
     if (tipoNavegacion !== 'POP') window.scrollTo(0, 0);
   }, [tipoNavegacion]);
 
+  // La posición a la que deshacer devuelve la página: se aplica cuando el progreso restaurado ya está pintado
+  // (con la línea final de vuelta la página es más alta; antes, el navegador recortaría el desplazamiento).
+  const posicionPendiente = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    if (posicionPendiente.current === null) return;
+    window.scrollTo(0, posicionPendiente.current);
+    posicionPendiente.current = null;
+  }, [hechos]);
+  const titulo = useRef<HTMLHeadingElement>(null);
+
   const textos = pasos.map((p) => p.texto);
   // ingredientesGastados trabaja con posiciones: de ids a índices, aquí en el borde.
   const gastadosCon = (ids: Set<string>) =>
@@ -119,13 +129,15 @@ function Cocina({ completa }: { completa: RecetaCompleta }) {
     setFrescos(new Map());
     cambiar(new Set());
     window.scrollTo(0, 0);
+    // El botón "Empezar de nuevo" desaparece: el foco pasa al título para no caer en el body.
+    titulo.current?.focus({ preventScroll: true });
     ponerAviso({
       texto: 'Progreso borrado',
       en: pathname,
       deshacer: () => {
         setFrescos(new Map());
+        posicionPendiente.current = y;
         cambiar(antes);
-        window.scrollTo(0, y);
       },
     });
   };
@@ -134,7 +146,7 @@ function Cocina({ completa }: { completa: RecetaCompleta }) {
   // en cualquier otro caso (enlace directo, recarga, tras el editor) se va al índice.
   const volver = () => {
     if ((state as { desde?: string } | null)?.desde === 'indice') navigate(-1);
-    else navigate('/recetas');
+    else navigate('/recetas', { replace: true });
   };
 
   const meta = [
@@ -159,13 +171,15 @@ function Cocina({ completa }: { completa: RecetaCompleta }) {
           </Link>
         </div>
         <header className="cabeza">
-          <h1>{receta.nombre}</h1>
+          <h1 ref={titulo} tabIndex={-1}>
+            {receta.nombre}
+          </h1>
           {foto && (
             <button
               className="mini"
               type="button"
               aria-expanded={fotoAbierta}
-              aria-controls="foto-grande"
+              aria-controls={fotoAbierta ? 'foto-grande' : undefined}
               aria-label="Ver la foto"
               onClick={() => setFotoAbierta((abierta) => !abierta)}
             >
@@ -262,7 +276,14 @@ function Cocina({ completa }: { completa: RecetaCompleta }) {
 export function Receta() {
   const { id = '' } = useParams();
   const completa = useReceta(id);
-  if (completa === undefined) return null;
+  if (completa === undefined) {
+    return (
+      <>
+        <main className="screen receta" />
+        <BarraPestanas />
+      </>
+    );
+  }
   if (completa === null) {
     return (
       <>
@@ -273,12 +294,12 @@ export function Receta() {
               Recetas
             </Link>
           </div>
-          <p className="vacio-todo">Esta receta ya no existe.</p>
+          <h1 className="vacio-todo">Esta receta ya no existe.</h1>
         </main>
         <BarraPestanas />
       </>
     );
   }
   // Con key, abrir otra receta desde esta empieza con su propio progreso y su propio estado.
-  return <Cocina key={id} completa={completa} />;
+  return <Cocina key={completa.receta.id} completa={completa} />;
 }

@@ -42,9 +42,10 @@
 .back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .back:active{opacity:.6}
 .receta header{padding-top:4px}
+.receta h1:focus{outline:none}
 .receta ul,.receta ol{list-style:none}
 .receta .sec{margin-top:24px;font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:inherit}
-.receta .vacio-todo{margin-top:12px}
+.receta .vacio-todo{margin:12px 20px 0;font-size:17px;line-height:1.35;font-weight:400;letter-spacing:0}
 .meta{margin-top:8px;font-size:15px;color:var(--ink-2);text-wrap:balance}
 .awake{margin-top:4px;font-size:13px;font-weight:500;color:var(--ink-3);text-wrap:pretty}
 

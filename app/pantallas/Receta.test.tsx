@@ -94,6 +94,7 @@ describe('Receta', () => {
   });
 
   it('empezar de nuevo se puede deshacer', async () => {
+    Object.defineProperty(window, 'scrollY', { value: 340, configurable: true });
     pintar();
     await userEvent.click(await paso(1));
     await userEvent.click(screen.getByRole('button', { name: /Paso 2/ }));
@@ -104,10 +105,16 @@ describe('Receta', () => {
     expect(screen.getByText(/Progreso borrado/)).toBeInTheDocument();
     expect(leerProgreso(recetaId)).toEqual(new Set());
 
+    // Foco en el título, no en el body, al desaparecer el botón.
+    expect(screen.getByRole('heading', { level: 1, name: 'Lentejas estofadas' })).toHaveFocus();
+
     await userEvent.click(screen.getByRole('button', { name: 'Deshacer' }));
     await waitFor(() => expect(screen.getByRole('button', { name: /Paso 1/ })).toHaveAttribute('aria-pressed', 'true'));
     expect(screen.getByRole('button', { name: /Paso 2/ })).toHaveAttribute('aria-pressed', 'true');
     expect(leerProgreso(recetaId)).toEqual(new Set(['p1', 'p2']));
+    // La posición se devuelve con el progreso ya pintado.
+    expect(window.scrollTo).toHaveBeenLastCalledWith(0, 340);
+    delete (window as { scrollY?: number }).scrollY;
   });
 
   it('el aviso de empezar de nuevo se retira al tocar cualquier paso', async () => {
@@ -138,7 +145,7 @@ describe('Receta', () => {
 
   it('una receta borrada enseña que ya no existe', async () => {
     pintar('/recetas/no-esta');
-    expect(await screen.findByText('Esta receta ya no existe.')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Esta receta ya no existe.' })).toBeInTheDocument();
     expect(within(screen.getByRole('main')).getByRole('link', { name: 'Recetas' })).toHaveAttribute('href', '/recetas');
   });
 
@@ -151,8 +158,8 @@ describe('Receta', () => {
     expect(await screen.findByText('Índice de prueba')).toBeInTheDocument();
   });
 
-  it('"Recetas" va al índice si no se vino de él', async () => {
-    pintar();
+  it('"Recetas" va al índice si no se vino de él (reemplazando la entrada)', async () => {
+    pintar(undefined, { entradas: ['/semana', `/recetas/${recetaId}`], initialIndex: 1 });
     await userEvent.click(within(await screen.findByRole('main')).getByRole('button', { name: 'Recetas' }));
     expect(await screen.findByText('Índice de prueba')).toBeInTheDocument();
   });

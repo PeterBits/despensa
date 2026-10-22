@@ -6,15 +6,18 @@ const DURACION = 12 * 3600_000;
 
 type Guardado = { hechos: string[]; hasta: number };
 
-// Si localStorage lanza (modo privado, cuota), el progreso vive aquí hasta que se recargue la página.
+// Si localStorage lanza al guardar (modo privado, cuota llena), el progreso vive aquí hasta que se recargue la página.
 const enMemoria = new Map<string, Guardado>();
 
 function leerGuardado(recetaId: string): Guardado | null {
+  // Lo que no cupo en localStorage (cuota llena) manda: guardarProgreso lo quita al lograr escribir.
+  const recordado = enMemoria.get(recetaId);
+  if (recordado) return recordado;
   let crudo: string | null;
   try {
     crudo = localStorage.getItem(CLAVE + recetaId);
   } catch {
-    return enMemoria.get(recetaId) ?? null;
+    return null;
   }
   if (crudo === null) return null;
   try {

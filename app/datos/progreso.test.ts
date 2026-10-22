@@ -44,4 +44,15 @@ describe('progreso', () => {
     guardarProgreso('r5', new Set(['p1']), 0);
     expect(leerProgreso('r5', 1)).toEqual(new Set(['p1']));
   });
+
+  it('si solo falla escribir (cuota llena), lo guardado en memoria se lee igualmente', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('cuota');
+    });
+    guardarProgreso('r6', new Set(['p1', 'p2']), 0);
+    expect(leerProgreso('r6', 1)).toEqual(new Set(['p1', 'p2']));
+    // Vaciarlo también lo olvida de la memoria.
+    guardarProgreso('r6', new Set(), 0);
+    expect(leerProgreso('r6', 1)).toEqual(new Set());
+  });
 });
