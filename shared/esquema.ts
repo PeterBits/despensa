@@ -71,6 +71,9 @@ export const TABLAS_SYNC = {
 export type TablaSync = keyof typeof TABLAS_SYNC;
 export const NOMBRES_TABLAS = Object.keys(TABLAS_SYNC) as TablaSync[];
 
+// Una fila de la tabla `T` tal como la valida su esquema (con los valores por defecto ya resueltos).
+export type FilaDe<T extends TablaSync> = z.output<(typeof TABLAS_SYNC)[T]>;
+
 export type Fila = Record<string, unknown>;
 export type Op = { id: string; tabla: TablaSync; fila: { id: string } & Record<string, unknown>; borrar?: boolean };
 
