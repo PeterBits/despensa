@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { leerSesion, olvidarSesion, type Sesion } from './datos/acceso';
+import { LineaEstado } from './componentes/LineaEstado';
 import { abrirCopia } from './datos/local';
 import { iniciarSincronizacion } from './datos/sincronizacion';
 import { Bienvenida } from './pantallas/Bienvenida';
@@ -55,16 +56,20 @@ export function Rutas() {
     );
   }
 
+  // Una sola línea de estado para toda la app: ve cada cambio de ruta y retira los avisos que se quedan atrás.
   return (
-    <Routes>
-      <Route path="/semana" element={<Pantalla titulo="Semana" />} />
-      <Route path="/recetas" element={<Recetas />} />
-      <Route path="/recetas/nueva" element={<Pantalla titulo="Nueva receta" />} />
-      <Route path="/recetas/:id" element={<Pantalla titulo="Receta" />} />
-      <Route path="/recetas/:id/editar" element={<Pantalla titulo="Editar receta" />} />
-      <Route path="/lista" element={<Pantalla titulo="Lista" />} />
-      <Route path="/registro" element={<Pantalla titulo="Registro" />} />
-      <Route path="*" element={<Navigate to="/semana" replace />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/semana" element={<Pantalla titulo="Semana" />} />
+        <Route path="/recetas" element={<Recetas />} />
+        <Route path="/recetas/nueva" element={<Pantalla titulo="Nueva receta" />} />
+        <Route path="/recetas/:id" element={<Pantalla titulo="Receta" />} />
+        <Route path="/recetas/:id/editar" element={<Pantalla titulo="Editar receta" />} />
+        <Route path="/lista" element={<Pantalla titulo="Lista" />} />
+        <Route path="/registro" element={<Pantalla titulo="Registro" />} />
+        <Route path="*" element={<Navigate to="/semana" replace />} />
+      </Routes>
+      <LineaEstado />
+    </>
   );
 }

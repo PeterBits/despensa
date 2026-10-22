@@ -3,12 +3,12 @@ import { Link, useNavigationType } from 'react-router';
 import { formatearNota } from '../../shared/notas';
 import { coincide, formatearMinutos, fraseTipos } from '../../shared/recetas';
 import { BarraPestanas } from '../componentes/BarraPestanas';
-import { LineaEstado } from '../componentes/LineaEstado';
 import { useRecetas, type ResumenReceta } from '../datos/recetas';
 import '../estilos/recetas.css';
 
-// Posición de scroll del índice, para recuperarla al volver de una receta con el botón atrás.
-let scrollIndice = 0;
+// Lo que el índice recuerda al abrir una receta: la posición y la búsqueda. Solo se recupera al volver
+// de la receta con el botón atrás; entrar por la pestaña, o recargar, empieza arriba y sin búsqueda.
+let alAbrirReceta: { scroll: number; consulta: string } | null = null;
 
 const sinMovimiento = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
@@ -18,11 +18,11 @@ const Mas = () => (
   </svg>
 );
 
-function Fila({ receta }: { receta: ResumenReceta }) {
+function Fila({ receta, alAbrir }: { receta: ResumenReceta; alAbrir: () => void }) {
   const detalle = [fraseTipos(receta.tipos), formatearMinutos(receta.minutos)].filter((p) => p !== '').join(' · ');
   return (
     <li>
-      <Link className="row" to={`/recetas/${receta.id}`}>
+      <Link className="row" to={`/recetas/${receta.id}`} onClick={alAbrir}>
         <span className="line">
           <span className="name">{receta.nombre}</span>
           {receta.media !== null && (
@@ -30,6 +30,7 @@ function Fila({ receta }: { receta: ResumenReceta }) {
               <span className="leader" aria-hidden="true" />
               <span className="fig">
                 <span className="lab">nota</span>
+                <span className="sr"> </span>
                 {formatearNota(receta.media)}
               </span>
             </>
@@ -44,27 +45,22 @@ function Fila({ receta }: { receta: ResumenReceta }) {
 export function Recetas() {
   const recetas = useRecetas();
   const tipoNavegacion = useNavigationType();
-  const [consulta, setConsulta] = useState('');
-
-  // El scroll se guarda mientras el índice está abierto: al desmontarse ya habría vuelto arriba.
+  // Se lee una vez, al montar (y es idempotente para StrictMode): ¿venimos de una receta con el botón atrás?
+  const [recuerdo] = useState(() => (tipoNavegacion === 'POP' ? alAbrirReceta : null));
+  const [consulta, setConsulta] = useState(recuerdo?.consulta ?? '');
   useEffect(() => {
-    const guardar = () => {
-      scrollIndice = window.scrollY;
-    };
-    window.addEventListener('scroll', guardar, { passive: true });
-    return () => window.removeEventListener('scroll', guardar);
+    alAbrirReceta = null;
   }, []);
 
   const listo = recetas !== undefined;
-  const volviendo = tipoNavegacion === 'POP';
   useLayoutEffect(() => {
-    if (listo && volviendo && scrollIndice > 0) window.scrollTo(0, scrollIndice);
-  }, [listo, volviendo]);
+    if (listo && recuerdo && recuerdo.scroll > 0) window.scrollTo(0, recuerdo.scroll);
+  }, [listo, recuerdo]);
 
   const vacio = listo && recetas.length === 0;
   const buscando = consulta.trim() !== '';
   const mostradas = !listo ? [] : buscando ? recetas.filter((r) => coincide(r, consulta)) : recetas;
-  const entra = listo && volviendo && !sinMovimiento();
+  const entra = listo && recuerdo !== null && !sinMovimiento();
 
   return (
     <>
@@ -119,7 +115,13 @@ export function Recetas() {
             {mostradas.length > 0 ? (
               <ul>
                 {mostradas.map((r) => (
-                  <Fila key={r.id} receta={r} />
+                  <Fila
+                    key={r.id}
+                    receta={r}
+                    alAbrir={() => {
+                      alAbrirReceta = { scroll: window.scrollY, consulta };
+                    }}
+                  />
                 ))}
               </ul>
             ) : (
@@ -128,7 +130,6 @@ export function Recetas() {
           </>
         )}
       </main>
-      <LineaEstado />
       <BarraPestanas />
     </>
   );

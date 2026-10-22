@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { Link, MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LineaEstado } from '../componentes/LineaEstado';
 import { ponerAviso } from '../datos/avisos';
@@ -79,23 +79,44 @@ describe('Recetas', () => {
   it('con el recetario vacío ofrece crear la primera', async () => {
     pintar();
     expect(await screen.findByRole('link', { name: 'Nueva receta' })).toHaveAttribute('href', '/recetas/nueva');
+    expect(
+      screen.getByText(
+        'Todavía no hay recetas. Empezad por una que cocinéis a menudo: con dos o tres ya se puede planificar la semana.',
+      ),
+    ).toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: 'Nueva receta' })).toHaveLength(1);
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
   });
 });
 
+// Una sola LineaEstado fuera de las rutas, como en Rutas: ve todos los cambios de ruta.
+function pintarAvisos(inicial: string) {
+  return render(
+    <MemoryRouter initialEntries={[inicial]}>
+      <Routes>
+        <Route
+          path="*"
+          element={
+            <nav>
+              <Link to="/recetas">ir a recetas</Link>
+              <Link to="/lista">ir a lista</Link>
+            </nav>
+          }
+        />
+      </Routes>
+      <LineaEstado />
+    </MemoryRouter>,
+  );
+}
+
 describe('LineaEstado', () => {
   it('el aviso con deshacer se queda hasta usarlo', async () => {
     const deshacer = vi.fn();
     const usuario = userEvent.setup();
-    render(
-      <MemoryRouter initialEntries={['/recetas']}>
-        <LineaEstado />
-      </MemoryRouter>,
-    );
+    pintarAvisos('/recetas');
     expect(screen.queryByText(/Receta borrada/)).not.toBeInTheDocument();
 
-    ponerAviso({ texto: 'Receta borrada', deshacer, en: '/recetas' });
+    act(() => ponerAviso({ texto: 'Receta borrada', deshacer, en: '/recetas' }));
     expect(await screen.findByText(/Receta borrada/)).toBeInTheDocument();
 
     await usuario.click(screen.getByRole('button', { name: 'Deshacer' }));
@@ -103,13 +124,34 @@ describe('LineaEstado', () => {
     expect(screen.queryByText(/Receta borrada/)).not.toBeInTheDocument();
   });
 
-  it('no enseña el aviso de otra ruta', () => {
-    render(
-      <MemoryRouter initialEntries={['/lista']}>
-        <LineaEstado />
-      </MemoryRouter>,
-    );
-    ponerAviso({ texto: 'Receta borrada', deshacer: vi.fn(), en: '/recetas' });
+  it('un aviso puesto para /recetas justo antes de navegar allí se ve', async () => {
+    const usuario = userEvent.setup();
+    pintarAvisos('/lista');
+    act(() => ponerAviso({ texto: 'Receta borrada', deshacer: vi.fn(), en: '/recetas' }));
+    expect(screen.queryByText(/Receta borrada/)).not.toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('link', { name: 'ir a recetas' }));
+    expect(await screen.findByText(/Receta borrada/)).toBeInTheDocument();
+  });
+
+  it('se retira al cambiar de ruta y no vuelve al regresar', async () => {
+    const usuario = userEvent.setup();
+    pintarAvisos('/recetas');
+    act(() => ponerAviso({ texto: 'Receta borrada', deshacer: vi.fn(), en: '/recetas' }));
+    expect(await screen.findByText(/Receta borrada/)).toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('link', { name: 'ir a lista' }));
+    expect(screen.queryByText(/Receta borrada/)).not.toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('link', { name: 'ir a recetas' }));
+    expect(screen.queryByText(/Receta borrada/)).not.toBeInTheDocument();
+  });
+
+  it('no enseña el aviso de otra ruta', async () => {
+    pintarAvisos('/lista');
+    act(() => ponerAviso({ texto: 'Receta borrada', deshacer: vi.fn(), en: '/recetas' }));
+    // Se espera a que el almacén y los efectos se asienten antes de comprobar la ausencia.
+    await act(async () => {});
     expect(screen.queryByText(/Receta borrada/)).not.toBeInTheDocument();
   });
 });
