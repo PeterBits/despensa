@@ -83,16 +83,58 @@ export async function entrar(): Promise<void> {
 }
 
 const ESPERA_SESION = 4000;
+const CLAVE_SESION = 'despensa.sesion';
+
+export type Sesion = { hogarId: string; miembroId: string };
+
+// Un localStorage que lanza (modo privado, datos bloqueados) cuenta como vacío.
+function guardada(): Sesion | null {
+  try {
+    const dato = JSON.parse(localStorage.getItem(CLAVE_SESION) ?? 'null') as Partial<Sesion> | null;
+    return typeof dato?.hogarId === 'string' && typeof dato.miembroId === 'string'
+      ? { hogarId: dato.hogarId, miembroId: dato.miembroId }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export function olvidarSesion(): void {
+  try {
+    localStorage.removeItem(CLAVE_SESION);
+  } catch {
+    // Sin almacenamiento no hay nada que olvidar.
+  }
+}
 
 // Solo un 401 significa que no hay sesión. Sin red, o si /api/yo tarda más de 4 s, no se puede saber,
-// y la app abre con su copia local: si la sesión ya no vale, la sincronización recibirá el 401.
-export async function haySesion(): Promise<boolean> {
+// y la app abre con lo guardado: si la sesión ya no vale, la sincronización recibirá el 401.
+// Limitación conocida: sin red y sin nada guardado (primer arranque offline) devuelve null y se ve la bienvenida;
+// se arregla en el plan 6.
+export async function leerSesion(): Promise<Sesion | null> {
   const corte = new AbortController();
   const reloj = setTimeout(() => corte.abort(), ESPERA_SESION);
   try {
-    return (await fetch('/api/yo', { signal: corte.signal })).status !== 401;
+    const respuesta = await fetch('/api/yo', { signal: corte.signal });
+    if (respuesta.status === 401) {
+      olvidarSesion();
+      return null;
+    }
+    if (respuesta.ok) {
+      const { hogarId, miembroId } = (await respuesta.json()) as Partial<Sesion>;
+      if (typeof hogarId === 'string' && typeof miembroId === 'string') {
+        const sesion = { hogarId, miembroId };
+        try {
+          localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
+        } catch {
+          // Se abre igual; solo se pierde recordarla sin red.
+        }
+        return sesion;
+      }
+    }
+    return guardada();
   } catch {
-    return true;
+    return guardada();
   } finally {
     clearTimeout(reloj);
   }

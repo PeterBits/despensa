@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
-import { haySesion } from './datos/acceso';
+import { leerSesion, olvidarSesion, type Sesion } from './datos/acceso';
+import { abrirCopia } from './datos/local';
+import { iniciarSincronizacion } from './datos/sincronizacion';
 import { Bienvenida } from './pantallas/Bienvenida';
 import { Invitacion } from './pantallas/Invitacion';
 import { Pantalla } from './pantallas/Pantalla';
@@ -15,17 +17,34 @@ export function App() {
 
 // Puerta de sesión: /api/yo se pregunta una vez al cargar y, mientras no responde, no se pinta nada.
 // Sin sesión solo existen la bienvenida y la invitación; con sesión, las dos llevan a /semana.
+// Con sesión se abre la copia local del hogar antes de pintar las pestañas y se arranca la sincronización.
 export function Rutas() {
-  const [sesion, setSesion] = useState<boolean | null>(null);
+  // undefined: aún se está preguntando; null: no hay sesión.
+  const [sesion, setSesion] = useState<Sesion | null | undefined>(undefined);
   useEffect(() => {
-    haySesion().then(setSesion);
+    leerSesion().then(setSesion);
   }, []);
 
-  if (sesion === null) return null;
+  const hogarId = sesion?.hogarId;
+  // Se abre durante el render, no en un efecto: las pantallas hijas leen `copia()` al pintarse.
+  useMemo(() => {
+    if (hogarId) abrirCopia(hogarId);
+  }, [hogarId]);
+  useEffect(() => {
+    if (!hogarId) return;
+    return iniciarSincronizacion({
+      alPerderSesion: () => {
+        olvidarSesion();
+        setSesion(null);
+      },
+    });
+  }, [hogarId]);
+
+  if (sesion === undefined) return null;
 
   if (!sesion) {
-    // Al entrar, la sesión pasa a existir y la ruta en la que esté redirige a /semana.
-    const alEntrar = () => setSesion(true);
+    // Al entrar, se vuelve a leer la sesión y la ruta en la que esté redirige a /semana.
+    const alEntrar = () => leerSesion().then(setSesion);
     return (
       <Routes>
         <Route path="/bienvenida" element={<Bienvenida alEntrar={alEntrar} />} />

@@ -34,6 +34,7 @@ const servidor = {
 beforeEach(() => {
   servidor.respuestas.clear();
   servidor.peticiones = [];
+  localStorage.clear();
   vi.stubGlobal('fetch', async (url: RequestInfo | URL, init?: RequestInit) => {
     const ruta = String(url);
     servidor.peticiones.push({ ruta, cuerpo: init?.body ? JSON.parse(String(init.body)) : undefined });
@@ -55,6 +56,9 @@ afterEach(() => {
   vi.unstubAllGlobals();
   vi.resetAllMocks();
 });
+
+// Tras la ceremonia, el servidor ya reconoce la sesión: /api/yo deja de dar 401.
+const iniciaSesion = () => servidor.responde('/api/yo', 200, { miembroId: 'miembro-1', hogarId: 'hogar-1', miembros: 1 });
 
 // Enseña la ruta en la que está el router, con su hash.
 function Ubicacion() {
@@ -102,7 +106,10 @@ describe('Invitación', () => {
     servidor.responde('/api/invitaciones/aceptar/opciones', 410, { error: 'Esta invitación ya no vale. Pide otra.' });
     servidor.responde('/api/entrar/opciones', 200, { retoId: 'reto-3', opciones: OPCIONES });
     servidor.responde('/api/entrar', 200, { ok: true });
-    vi.mocked(startAuthentication).mockResolvedValueOnce(RESPUESTA_ENTRADA);
+    vi.mocked(startAuthentication).mockImplementationOnce(async () => {
+      iniciaSesion();
+      return RESPUESTA_ENTRADA;
+    });
     render(<MemoryRouter initialEntries={['/invitacion#tok']}><Rutas /></MemoryRouter>);
     await userEvent.click(await screen.findByRole('button', { name: 'Entrar con Face ID' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Entrar con mi passkey' }));
@@ -126,7 +133,10 @@ describe('Invitación', () => {
     servidor.responde('/api/yo', 401, SIN_SESION);
     servidor.responde('/api/invitaciones/aceptar/opciones', 200, { retoId: 'reto-2', opciones: OPCIONES });
     servidor.responde('/api/invitaciones/aceptar', 201, { ok: true });
-    vi.mocked(startRegistration).mockResolvedValueOnce(RESPUESTA);
+    vi.mocked(startRegistration).mockImplementationOnce(async () => {
+      iniciaSesion();
+      return RESPUESTA;
+    });
     render(<MemoryRouter initialEntries={['/invitacion#tok']}><Rutas /></MemoryRouter>);
     await userEvent.click(await screen.findByRole('button', { name: 'Entrar con Face ID' }));
     expect(await screen.findByRole('heading', { name: 'Semana' })).toBeInTheDocument();
@@ -147,7 +157,10 @@ describe('Bienvenida', () => {
     servidor.responde('/api/yo', 401, SIN_SESION);
     servidor.responde('/api/hogar/opciones', 200, { retoId: 'reto-1', opciones: OPCIONES });
     servidor.responde('/api/hogar', 201, { ok: true });
-    vi.mocked(startRegistration).mockResolvedValueOnce(RESPUESTA);
+    vi.mocked(startRegistration).mockImplementationOnce(async () => {
+      iniciaSesion();
+      return RESPUESTA;
+    });
     render(<MemoryRouter initialEntries={['/bienvenida']}><Rutas /></MemoryRouter>);
     await userEvent.click(await screen.findByRole('button', { name: 'Crear nuestro hogar' }));
     expect(await screen.findByRole('heading', { name: 'Semana' })).toBeInTheDocument();
@@ -180,6 +193,8 @@ describe('Entrada a la app', () => {
 
   it('si /api/yo no responde en 4 s, abre la app', async () => {
     vi.useFakeTimers();
+    // Lo guardado en una visita anterior: sin respuesta no se puede saber más.
+    localStorage.setItem('despensa.sesion', JSON.stringify({ hogarId: 'hogar-1', miembroId: 'miembro-1' }));
     servidor.noResponde('/api/yo');
     const { container } = render(<MemoryRouter initialEntries={['/semana']}><Rutas /></MemoryRouter>);
     expect(container).toBeEmptyDOMElement();
