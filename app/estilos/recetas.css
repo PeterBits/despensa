@@ -1,5 +1,5 @@
-/* Índice de Recetas: una columna sin botón fijo, así que reserva la barra de pestañas y la línea de estado. */
-.screen.recetas{padding-bottom:calc(env(safe-area-inset-bottom) + 112px)}
+/* Índice y receta: una columna sin botón fijo, así que reservan la barra de pestañas y la línea de estado. */
+.screen.recetas,.screen.receta{padding-bottom:calc(env(safe-area-inset-bottom) + 112px)}
 
 /* Fila de arriba: la acción a la derecha, por encima del título, metida 20px en su aire */
 .top{display:flex;justify-content:space-between;align-items:center;min-height:44px}
@@ -36,3 +36,52 @@
 /* Al volver de una receta, el índice entra desde la izquierda */
 .vuelve{animation:vuelve .32s var(--ease)}
 @keyframes vuelve{from{opacity:0;transform:translateX(-24px)}}
+
+/* La receta para cocinar */
+.back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 20px 0 12px;font-weight:600}
+.back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.back:active{opacity:.6}
+.receta header{padding-top:4px}
+.receta ul,.receta ol{list-style:none}
+.receta .sec{margin-top:24px;font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:inherit}
+.receta .vacio-todo{margin-top:12px}
+.meta{margin-top:8px;font-size:15px;color:var(--ink-2);text-wrap:balance}
+.awake{margin-top:4px;font-size:13px;font-weight:500;color:var(--ink-3);text-wrap:pretty}
+
+/* Foto de la receta: una miniatura junto al título que no empuja los ingredientes; tocarla la abre a lo ancho */
+.cabeza{display:grid;grid-template-columns:1fr auto;column-gap:16px;align-items:start}
+.cabeza:not(:has(>.mini)){grid-template-columns:1fr}
+.cabeza .meta,.cabeza .awake{grid-column:1/-1}
+.mini{display:block;width:72px;height:72px;margin-top:4px;border-radius:9px;overflow:hidden;background:var(--seg)}
+.mini img{display:block;width:100%;height:100%;object-fit:cover;transition:opacity .2s var(--ease)}
+.mini:active img{opacity:.6}
+.mini[aria-expanded="true"] img{opacity:.6}
+.grande{margin:16px 20px 0}
+.grande img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:9px}
+.grande.entra{animation:abre .32s var(--ease)}
+@keyframes abre{from{opacity:0;transform:translateY(6px)}}
+
+.ing li{display:flex;align-items:baseline;gap:8px;padding:4px 20px;font-size:15px}
+.ing .leader{transform:translateY(-4px)}
+.ing .qty{white-space:nowrap;color:var(--ink-2)}
+.ing .used,.ing .used .qty{color:var(--ink-3)}
+.txt{background:linear-gradient(currentColor,currentColor) no-repeat 0 60%/0 1.5px;-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:color .3s var(--ease)}
+.used .txt,.done .txt{background-size:100% 1.5px}
+.fresh .txt{animation:tachar .3s var(--ease)}
+.fresh-off .txt{animation:destachar .25s var(--ease)}
+@keyframes tachar{from{background-size:0 1.5px}}
+@keyframes destachar{from{background-size:100% 1.5px}}
+
+.step{display:grid;grid-template-columns:28px 1fr;gap:8px;width:100%;text-align:left;padding:10px 20px}
+.step:active .t{opacity:.6}
+.step:focus-visible{outline-offset:-2px}
+.n{font-size:19px;line-height:1.2;font-weight:600;color:var(--ink-2)}
+.now .n{color:var(--ink);font-weight:700}
+.step b{font-weight:600;white-space:nowrap}
+.time{display:block;margin-top:3px;font-size:13px;font-weight:500;color:var(--ink-3)}
+.done .t,.done .n{color:var(--ink-3)}
+.end{margin:20px 20px 0;font-size:15px;color:var(--ink-2)}
+
+/* Al abrir una receta, la pantalla entra desde la derecha */
+.entra{animation:entra .32s var(--ease)}
+@keyframes entra{from{opacity:0;transform:translateX(24px)}}

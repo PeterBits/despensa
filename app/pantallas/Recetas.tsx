@@ -22,7 +22,7 @@ function Fila({ receta, alAbrir }: { receta: ResumenReceta; alAbrir: () => void 
   const detalle = [fraseTipos(receta.tipos), formatearMinutos(receta.minutos)].filter((p) => p !== '').join(' · ');
   return (
     <li>
-      <Link className="row" to={`/recetas/${receta.id}`} onClick={alAbrir}>
+      <Link className="row" to={`/recetas/${receta.id}`} state={{ desde: 'indice' }} onClick={alAbrir}>
         <span className="line">
           <span className="name">{receta.nombre}</span>
           {receta.media !== null && (
