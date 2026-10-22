@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { esBasico, esEnergetica, fraseTipos, tiposDe } from '../../shared/recetas';
@@ -18,7 +18,7 @@ import {
 } from '../datos/recetas';
 import { BloqueIngrediente, type IngredienteEditor } from './editor/BloqueIngrediente';
 import { BloquePaso, type PasoEditor } from './editor/BloquePaso';
-import { HuecoFoto } from './editor/HuecoFoto';
+import { HuecoFoto, useSubidaFoto } from './editor/HuecoFoto';
 import '../estilos/editor.css';
 
 // Lo que se edita: los números como texto, tal cual se teclean, y por ingrediente si ya se eligió a mano su sección.
@@ -80,6 +80,22 @@ const borradorDesde = (f: Formulario): BorradorReceta => ({
   pasos: f.pasos.map((p) => ({ id: p.id, texto: p.texto, minutos: entero(p.minutos) })),
 });
 
+// Lo que guardarReceta escribiría, como texto comparable: hay cambios si difiere del de la receta al abrir.
+// Quitar y deshacer, o escribir y borrar, deja la misma huella.
+function huella(f: Formulario): string {
+  const b = borradorDesde(f);
+  return JSON.stringify({
+    nombre: b.nombre.trim(),
+    raciones: b.raciones,
+    minutos: b.minutos,
+    fotoKey: b.fotoKey,
+    ingredientes: b.ingredientes
+      .filter((i) => i.nombre.trim() !== '')
+      .map((i) => ({ ...i, nombre: i.nombre.trim(), cantidad: i.cantidad.trim(), compra: i.compra.trim() })),
+    pasos: b.pasos.filter((p) => p.texto.trim() !== ''),
+  });
+}
+
 const Mas = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
     <path d="M12 5v14M5 12h14" />
@@ -103,13 +119,17 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
   const { pathname } = useLocation();
 
   const [form, setForm] = useState(() => formularioDe(inicial ?? borradorVacio()));
-  const [cambios, setCambios] = useState(false);
+  const [inicio] = useState(() => huella(form));
   const [parte, setParte] = useState<Parte>('receta');
   // La parte a la que se acaba de pasar: entra desde abajo (la primera, al abrir, no se anima).
   const [llegada, setLlegada] = useState<Parte | null>(null);
   const [errorNombre, setErrorNombre] = useState(false);
   const [errorGuardar, setErrorGuardar] = useState('');
   const [descarte, setDescarte] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const foto = useSubidaFoto((id) => setForm((f) => ({ ...f, fotoKey: id })));
+  // Una foto que se está subiendo ya es un cambio: Cancelar pregunta.
+  const cambios = foto.subiendo || huella(form) !== inicio;
 
   const volver = useVolver(nueva ? '/recetas' : `/recetas/${form.id}`);
   const nombreRef = useRef<HTMLInputElement>(null);
@@ -118,14 +138,20 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
   const anadirIngredienteRef = useRef<HTMLButtonElement>(null);
   const anadirPasoRef = useRef<HTMLButtonElement>(null);
   const pestanas = useRef<Partial<Record<Parte, HTMLButtonElement | null>>>({});
-  // La subida en curso: Guardar la espera para no dejar la receta sin la foto recién elegida.
-  const subida = useRef<Promise<string | null> | null>(null);
   const ocupado = useRef(false);
-
-  const actualizar = (cambio: (f: Formulario) => Formulario) => {
-    setForm(cambio);
-    setCambios(true);
-  };
+  // Lo último escrito: Guardar, si espera a la foto, guarda también lo que se escriba mientras tanto.
+  const ultimo = useRef(form);
+  useLayoutEffect(() => {
+    ultimo.current = form;
+  });
+  // Se descartó o se salió del editor: un Guardar que estaba esperando ya no escribe ni navega.
+  const fuera = useRef(false);
+  useEffect(() => {
+    fuera.current = false;
+    return () => {
+      fuera.current = true;
+    };
+  }, []);
 
   // El bloque con el foco desaparece: el foco pasa al "Quitar" del siguiente (o a "Añadir…" si era el último)
   // y no cae al body. Sin mover la página: en el móvil no se ve y no debe saltar.
@@ -133,6 +159,9 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
     const destino = siguiente === undefined ? anadir : document.getElementById(`quitar-${siguiente}`);
     destino?.focus({ preventScroll: true });
   };
+
+  // Al deshacer, "Deshacer" desaparece: el foco pasa al "Quitar" del bloque que vuelve.
+  const enfocarDevuelto = (id: string) => document.getElementById(`quitar-${id}`)?.focus();
 
   // Un aviso con "Deshacer" se queda hasta la siguiente acción: escribir o tocar cualquier otra cosa lo retira.
   const retirarAviso = () => ponerAviso(null);
@@ -156,11 +185,11 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
   // Ingredientes
 
   const cambiarIngrediente = (id: string) => (cambio: (i: IngredienteEditor) => IngredienteEditor) =>
-    actualizar((f) => ({ ...f, ingredientes: f.ingredientes.map((i) => (i.id === id ? cambio(i) : i)) }));
+    setForm((f) => ({ ...f, ingredientes: f.ingredientes.map((i) => (i.id === id ? cambio(i) : i)) }));
 
   const anadirIngrediente = () => {
     const nuevo = ingredienteEditor(ingredienteVacio());
-    flushSync(() => actualizar((f) => ({ ...f, ingredientes: [...f.ingredientes, nuevo] })));
+    flushSync(() => setForm((f) => ({ ...f, ingredientes: [...f.ingredientes, nuevo] })));
     document.getElementById(`ingrediente-${nuevo.id}`)?.focus();
   };
 
@@ -168,24 +197,28 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
     const k = form.ingredientes.findIndex((i) => i.id === id);
     const quitado = form.ingredientes[k];
     if (!quitado) return;
-    actualizar((f) => ({ ...f, ingredientes: f.ingredientes.filter((i) => i.id !== id) }));
+    setForm((f) => ({ ...f, ingredientes: f.ingredientes.filter((i) => i.id !== id) }));
     enfocarTrasQuitar(form.ingredientes[k + 1]?.id, anadirIngredienteRef.current);
     ponerAviso({
       texto: 'Ingrediente quitado',
       en: pathname,
-      deshacer: () =>
-        actualizar((f) => ({ ...f, ingredientes: [...f.ingredientes.slice(0, k), quitado, ...f.ingredientes.slice(k)] })),
+      deshacer: () => {
+        flushSync(() =>
+          setForm((f) => ({ ...f, ingredientes: [...f.ingredientes.slice(0, k), quitado, ...f.ingredientes.slice(k)] })),
+        );
+        enfocarDevuelto(quitado.id);
+      },
     });
   };
 
   // Pasos
 
   const cambiarPaso = (id: string) => (cambio: (p: PasoEditor) => PasoEditor) =>
-    actualizar((f) => ({ ...f, pasos: f.pasos.map((p) => (p.id === id ? cambio(p) : p)) }));
+    setForm((f) => ({ ...f, pasos: f.pasos.map((p) => (p.id === id ? cambio(p) : p)) }));
 
   const anadirPaso = () => {
     const nuevo = pasoEditor(pasoVacio());
-    flushSync(() => actualizar((f) => ({ ...f, pasos: [...f.pasos, nuevo] })));
+    flushSync(() => setForm((f) => ({ ...f, pasos: [...f.pasos, nuevo] })));
     document.getElementById(`paso-${nuevo.id}`)?.focus();
   };
 
@@ -193,58 +226,86 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
     const k = form.pasos.findIndex((p) => p.id === id);
     const quitado = form.pasos[k];
     if (!quitado) return;
-    actualizar((f) => ({ ...f, pasos: f.pasos.filter((p) => p.id !== id) }));
+    setForm((f) => ({ ...f, pasos: f.pasos.filter((p) => p.id !== id) }));
     enfocarTrasQuitar(form.pasos[k + 1]?.id, anadirPasoRef.current);
     ponerAviso({
       texto: 'Paso quitado',
       en: pathname,
-      deshacer: () => actualizar((f) => ({ ...f, pasos: [...f.pasos.slice(0, k), quitado, ...f.pasos.slice(k)] })),
+      deshacer: () => {
+        flushSync(() => setForm((f) => ({ ...f, pasos: [...f.pasos.slice(0, k), quitado, ...f.pasos.slice(k)] })));
+        enfocarDevuelto(quitado.id);
+      },
     });
   };
 
   // Guardar, cancelar y borrar
 
+  const soltar = () => {
+    ocupado.current = false;
+    setGuardando(false);
+  };
+
+  // Se vuelve a Receta y el foco va al nombre (en el mismo toque, en el iPhone así se abre el teclado).
+  const errorDeNombre = () => {
+    flushSync(() => {
+      ir('receta');
+      setErrorNombre(true);
+    });
+    nombreRef.current?.focus();
+  };
+
   const guardar = async () => {
     if (ocupado.current) return;
     if (form.nombre.trim() === '') {
-      // Se vuelve a Receta y el foco va al nombre en el mismo toque (en el iPhone así se abre el teclado).
-      flushSync(() => {
-        ir('receta');
-        setErrorNombre(true);
-      });
-      nombreRef.current?.focus();
+      errorDeNombre();
       return;
     }
     ocupado.current = true;
+    setGuardando(true);
     setErrorGuardar('');
-    let fotoKey = form.fotoKey;
-    const pendiente = subida.current;
+    const pendiente = foto.enCurso.current;
+    let subida: string | null = null;
     if (pendiente) {
-      const id = await pendiente;
-      if (id === null) {
+      // Se espera a la vista de "Subiendo la foto…", con Guardar ocupado.
+      ir('receta');
+      subida = await pendiente;
+      if (fuera.current) return;
+      if (subida === null) {
         // La foto no subió: su error queda escrito en Receta y no se guarda sin ella.
-        ocupado.current = false;
-        setParte('receta');
+        soltar();
         return;
       }
-      fotoKey = id;
+    }
+    const actual = subida === null ? ultimo.current : { ...ultimo.current, fotoKey: subida };
+    // Mientras se esperaba a la foto, el nombre pudo quedarse vacío.
+    if (actual.nombre.trim() === '') {
+      soltar();
+      errorDeNombre();
+      return;
     }
     try {
-      await guardarReceta(borradorDesde({ ...form, fotoKey }));
+      await guardarReceta(borradorDesde(actual));
     } catch (error) {
       console.debug('No se pudo guardar la receta', error);
-      ocupado.current = false;
+      soltar();
       setErrorGuardar('No se pudo guardar. Inténtalo otra vez.');
       return;
     }
+    if (fuera.current) return;
     // Una receta nueva abre su vista en el sitio del editor; al editar, se vuelve a la vista de la que se vino.
-    if (nueva) navigate(`/recetas/${form.id}`, { replace: true });
+    if (nueva) navigate(`/recetas/${actual.id}`, { replace: true });
     else volver();
+  };
+
+  // Salir sin guardar (sin cambios, o descartándolos): un Guardar que espera a la foto ya no hace nada.
+  const salir = () => {
+    fuera.current = true;
+    volver();
   };
 
   const cancelar = () => {
     if (!cambios) {
-      volver();
+      salir();
       return;
     }
     flushSync(() => setDescarte(true));
@@ -298,14 +359,14 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
         <button ref={cancelarRef} className="cancel" type="button" onClick={cancelar}>
           Cancelar
         </button>
-        <button className="save" type="button" onClick={() => void guardar()}>
+        <button className="save" type="button" aria-busy={guardando || undefined} onClick={() => void guardar()}>
           Guardar
         </button>
       </div>
       <div className="descarte" role="alert" hidden={!descarte}>
         <p>Hay cambios sin guardar.</p>
         <div className="descarte-acc">
-          <button ref={descartarRef} className="link" type="button" onClick={() => volver()}>
+          <button ref={descartarRef} className="link" type="button" onClick={salir}>
             Descartar cambios
           </button>
           <button className="quiet" type="button" onClick={seguirEditando}>
@@ -358,7 +419,7 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
               onChange={(e) => {
                 const nombre = e.target.value;
                 setErrorNombre(false);
-                actualizar((f) => ({ ...f, nombre }));
+                setForm((f) => ({ ...f, nombre }));
               }}
             />
           </span>
@@ -376,7 +437,7 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
                 value={form.raciones}
                 onChange={(e) => {
                   const raciones = e.target.value;
-                  actualizar((f) => ({ ...f, raciones }));
+                  setForm((f) => ({ ...f, raciones }));
                 }}
               />
             </span>
@@ -393,7 +454,7 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
                 value={form.minutos}
                 onChange={(e) => {
                   const minutos = e.target.value;
-                  actualizar((f) => ({ ...f, minutos }));
+                  setForm((f) => ({ ...f, minutos }));
                 }}
               />
               <span className="uni" aria-hidden="true">
@@ -405,11 +466,7 @@ function EditorReceta({ inicial }: { inicial?: BorradorReceta }) {
         <p className="tipos" aria-live="polite">
           {lineaTipos}
         </p>
-        <HuecoFoto
-          fotoKey={form.fotoKey}
-          cambiar={(fotoKey) => actualizar((f) => ({ ...f, fotoKey }))}
-          subida={subida}
-        />
+        <HuecoFoto fotoKey={form.fotoKey} quitar={() => setForm((f) => ({ ...f, fotoKey: null }))} subida={foto} />
         {!nueva && (
           <p className="borrar">
             <button className="link" type="button" onClick={() => void borrar()}>

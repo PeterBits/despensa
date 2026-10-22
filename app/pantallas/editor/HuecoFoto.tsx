@@ -1,4 +1,4 @@
-import { useRef, useState, type RefObject } from 'react';
+import { useRef, useState } from 'react';
 import { subirFoto, urlFoto } from '../../datos/fotos';
 
 const Camara = () => (
@@ -8,41 +8,50 @@ const Camara = () => (
   </svg>
 );
 
-// La foto de la receta: el hueco con la foto o una cámara y, a su lado, elegirla, cambiarla o quitarla.
-// Elegir un archivo la sube en el momento; `subida` deja ver la subida en curso para que Guardar la espere.
-export function HuecoFoto({
-  fotoKey,
-  cambiar,
-  subida,
-}: {
-  fotoKey: string | null;
-  cambiar: (fotoKey: string | null) => void;
-  subida: RefObject<Promise<string | null> | null>;
-}) {
-  const archivoRef = useRef<HTMLInputElement>(null);
+// La subida de la foto: elegir un archivo la sube en el momento. Mientras sube, `enCurso` es esa subida
+// (resuelve con el id, o con null si falló), para que Guardar la espere.
+export function useSubidaFoto(alSubir: (id: string) => void) {
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState('');
+  const enCurso = useRef<Promise<string | null> | null>(null);
 
-  const elegir = async (archivo: File) => {
+  const subir = async (archivo: File) => {
     setSubiendo(true);
     setError('');
     let terminar: (id: string | null) => void = () => {};
-    subida.current = new Promise((resolver) => {
+    enCurso.current = new Promise((resolver) => {
       terminar = resolver;
     });
     try {
       const id = await subirFoto(archivo);
-      cambiar(id);
+      alSubir(id);
       terminar(id);
     } catch (e) {
       // subirFoto lanza la frase en español que se enseña tal cual.
       setError(e instanceof Error ? e.message : 'Algo ha fallado. Inténtalo otra vez.');
       terminar(null);
     } finally {
-      subida.current = null;
+      enCurso.current = null;
       setSubiendo(false);
     }
   };
+
+  return { subiendo, error, subir, enCurso };
+}
+
+export type SubidaFoto = ReturnType<typeof useSubidaFoto>;
+
+// La foto de la receta: el hueco con la foto o una cámara y, a su lado, elegirla, cambiarla o quitarla.
+export function HuecoFoto({
+  fotoKey,
+  quitar,
+  subida,
+}: {
+  fotoKey: string | null;
+  quitar: () => void;
+  subida: SubidaFoto;
+}) {
+  const archivoRef = useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -56,14 +65,14 @@ export function HuecoFoto({
           {fotoKey ? <img src={urlFoto(fotoKey)} alt="" /> : <Camara />}
         </div>
         <div className="foto-acc">
-          {subiendo ? (
+          {subida.subiendo ? (
             <p aria-live="polite">Subiendo la foto…</p>
           ) : fotoKey ? (
             <>
               <button className="link" type="button" onClick={() => archivoRef.current?.click()}>
                 Cambiar foto
               </button>
-              <button className="quiet" type="button" onClick={() => cambiar(null)}>
+              <button className="quiet" type="button" onClick={quitar}>
                 Quitar foto
               </button>
             </>
@@ -72,7 +81,7 @@ export function HuecoFoto({
               Añadir foto
             </button>
           )}
-          {error !== '' && <p role="alert">{error}</p>}
+          {subida.error !== '' && <p role="alert">{subida.error}</p>}
         </div>
         <input
           ref={archivoRef}
@@ -83,7 +92,7 @@ export function HuecoFoto({
             const archivo = e.target.files?.[0];
             // Se vacía para que volver a elegir el mismo archivo también avise.
             e.target.value = '';
-            if (archivo) void elegir(archivo);
+            if (archivo) void subida.subir(archivo);
           }}
         />
       </div>

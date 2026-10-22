@@ -178,6 +178,12 @@ describe('Editor', () => {
     await waitFor(() => expect(screen.getByLabelText('Ingrediente 1')).toHaveValue('Lentejas pardinas'));
     expect(screen.getByLabelText('Ingrediente 2')).toHaveValue('Sal');
     expect(screen.queryByText(/Ingrediente quitado/)).not.toBeInTheDocument();
+    // "Deshacer" desaparece: el foco pasa al "Quitar" del bloque que vuelve.
+    expect(screen.getByRole('button', { name: 'Quitar ingrediente 1' })).toHaveFocus();
+
+    // Quitar y deshacer deja la receta como estaba: Cancelar sale sin preguntar.
+    await usuario.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(await screen.findByText('Vista de prueba')).toBeInTheDocument();
   });
 
   it('quitar un paso deja deshacer hasta la siguiente acción', async () => {
@@ -259,6 +265,10 @@ describe('Editor', () => {
     expect(subirFoto).toHaveBeenCalledWith(archivo);
     expect(screen.getByText('Subiendo la foto…')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Añadir foto' })).not.toBeInTheDocument();
+    // La foto que se está subiendo ya cuenta como cambio: Cancelar pregunta.
+    await usuario.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(screen.getByText('Hay cambios sin guardar.')).toBeVisible();
+    await usuario.click(screen.getByRole('button', { name: 'Seguir editando' }));
 
     await act(async () => terminar('f1'));
     expect(container.querySelector('.hueco img')).toHaveAttribute('src', '/api/fotos/f1');
@@ -268,6 +278,71 @@ describe('Editor', () => {
     await usuario.click(screen.getByRole('button', { name: 'Quitar foto' }));
     expect(container.querySelector('.hueco img')).toBeNull();
     expect(screen.getByRole('button', { name: 'Añadir foto' })).toBeInTheDocument();
+  });
+
+  it('descartar mientras Guardar espera a la foto no guarda nada', async () => {
+    let terminar: (id: string) => void = () => {};
+    vi.mocked(subirFoto).mockImplementation(
+      () =>
+        new Promise<string>((resolver) => {
+          terminar = resolver;
+        }),
+    );
+    const usuario = userEvent.setup();
+    const { container } = pintar(['/recetas', '/recetas/nueva'], 1);
+    await usuario.type(screen.getByLabelText('Nombre'), 'Lentejas estofadas');
+    await usuario.upload(
+      container.querySelector<HTMLInputElement>('input[type="file"]')!,
+      new File(['foto'], 'lentejas.jpg', { type: 'image/jpeg' }),
+    );
+
+    await usuario.click(parte('Pasos'));
+    await usuario.click(screen.getByRole('button', { name: 'Guardar' }));
+    // Guardar espera a la foto a la vista: vuelve a Receta, donde se ve la subida, y queda ocupado.
+    expect(parte('Receta')).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText('Subiendo la foto…')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Guardar' })).toHaveAttribute('aria-busy', 'true');
+
+    await usuario.click(screen.getByRole('button', { name: 'Cancelar' }));
+    await usuario.click(screen.getByRole('button', { name: 'Descartar cambios' }));
+    expect(await screen.findByText('Índice de prueba')).toBeInTheDocument();
+
+    // La foto termina de subir después: el Guardar que esperaba no escribe ni vuelve a navegar.
+    await act(async () => {
+      terminar('f1');
+      await new Promise((resolver) => setTimeout(resolver, 50));
+    });
+    expect(screen.getByTestId('ubicacion')).toHaveTextContent(/^\/recetas$/);
+    expect(screen.getByText('Índice de prueba')).toBeInTheDocument();
+    expect(await copia().receta.count()).toBe(0);
+    expect(await copia().cola.count()).toBe(0);
+  });
+
+  it('lo escrito mientras Guardar espera a la foto también se guarda', async () => {
+    let terminar: (id: string) => void = () => {};
+    vi.mocked(subirFoto).mockImplementation(
+      () =>
+        new Promise<string>((resolver) => {
+          terminar = resolver;
+        }),
+    );
+    const usuario = userEvent.setup();
+    const { container } = pintar();
+    await usuario.type(screen.getByLabelText('Nombre'), 'Lentejas');
+    await usuario.upload(
+      container.querySelector<HTMLInputElement>('input[type="file"]')!,
+      new File(['foto'], 'lentejas.jpg', { type: 'image/jpeg' }),
+    );
+    await usuario.click(screen.getByRole('button', { name: 'Guardar' }));
+    // Un segundo toque mientras espera no guarda dos veces.
+    await usuario.click(screen.getByRole('button', { name: 'Guardar' }));
+    await usuario.type(screen.getByLabelText('Nombre'), ' estofadas');
+
+    await act(async () => terminar('f1'));
+    expect(await screen.findByText('Vista de prueba')).toBeInTheDocument();
+    expect(await copia().receta.toArray()).toEqual([
+      expect.objectContaining({ nombre: 'Lentejas estofadas', foto_key: 'f1' }),
+    ]);
   });
 
   it('si la foto no sube, dice por qué', async () => {
