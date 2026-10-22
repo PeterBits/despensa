@@ -17,7 +17,7 @@ function codificar(lienzo: Lienzo, tipo: string): Promise<Blob | null> {
 // Solo en el navegador (jsdom no tiene canvas): lado mayor de 1600 px como mucho, sin ampliar nunca.
 // WebP al 0,8; si el navegador no sabe codificarlo y devuelve otra cosa, JPEG al 0,8.
 export async function reducirFoto(archivo: Blob): Promise<Blob> {
-  const imagen = await createImageBitmap(archivo);
+  const imagen = await createImageBitmap(archivo, { imageOrientation: 'from-image' });
   try {
     const escala = Math.min(1, LADO_MAYOR / Math.max(imagen.width, imagen.height));
     const ancho = Math.max(1, Math.round(imagen.width * escala));
@@ -27,6 +27,7 @@ export async function reducirFoto(archivo: Blob): Promise<Blob> {
       : new OffscreenCanvas(ancho, alto);
     const contexto = lienzo.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null;
     if (!contexto) throw new Error('El lienzo no tiene contexto 2d.');
+    contexto.imageSmoothingQuality = 'high';
     contexto.drawImage(imagen, 0, 0, ancho, alto);
     const webp = await codificar(lienzo, 'image/webp');
     if (webp?.type === 'image/webp') return webp;

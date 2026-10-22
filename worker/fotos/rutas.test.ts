@@ -1,4 +1,5 @@
 import { env } from 'cloudflare:test';
+import { sha256 } from '../auth/cripto';
 import { app, crearHogar, pedir } from '../pruebas';
 
 // Bytes inventados: solo importan los primeros.
@@ -69,7 +70,21 @@ describe('fotos', () => {
 
   it('responde 404 si el id no tiene forma de UUID', async () => {
     const { cookie } = await crearHogar();
-    expect((await pedir('GET', '/api/fotos/no-es-un-uuid', undefined, cookie)).status).toBe(404);
+    const r = await pedir('GET', '/api/fotos/no-es-un-uuid', undefined, cookie);
+    expect(r.status).toBe(404);
+    expect(await r.json()).toEqual({ error: 'Esa foto no existe.' });
+  });
+
+  it('renueva la cookie de sesión también al leer una foto', async () => {
+    const { cookie } = await crearHogar();
+    const { id } = await (await subir(JPEG, 'image/jpeg', cookie)).json<{ id: string }>();
+    const caduca = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    await env.DB.prepare('UPDATE sesion SET caduca = ? WHERE id = ?')
+      .bind(caduca, await sha256(cookie.slice('sesion='.length)))
+      .run();
+    const foto = await pedir('GET', `/api/fotos/${id}`, undefined, cookie);
+    expect(foto.status).toBe(200);
+    expect(foto.headers.get('Set-Cookie')).toMatch(/^sesion=/);
   });
 
   it('pide sesión', async () => {

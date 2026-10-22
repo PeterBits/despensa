@@ -5,6 +5,7 @@ import type { Entorno } from '../auth/sesiones';
 import { almacenR2, type TipoFoto } from './almacen';
 
 const MAX_BYTES = 5 * 1024 * 1024;
+const DEMASIADO_PESADA = 'La foto pesa demasiado. Prueba con otra.';
 const FORMA_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 const empieza = (bytes: Uint8Array, desde: number, firma: number[]) => firma.every((b, i) => bytes[desde + i] === b);
@@ -20,8 +21,11 @@ function tipoPorBytes(bytes: Uint8Array): TipoFoto | null {
 export function rutasFotos(app: Hono<Entorno>) {
   app.post('/api/fotos', async (c) => {
     const declarado = (c.req.header('Content-Type') ?? '').split(';')[0]?.trim().toLowerCase();
+    // Con Content-Length se corta antes de leer el cuerpo; sin él, se comprueba al leerlo.
+    const anunciado = Number(c.req.header('Content-Length'));
+    if (anunciado > MAX_BYTES) return c.json({ error: DEMASIADO_PESADA }, 413);
     const datos = await c.req.arrayBuffer();
-    if (datos.byteLength > MAX_BYTES) return c.json({ error: 'La foto pesa demasiado. Prueba con otra.' }, 413);
+    if (datos.byteLength > MAX_BYTES) return c.json({ error: DEMASIADO_PESADA }, 413);
     if (datos.byteLength === 0) return c.json({ error: 'La foto está vacía.' }, 400);
     const real = tipoPorBytes(new Uint8Array(datos));
     if (real === null || real !== declarado) return c.json({ error: 'La foto tiene que ser JPEG o WebP.' }, 415);
@@ -34,12 +38,11 @@ export function rutasFotos(app: Hono<Entorno>) {
     const id = c.req.param('id');
     const foto = FORMA_UUID.test(id) ? await almacenR2(c.env.FOTOS).leer(`${c.get('sesion').hogarId}/${id}`) : null;
     if (!foto) return c.json({ error: 'Esa foto no existe.' }, 404);
-    return new Response(foto.cuerpo, {
-      headers: {
-        'Content-Type': foto.tipo,
-        'Cache-Control': 'private, max-age=31536000, immutable',
-        'X-Content-Type-Options': 'nosniff',
-      },
+    // Por c.body y no con un Response suelto: así conserva el Set-Cookie con el que requiereSesion renueva la sesión.
+    return c.body(foto.cuerpo, 200, {
+      'Content-Type': foto.tipo,
+      'Cache-Control': 'private, max-age=31536000, immutable',
+      'X-Content-Type-Options': 'nosniff',
     });
   });
 }
