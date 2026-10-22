@@ -1,0 +1,43 @@
+/* Índice de Recetas: una columna sin botón fijo, así que reserva la barra de pestañas y la línea de estado. */
+.screen.recetas{padding-bottom:calc(env(safe-area-inset-bottom) + 112px)}
+
+/* Fila de arriba: la acción a la derecha, por encima del título, metida 20px en su aire */
+.top{display:flex;justify-content:space-between;align-items:center;min-height:44px}
+.top-indice{justify-content:flex-end;margin-bottom:-20px}
+.accion{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 20px 0 12px;font-weight:600}
+.accion svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.accion:active{opacity:.6}
+
+.search{display:flex;align-items:center;gap:8px;margin:16px 20px 0;height:44px;padding:0 12px;border-radius:9px;background:var(--seg)}
+.search:focus-within{outline:2px solid var(--tint);outline-offset:3px}
+.search svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--ink-2);stroke-width:2;stroke-linecap:round}
+.search input{flex:1;min-width:0;height:100%;font:inherit;font-size:17px;color:inherit;background:none;border:0;outline:0;-webkit-appearance:none;appearance:none}
+.search input::placeholder{color:var(--ink-2);opacity:1}
+
+.sec{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:32px 20px 2px;
+  font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.015em}
+.sec small{font-size:13px;font-weight:500;color:var(--ink-2)}
+.recetas ul{list-style:none}
+.row{display:block;padding:10px 20px}
+.row:active .line,.row:active .from{opacity:.6}
+.row:focus-visible{outline-offset:-2px}
+.line{display:flex;align-items:baseline;align-items:last baseline;gap:10px}
+.leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule);transform:translateY(-5px)}
+.fig{font-weight:600;white-space:nowrap}
+.fig .lab{font-size:13px;font-weight:500;color:var(--ink-2);margin-right:5px}
+.from{display:block;margin-top:2px;font-size:13px;font-weight:500;color:var(--ink-3)}
+.vacio{margin:16px 20px 0;font-size:15px;color:var(--ink-2)}
+
+/* Índice vacío: una frase y el botón principal, sin buscador ni secciones */
+.vacio-todo{margin:12px 20px 0;font-size:17px;color:var(--ink-2);text-wrap:pretty}
+.recetas .cta{width:auto;gap:6px;margin:24px 20px 0}
+.recetas .cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+
+/* Línea de estado: sola sobre la barra de pestañas (58px + 6px de relleno) */
+.dock{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 64px);background:var(--ground);padding:10px 20px 14px}
+.dock .status{max-width:400px;margin:0 auto}
+.status .link{font-size:15px}
+
+/* Al volver de una receta, el índice entra desde la izquierda */
+.vuelve{animation:vuelve .32s var(--ease)}
+@keyframes vuelve{from{opacity:0;transform:translateX(-24px)}}

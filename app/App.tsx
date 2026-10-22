@@ -6,6 +6,7 @@ import { iniciarSincronizacion } from './datos/sincronizacion';
 import { Bienvenida } from './pantallas/Bienvenida';
 import { Invitacion } from './pantallas/Invitacion';
 import { Pantalla } from './pantallas/Pantalla';
+import { Recetas } from './pantallas/Recetas';
 
 export function App() {
   return (
@@ -57,7 +58,10 @@ export function Rutas() {
   return (
     <Routes>
       <Route path="/semana" element={<Pantalla titulo="Semana" />} />
-      <Route path="/recetas" element={<Pantalla titulo="Recetas" />} />
+      <Route path="/recetas" element={<Recetas />} />
+      <Route path="/recetas/nueva" element={<Pantalla titulo="Nueva receta" />} />
+      <Route path="/recetas/:id" element={<Pantalla titulo="Receta" />} />
+      <Route path="/recetas/:id/editar" element={<Pantalla titulo="Editar receta" />} />
       <Route path="/lista" element={<Pantalla titulo="Lista" />} />
       <Route path="/registro" element={<Pantalla titulo="Registro" />} />
       <Route path="*" element={<Navigate to="/semana" replace />} />
