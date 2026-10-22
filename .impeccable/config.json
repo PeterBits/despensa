@@ -38,6 +38,15 @@
         ],
         "createdAt": "2026-10-20T11:43:31.466Z",
         "reason": "finish reviewer ruled the iOS segmented control (2px inset thumb) a false positive on Semana; same component in this sketch"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "prototipo/editor.html"
+        ],
+        "createdAt": "2026-10-22T12:26:05.959Z",
+        "reason": "Claude: same iOS segmented control (2px inset thumb) the finish reviewer ruled a false positive on Semana and Lista"
       }
     ]
   }

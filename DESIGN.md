@@ -72,6 +72,7 @@ rounded:
   thumb: "7px"
   segment: "9px"
   button: "14px"
+  switch: "13px"
   full: "50%"
 spacing:
   xs: "4px"
@@ -255,6 +256,83 @@ components:
     textColor: "{colors.ink-2}"
     typography: "{typography.body-secondary}"
     height: "44px"
+  top-action:
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    height: "44px"
+  field-label:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.label}"
+  field-error:
+    textColor: "{colors.ink}"
+    typography: "{typography.label}"
+  type-line:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.body-secondary}"
+  photo-slot:
+    backgroundColor: "{colors.seg}"
+    rounded: "{rounded.segment}"
+    size: "88px"
+  type-button:
+    textColor: "{colors.ink-2}"
+    rounded: "{rounded.segment}"
+    height: "32px"
+  type-button-pressed:
+    backgroundColor: "{colors.fill}"
+    textColor: "{colors.on-fill}"
+    rounded: "{rounded.segment}"
+    height: "32px"
+  ingredient-summary:
+    textColor: "{colors.ink-3}"
+    typography: "{typography.label}"
+    height: "44px"
+  switch:
+    backgroundColor: "{colors.seg}"
+    rounded: "{rounded.switch}"
+    width: "44px"
+    height: "26px"
+  switch-on:
+    backgroundColor: "{colors.fill}"
+    rounded: "{rounded.switch}"
+    width: "44px"
+    height: "26px"
+  step-field:
+    backgroundColor: "{colors.seg}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    rounded: "{rounded.segment}"
+    padding: "10px 12px"
+  uses-line:
+    textColor: "{colors.ink-3}"
+    typography: "{typography.label}"
+  minutes-field:
+    backgroundColor: "{colors.seg}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-secondary}"
+    rounded: "{rounded.segment}"
+    width: "112px"
+    height: "36px"
+  add-button:
+    backgroundColor: "{colors.seg}"
+    textColor: "{colors.ink-2}"
+    typography: "{typography.body}"
+    rounded: "{rounded.segment}"
+    padding: "0 12px"
+    height: "44px"
+  editor-dock:
+    backgroundColor: "{colors.ground}"
+    textColor: "{colors.ink-2}"
+    typography: "{typography.label}"
+  discard-line:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.label}"
+  empty-index:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.body}"
+  recipe-thumb:
+    backgroundColor: "{colors.seg}"
+    rounded: "{rounded.segment}"
+    size: "72px"
 ---
 
 # Design System: Despensa
@@ -291,9 +369,9 @@ Neutros grafito con un leve matiz verde, un naranja de sistema y nada más.
 - **Tinta secundaria** (`ink-2` / `ink-2-dark`): fecha de hoy, descripción del plato, leyenda, estado del botón, letras de día.
 - **Tinta apagada** (`ink-3` / `ink-3-dark`): lo que queda fuera o ya pasó: domingo, días pasados, "En lugar de", pestañas no seleccionadas.
 - **Raya** (`rule` / `rule-dark`): puntos guía, subrayado de enlaces, barra de desplazamiento.
-- **Pelo** (`hair` / `hair-dark`): filete superior de la barra de pestañas y contorno del botón tranquilo.
-- **Relleno** (`fill` / `fill-dark`) con **sobre relleno** (`on-fill` / `on-fill-dark`): el botón principal es tinta sólida, invertido en cada tema.
-- **Segmento** (`seg`, `seg-on` y sus `-dark`): pista y pulgar del control segmentado.
+- **Pelo** (`hair` / `hair-dark`): filete superior de la barra de pestañas y contorno del botón tranquilo. En el editor, también el filete entre bloques y sobre la línea de estado, y el anillo de reposo de los botones de tipo y del interruptor.
+- **Relleno** (`fill` / `fill-dark`) con **sobre relleno** (`on-fill` / `on-fill-dark`): el botón principal es tinta sólida, invertido en cada tema. También el tipo de ingrediente elegido y la pista del interruptor encendido, con su botón en `on-fill`.
+- **Segmento** (`seg`, `seg-on` y sus `-dark`): pista y pulgar del control segmentado. En el editor, también el relleno de los campos, el hueco de la foto y la pista del interruptor apagado; en la receta, el fondo de la miniatura de la foto.
 
 ### Named Rules
 **The Activity Tint Rule.** El naranja significa actividad: días activos, el plato que va a ellos y la pestaña seleccionada. Ningún otro contenido lleva naranja. La única excepción son los indicadores del sistema que en iOS toman el color de acento (cursor, selección y anillo de foco).
@@ -331,9 +409,13 @@ La parte inferior está fija y apilada: barra de pestañas (58px más el área s
 
 La tira de días es una rejilla de siete columnas iguales (L M X J V S D): letra arriba, número en círculo debajo.
 
-En una pantalla sin botón fijo (Recetas) el contenido reserva 112px más el área segura al final: la barra de pestañas y, cuando aparece, la línea de estado. Una pestaña puede tener dos vistas en la misma columna (índice y detalle), enlazadas por el hash de la URL; al volver, el índice recupera la posición donde estaba.
+En una pantalla sin botón fijo (Recetas) el contenido reserva 112px más el área segura al final: la barra de pestañas y, cuando aparece, la línea de estado. Una pestaña puede tener dos vistas en la misma columna (índice y detalle), enlazadas por la URL; al volver, el índice recupera la posición donde estaba.
 
 Registro tampoco tiene botón fijo y reserva los mismos 112px más el área segura. Cada día es una fila en rejilla de dos columnas: 36px para la fecha y el resto para el cuerpo, separadas 10px, con 10px de relleno vertical y el margen de 20px. La escala de nota y el panel "Comimos otra cosa" ocupan el ancho entero de la fila, por debajo de las dos columnas. Las semanas van de la más reciente a la más antigua y, dentro de cada una, el día más reciente arriba.
+
+El editor de receta no lleva barra de pestañas: es una tarea que se cierra con Cancelar o Guardar. Arriba, la fila de 44px con las dos acciones; debajo, el título en display y el segmentado de tres partes, 16px por debajo. Cada parte es una columna de campos separados 16px, con el margen de 20px; los dos campos cortos comparten fila en dos columnas iguales separadas 12px. Los bloques que se repiten (un ingrediente, un paso) llevan 16px arriba y 4px abajo y se separan con un filete de 0,5px en `hair`. "Borrar receta" queda 40px por debajo de la foto, al final de Receta. El contenido reserva 96px más el área segura al final para la línea de estado.
+
+En el índice de Recetas, la fila de arriba lleva la acción ("Nueva receta") alineada a la derecha, por encima del título, y se mete 20px en el aire del título para no empujarlo hacia abajo. En la receta, la cabecera es una rejilla de dos columnas: el título a la izquierda y la miniatura de la foto a la derecha, separadas 16px; la línea de tipos, raciones y tiempo, y la de la pantalla encendida, ocupan el ancho entero por debajo. Sin foto, el título ocupa la fila entera.
 
 ## Elevation & Depth
 
@@ -345,6 +427,8 @@ Plano. La profundidad se expresa con el paso de `ground` a `bar` y con un filete
 ### Named Rules
 **The One Shadow Rule.** La única sombra del sistema es la del pulgar del segmentado. Ninguna tarjeta, botón, barra ni hoja lleva sombra decorativa.
 
+En el editor tampoco hay sombras: el interruptor, los botones de tipo y la línea de estado fija son planos. La línea de estado se separa del contenido con un filete de 0,5px en `hair`, como la barra de pestañas.
+
 ## Shapes
 
 Esquinas suaves de tipo iOS: pulgar 7px dentro de una pista de 9px, botón principal de 14px, días en círculo completo. Los contornos son anillos interiores, no bordes: 2px de `ink` para hoy, 2px de `tint` para un día activo ya pasado, 1,5px de `hair` para el botón tranquilo. El tachado es una forma del sistema: 1,5px en días y letras pasadas, 2px en el nombre de plato que se sustituye. Los puntos guía son un borde punteado de 2px en `rule`, subido 5px para alinear con la línea base.
@@ -355,10 +439,14 @@ En la receta, el paso hecho y el ingrediente gastado se tachan con el mismo traz
 
 En el registro, hoy lleva en la columna de fechas el mismo anillo interior de 2px en `ink` que en la tira de días, en un círculo de 28px con el número en 15px. Los círculos de la escala del 1 al 10 son de 30px (28px a 380px de ancho o menos) con un anillo interior de 1,5px en `hair`, como el botón tranquilo; el elegido pierde el anillo y se rellena de `fill`. Cuando el nombre del plato parte línea, los puntos guía siguen siendo el mismo borde punteado de 2px en `rule`: solo el trazo se alarga hacia la izquierda hasta 8px después de la última palabra.
 
+En el editor todo campo toma la forma del campo de añadir (pista `seg`, 9px): nombre, cantidades, la sección, el paso que crece y los minutos (36px de alto). Los botones de tipo son de 32px con el mismo radio de 9px y, en reposo, el anillo interior de 1,5px en `hair` del botón tranquilo; el elegido pierde el anillo y se rellena de `fill`. El interruptor es una pista de 44×26px con los extremos redondos (13px). El hueco de la foto es un cuadrado de 88px y la miniatura de la receta uno de 72px, ambos con radio de 9px sobre `seg`; la foto abierta, a lo ancho en 4:3, conserva los 9px. Los chevrones del resumen plegado y del selector son de trazo de 14px (trazo 2).
+
 ## Components
 
 ### Segmented Control
 Copia del nativo de iOS. Pista `seg` de 9px de radio con 2px de relleno; dos segmentos de 32px, 14px en peso 500; el seleccionado pasa a `seg-on`, peso 600 y la única sombra del sistema. Transición de fondo de 0,2s.
+
+En el editor, el mismo control lleva tres segmentos (Receta · Ingredientes · Pasos) y es la navegación del editor: un `tablist` con foco itinerante, en el que solo el segmento elegido entra en el orden del tabulador y las flechas izquierda y derecha pasan al siguiente y lo abren. Al cambiar, la parte nueva entra desde 6px abajo con opacidad (0,32s).
 
 ### Day Strip
 - **Normal:** número en 17px peso 600 sobre círculo transparente de 40px; letra del día en 13px `ink-2` encima.
@@ -383,12 +471,15 @@ El nombre del plato (title) a la izquierda, puntos guía flexibles (mín. 32px) 
 - **Enlace:** texto en tinta, peso 600, subrayado de 1px en `rule` con 3px de separación; área táctil ampliada 14px en vertical y 10px en horizontal. Pulsación: opacidad 0,6.
 - **Foco:** contorno de 2px en `tint` separado 3px.
 - **Cancelar tranquilo:** texto de 15px peso 500 en `ink-2`, sin subrayado ni fondo, con 44px de alto táctil; cierra un panel o una escala sin cambiar nada. Pulsación: opacidad 0,6.
+- **Acción de la fila de arriba:** texto en tinta de 17px peso 600, sin subrayado ni fondo, con 44px de alto táctil y a la derecha: "Guardar" en el editor, "Editar" en la receta y "Nueva receta" en el índice, este con un "+" de trazo de 20px (trazo 2,2) delante. Pulsación: opacidad 0,6. En el editor, a la izquierda va "Cancelar" como cancelar tranquilo.
 
 ### Navigation
 Barra de cuatro pestañas fija abajo (Semana, Recetas, Lista, Registro) sobre `bar`, con filete superior de 0,5px en `hair`. Iconos de trazo SVG de 26px (trazo 1,7) y rótulo de 11px en `ink-3`; la pestaña actual pasa a `tint-ink`.
 
 - **Cambio de vista dentro de una pestaña:** al abrir un detalle, la vista entra desde 24px a la derecha con opacidad (0,32s, `cubic-bezier(.16,1,.3,1)`); al volver, el índice entra desde 24px a la izquierda, en espejo. Con `prefers-reduced-motion` el cambio es directo.
 - **Volver:** "‹ Recetas" arriba a la izquierda, en tinta de 17px peso 600 con un chevrón de trazo de 22px (trazo 2,2), 44px de alto táctil y sin fondo. Pulsación: opacidad 0,6.
+- **Acción del detalle:** "Editar" va a la derecha de "‹ Recetas", en la misma fila, como acción de la fila de arriba.
+- **Editor:** no lleva barra de pestañas; se sale por Cancelar o Guardar.
 
 ### List Row (firma, en la lista)
 La fila de carta aplicada a la compra, un paso por debajo del menú: el producto en 17px peso 400 a la izquierda, puntos guía y la cantidad en 17px a la derecha, alineados por la última línea base. Debajo, de qué plato sale ("lentejas · merluza", "añadido a mano", "lo cogió tu pareja") en 13px peso 500 `ink-3`. Toda la fila es un botón: al pulsar, línea y origen bajan a opacidad 0,6, y el anillo de foco va por dentro de la fila. Sin casillas: el estado es el tachado.
@@ -408,6 +499,8 @@ El buscador de Recetas reutiliza el campo de añadir sin cambios (pista, radio, 
 
 El campo de "Comimos otra cosa" en Registro es el mismo campo sin icono, con el marcador "¿Qué comisteis?": pista, radio, alto, foco y marcador iguales.
 
+"Añadir ingrediente" y "Añadir paso" son el campo de añadir hecho botón: misma pista, radio, alto y "+" de trazo de 20px en `ink-2`, con el texto de 17px en `ink-2`, como si fuera el marcador. Pulsación: opacidad 0,6. Al pulsar, el bloque nuevo aparece al final con el foco en su primer campo.
+
 ### Lo de siempre
 Botones de un toque para lo que se compra cada semana: texto en tinta de 15px peso 600 con un "+" de trazo de 13px (trazo 2,4) en `ink-2`, separados 20px y con 44px de alto táctil, sin fondo ni contorno. Encima, el rótulo "Lo de siempre" en 13px peso 500 `ink-2`. Pulsación: opacidad 0,6. Lo que ya está en la lista no aparece aquí.
 
@@ -419,11 +512,18 @@ La línea de 13px `ink-2` sobre el botón fijo lleva el recuento ("2 en casa · 
 
 En una pantalla sin botón fijo (Recetas) la línea de estado queda sola sobre la barra de pestañas, sobre `ground`, y solo aparece mientras hay un aviso con "Deshacer" ("Progreso borrado · Deshacer").
 
+En el editor, sin barra de pestañas, la línea de estado va fija abajo del todo sobre `ground`, con un filete superior de 0,5px en `hair`, y solo aparece mientras hay un aviso: "Ingrediente quitado · Deshacer" o "Paso quitado · Deshacer", hasta la siguiente acción (escribir o tocar otra cosa la retira). En Recetas, borrar una receta desde el editor vuelve al índice con "Receta borrada · Deshacer", con las mismas reglas.
+
+**The Undo, Don't Ask Rule.** En el editor, quitar no pregunta: un ingrediente o un paso quitado deja "Deshacer" en la línea de estado hasta la siguiente acción, y una receta borrada lo deja en el índice. Solo Cancelar con cambios sin guardar pide una decisión, en línea y sin hoja.
+
 ### Recipe Index
 El índice de Recetas es la carta entera. Arriba, "Recetas" en display y el buscador; las secciones del índice son headlines (24px peso 700, 32px por encima).
 - **"Esta semana" y "La que viene":** filas de menú, como en Semana: plato en title, puntos guía y sus días a la derecha, en `tint-ink` los del plato que va a los días activos y los ya pasados tachados con 1,5px en `ink-3`. Debajo, tipos y tiempo en 15px `ink-2`; si el plato toca hoy, la línea empieza por "Hoy".
 - **"Todas" y "Resultados":** filas de lista, un paso por debajo porque son decenas: nombre de 17px, debajo tipos y tiempo en 13px peso 500 `ink-3`, y a la derecha la nota con su rótulo "nota". El título lleva a la derecha el número de recetas, como en List Sections.
 - Cada fila es un enlace a la receta con 10px de relleno vertical; al pulsar, la fila baja a opacidad 0,6, y el anillo de foco va por dentro.
+- **Fila de arriba:** "+ Nueva receta" a la derecha, por encima del título, como acción de la fila de arriba.
+- **Receta sin notas:** en "Todas" y "Resultados", una receta que nadie ha puntuado no lleva puntos guía ni cifra; solo el nombre y, debajo, tipos y tiempo.
+- **Índice vacío (primer arranque):** bajo el título, una sola frase de 17px en `ink-2` y, 24px por debajo, el botón principal "Nueva receta" con su "+" de trazo de 20px, en el flujo de la columna y no fijo abajo. Sin buscador, sin secciones y sin la acción de la fila de arriba.
 
 ### Ingredient Row
 La fila de carta compacta: nombre de 15px a la izquierda, puntos guía y la cantidad en 15px `ink-2` a la derecha, con 4px de relleno vertical y 8px entre piezas, para que todos los ingredientes se lean de un vistazo encima de los pasos. No es un botón: el ingrediente no se toca, se tacha solo.
@@ -478,6 +578,43 @@ Un panel en línea bajo la fila de hoy, sin hoja ni fondo; mientras está abiert
 ### Missing Rating
 En un día pasado sin tu nota, debajo del plato: "Te falta tu nota · Puntuar" en 13px peso 500 `ink-3`, con "Puntuar" como enlace de tinta del mismo tamaño. Puntuar abre en la misma fila la escala de ese día, con su rótulo y un "Cancelar" tranquilo; al elegir, la escala se cierra y la cifra ocupa su columna.
 
+### Recipe Photo
+La foto de la receta no empuja los ingredientes: es una miniatura de 72px con radio de 9px junto al título, a la derecha y 4px por debajo de su borde superior; la línea de tipos, raciones y tiempo pasa por debajo a todo el ancho. Es un botón ("Ver la foto", con `aria-expanded`): al tocarla, la foto se abre a lo ancho en 4:3 bajo la cabecera, con radio de 9px y 16px por encima, y entra desde 6px abajo con opacidad (0,32s); otro toque la recoge. Mientras está abierta, la miniatura queda a opacidad 0,6. Sin foto no hay miniatura ni hueco.
+
+### Editor Top Row
+A la izquierda, "Cancelar" (15px peso 500 `ink-2`, cancelar tranquilo); a la derecha, "Guardar" (17px peso 600 en tinta). Las dos con 44px de alto táctil y opacidad 0,6 al pulsar. Debajo, el título en display: "Nueva receta" o "Editar receta".
+- **Cambios sin guardar:** si se cancela con cambios, bajo la fila aparece, en línea y sin hoja, "Hay cambios sin guardar." en 13px `ink-2` y, debajo, "Descartar cambios" como enlace de tinta y "Seguir editando" tranquilo, separados 20px. Es un aviso (`role="alert"`) y el foco va a "Descartar cambios"; "Seguir editando" lo cierra y devuelve el foco a "Cancelar". Sin cambios, Cancelar sale directo.
+
+### Labelled Field
+El campo del editor es el campo de añadir sin icono (44px, `seg`, 9px, texto de 17px y marcador en `ink-2`) con un rótulo de 13px peso 500 `ink-2` encima, a 6px. Cada campo queda 16px por debajo del anterior.
+- **Dos cortos en una fila:** Raciones y Tiempo comparten fila en dos columnas iguales separadas 12px; Tiempo lleva dentro, a la derecha, el sufijo "min" en 15px `ink-2`.
+- **Línea de tipos:** 12px por debajo, una frase de 15px `ink-2` que se escribe sola con los tipos de los ingredientes ("Hidratos, proteína y fibra: plato energético, irá a los días activos."); sin tipos, explica para qué sirven. Es una región `aria-live` educada.
+- **Error:** al guardar sin nombre, el editor vuelve a Receta, pone el foco en el campo y escribe debajo, a 6px, "Ponle nombre a la receta." en 13px peso 600 en tinta; el campo lleva `aria-invalid` y `aria-describedby` hacia la frase. Sin rojo ni anillo de color: no hay segundo acento. El error se retira al escribir.
+
+### Photo Slot
+En Receta, bajo el rótulo "Foto", un hueco de 88px con radio de 9px sobre `seg`: la foto recortada a cuadrado o, sin foto, una cámara de trazo de 28px (trazo 1,7) en `ink-2`. A 16px a la derecha, en columna y con 14px entre ellas, las acciones: "Añadir foto" o "Cambiar foto" como enlace de tinta de 15px y "Quitar foto" tranquilo. Mientras sube, en su sitio queda "Subiendo la foto…" en 13px `ink-2`; un error se escribe igual, debajo.
+- **Borrar receta:** al final de Receta, 40px por debajo de la foto, "Borrar receta" como enlace de tinta. No pide confirmación: se puede deshacer desde el índice ("Receta borrada · Deshacer"). En una receta nueva no aparece.
+
+### Ingredient Block
+Cada ingrediente es un bloque con 16px por encima y 4px por debajo, separado del siguiente por un filete de 0,5px en `hair`.
+- **Nombre y cantidad:** dos campos en una fila, el nombre flexible y la cantidad de 136px, separados 8px y con 10px de relleno lateral.
+- **Tipo:** debajo, a 8px, cuatro botones iguales (Hidratos, Proteína, Grasas, Fibra) de 32px de alto, radio de 9px y 6px entre ellos, con texto de 14px peso 500 en `ink-2` y el anillo interior de 1,5px en `hair` en reposo. El elegido se rellena de `fill`, con el texto en `on-fill` peso 600 y sin anillo (180ms); como mucho uno, y otro toque sobre el elegido lo deja sin tipo. Es un grupo con nombre y cada botón lleva `aria-pressed`. Pulsación: escala 0,96 (120ms). El tipo es tinta, nunca naranja.
+- **Resumen plegado:** debajo, a la izquierda, una fila de 44px de alto con "Sección · va a la lista" (o "no va a la lista", o "se compra 1 cabeza") en 13px peso 500 `ink-3`, cortada con puntos suspensivos, y un chevrón de trazo de 14px que gira 180° al abrir (0,2s); lleva `aria-expanded`. A la derecha, "Quitar" tranquilo.
+- **Panel:** al abrir, la sección en un selector con la forma del campo y un chevrón de trazo de 14px en `ink-2` a 12px del borde; el interruptor "No va a la lista" en una fila de 44px con su texto de 15px; y, solo si va a la lista, el campo con rótulo "Se compra". Mientras no se tocan, la sección y si va a la lista salen del nombre.
+
+### Switch
+El interruptor de iOS, sin su sombra. Pista de 44×26px con radio de 13px y botón de 22px a 2px del borde.
+- **Apagado:** pista `seg` con anillo interior de 1,5px en `hair` y botón en `ink-2`.
+- **Encendido:** pista `fill` sin anillo y botón en `on-fill`, desplazado 18px (0,2s).
+- **Foco:** el anillo del sistema en `tint`, separado 3px.
+Ni la pista ni el botón llevan sombra (The One Shadow Rule): la única sigue siendo la del pulgar del segmentado. Es una casilla con `role="switch"` dentro de su `label`.
+
+### Step Block (editor)
+El paso del editor guarda la columna de la receta: el número en una columna de 28px (19px peso 600 `ink-2`, 9px más abajo para alinearse con la primera línea del campo) y, a 8px, el resto. Mismo bloque que el ingrediente: 16px arriba, 4px abajo y filete de 0,5px en `hair` entre pasos.
+- **Campo del paso:** la forma del campo, de 44px de alto mínimo y 10px por 12px de relleno, con texto de 17px; crece con lo que se escribe (`field-sizing: content`, o un script que lo mide donde no hay soporte), sin asa de tamaño. El paso se escribe tal cual, sin marcas.
+- **Usa:** debajo, a 6px, "Usa: Lentejas pardinas, Agua" en 13px peso 500 `ink-3`, con los nombres en 600 `ink-2`. Se escribe sola mientras se teclea; cada ingrediente que se nombra por primera vez entra subiendo 6px con opacidad (0,34s). Si el paso no nombra ninguno, no hay línea. Es una región `aria-live` educada.
+- **Pie:** el campo de minutos (112px de ancho y 36px de alto, la forma del campo, cifras de 15px y el sufijo "min" en 13px `ink-2`) a la izquierda y "Quitar" tranquilo a la derecha.
+
 ### Pendientes
 Sin decidir y fuera de este sistema hasta que se decidan: icono relleno para la pestaña seleccionada, filete al hacer scroll bajo las barras, título grande que se pliega y qué segmento se abre entre semana. El domingo se puede cambiar a día de comer (decidido); falta diseñar cómo, en el plan 3.
 
@@ -495,6 +632,9 @@ Sin decidir y fuera de este sistema hasta que se decidan: icono relleno para la 
 - **Do** dejar los avisos con "Deshacer" hasta la siguiente acción y retirar los demás a los 4s.
 - **Do** escribir las cantidades dentro de los pasos en peso 600 y sin partir línea, y tachar arriba el ingrediente cuando ya no queda ningún paso que lo use.
 - **Do** escribir cada día del registro como fila de carta: fecha a la izquierda, plato, puntos guía y las dos notas en sus columnas fijas (tú · pareja).
+- **Do** dejar "Deshacer" en la línea de estado al quitar un ingrediente o un paso en el editor, y en el índice al borrar una receta, en vez de pedir confirmación.
+- **Do** dar a cada campo del editor la forma del campo de añadir (pista `seg`, 9px) con su rótulo de 13px peso 500 `ink-2` encima.
+- **Do** separar los bloques que se repiten en el editor (ingredientes, pasos) con un filete de 0,5px en `hair`, no con tarjetas.
 
 ### Don't:
 - **Don't** usar tarjetas, cajas, fondos de sección ni sombras decorativas; la única sombra es la del pulgar del segmentado.
@@ -506,3 +646,6 @@ Sin decidir y fuera de este sistema hasta que se decidan: icono relleno para la 
 - **Don't** marcar lo comprado o lo que ya hay en casa con casillas, tarjetas ni naranja; el estado es el tachado.
 - **Don't** cambiar el peso ni el tamaño de lo que se tacha con un toque (pasos, ingredientes, productos); solo cambian el trazo y la tinta, para que nada se recoloque.
 - **Don't** pintar de naranja la nota elegida ni la escala; la nota elegida es tinta (`fill`), y en el registro el naranja solo marca los días activos en la columna de fechas.
+- **Don't** pintar de naranja el tipo del ingrediente ni el interruptor; el elegido es tinta (`fill` con `on-fill`), como la nota, y sin sombra.
+- **Don't** marcar un error en rojo ni con un anillo de color; el error es una frase de 13px peso 600 en tinta bajo el campo, con `aria-invalid`.
+- **Don't** poner puntos guía en una fila sin cifra a la derecha (una receta sin notas).

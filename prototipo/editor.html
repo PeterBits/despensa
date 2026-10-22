@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e2422">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:,">
+<title>Despensa · Editar receta</title>
+<style>
+:root{
+  --ground:#ffffff;--bar:#f6f6f3;--ink:#1b1f1d;--ink-2:#5c6360;--ink-3:#6b726e;
+  --rule:rgba(27,31,29,.22);--hair:rgba(27,31,29,.14);
+  --tint:#ff9f0a;--tint-ink:#a65200;--on-tint:#1b1f1d;--fill:#1b1f1d;--on-fill:#ffffff;
+  --seg:#ecece8;--seg-on:#ffffff;--seg-shadow:0 1px 3px rgba(27,31,29,.14),0 1px 1px rgba(27,31,29,.06);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#1e2422;--bar:#161b19;--ink:#f2f1ec;--ink-2:#a7aea9;--ink-3:#8d9590;
+  --rule:rgba(242,241,236,.2);--hair:rgba(242,241,236,.12);
+  --tint:#ff9f0a;--tint-ink:#ff9f0a;--on-tint:#161b19;--fill:#f2f1ec;--on-fill:#161b19;
+  --seg:#2a312e;--seg-on:#47504c;--seg-shadow:0 1px 3px rgba(0,0,0,.35);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ground:#1e2422;--bar:#161b19;--ink:#f2f1ec;--ink-2:#a7aea9;--ink-3:#8d9590;
+  --rule:rgba(242,241,236,.2);--hair:rgba(242,241,236,.12);
+  --tint:#ff9f0a;--tint-ink:#ff9f0a;--on-tint:#161b19;--fill:#f2f1ec;--on-fill:#161b19;
+  --seg:#2a312e;--seg-on:#47504c;--seg-shadow:0 1px 3px rgba(0,0,0,.35);
+  color-scheme:dark}
+
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;background:var(--ground);scrollbar-width:thin;scrollbar-color:var(--rule) transparent}
+body{min-height:100dvh;background:var(--ground);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.35;
+  font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;caret-color:var(--tint)}
+::selection{background:var(--tint);color:var(--on-tint)}
+button,input,select,textarea{font:inherit;color:inherit;background:none;border:0}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--tint);outline-offset:3px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* Sin barra de pestañas: el editor es una tarea que se cierra con Cancelar o Guardar */
+.screen{max-width:440px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 0 calc(env(safe-area-inset-bottom) + 96px)}
+.top{display:flex;justify-content:space-between;align-items:center;min-height:44px;padding:0 20px}
+.cancel{min-height:44px;font-size:15px;font-weight:500;color:var(--ink-2)}
+.save{min-height:44px;font-weight:600}
+.cancel:active,.save:active{opacity:.6}
+header{padding:4px 20px 0}
+h1{font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+
+.descarte{margin:8px 20px 0;font-size:13px;color:var(--ink-2)}
+.descarte .acciones{display:flex;gap:20px;margin-top:2px}
+.link{position:relative;color:var(--ink);font-size:15px;font-weight:600;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--rule);text-underline-offset:3px}
+.link::before{content:"";position:absolute;inset:-14px -10px}
+.link:active{opacity:.6}
+.quiet{position:relative;min-height:44px;font-size:15px;font-weight:500;color:var(--ink-2)}
+.quiet:active{opacity:.6}
+
+.seg{display:grid;grid-template-columns:repeat(3,1fr);margin:16px 20px 0;padding:2px;border-radius:9px;background:var(--seg)}
+.seg button{height:32px;border-radius:7px;font-size:14px;font-weight:500;transition:background-color .2s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--seg-on);box-shadow:var(--seg-shadow);font-weight:600}
+
+.parte{padding-top:8px}
+.parte.entra{animation:entra .32s var(--ease)}
+@keyframes entra{from{opacity:0;transform:translateY(6px)}}
+
+/* Campos: la forma del campo de añadir (pista seg, 9px, 44px) con su rótulo encima */
+.campo{display:block;margin:16px 20px 0}
+.rot{display:block;margin-bottom:6px;font-size:13px;font-weight:500;color:var(--ink-2)}
+.caja{display:flex;align-items:center;gap:6px;height:44px;padding:0 12px;border-radius:9px;background:var(--seg)}
+.caja:focus-within{outline:2px solid var(--tint);outline-offset:3px}
+.caja input{flex:1;min-width:0;height:100%;font-size:17px;outline:0}
+.caja input::placeholder,textarea::placeholder{color:var(--ink-2);opacity:1}
+.caja .uni{font-size:15px;color:var(--ink-2)}
+.fila{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 20px 0}
+.fila .campo{margin:0;min-width:0}
+.error{margin:6px 20px 0;font-size:13px;font-weight:600}
+.tipos{margin:12px 20px 0;font-size:15px;color:var(--ink-2);text-wrap:pretty}
+
+/* Foto: hueco de 88px con la foto o un icono; las acciones son enlaces de tinta */
+.foto{display:flex;align-items:center;gap:16px;margin:0 20px}
+.hueco{flex:none;display:grid;place-items:center;width:88px;height:88px;border-radius:9px;background:var(--seg);overflow:hidden}
+.hueco img{width:100%;height:100%;object-fit:cover}
+.hueco svg{width:28px;height:28px;fill:none;stroke:var(--ink-2);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.foto-acc{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.foto-acc p{font-size:13px;color:var(--ink-2)}
+.borrar{margin:40px 20px 0}
+
+/* Ingredientes: nombre y cantidad en una fila, el tipo debajo y el resto plegado */
+.ings>li{list-style:none;padding:16px 20px 4px}
+.ings>li+li{border-top:.5px solid var(--hair)}
+.ing-linea{display:grid;grid-template-columns:minmax(0,1fr) 136px;gap:8px}
+.ing-linea .caja{padding:0 10px}
+.tipo{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.tipo button{height:32px;border-radius:9px;font-size:14px;font-weight:500;color:var(--ink-2);box-shadow:inset 0 0 0 1.5px var(--hair);
+  transition:background-color .18s var(--ease),color .18s var(--ease),transform .12s var(--ease)}
+.tipo button[aria-pressed="true"]{background:var(--fill);color:var(--on-fill);box-shadow:none;font-weight:600}
+.tipo button:active{transform:scale(.96)}
+.ing-pie{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.resumen{display:inline-flex;align-items:center;gap:4px;min-height:44px;min-width:0;font-size:13px;font-weight:500;color:var(--ink-3);text-align:left}
+.resumen span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.resumen svg{flex:none;width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s var(--ease)}
+.resumen[aria-expanded="true"] svg{transform:rotate(180deg)}
+.resumen:active{opacity:.6}
+.mas{padding-bottom:8px}
+.mas .campo{margin:4px 0 0}
+.select{position:relative;display:block}
+.select select{appearance:none;width:100%;height:44px;padding:0 36px 0 12px;border-radius:9px;background:var(--seg);font-size:17px;outline:0}
+.select select:focus-visible{outline:2px solid var(--tint);outline-offset:3px}
+.select svg{position:absolute;right:12px;top:15px;width:14px;height:14px;fill:none;stroke:var(--ink-2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.interruptor{display:flex;justify-content:space-between;align-items:center;min-height:44px;margin-top:8px;font-size:15px}
+.interruptor input{appearance:none;flex:none;position:relative;width:44px;height:26px;border-radius:13px;background:var(--seg);box-shadow:inset 0 0 0 1.5px var(--hair);cursor:pointer;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
+.interruptor input::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--ink-2);transition:transform .2s var(--ease),background-color .2s var(--ease)}
+.interruptor input:checked{background:var(--fill);box-shadow:none}
+.interruptor input:checked::after{transform:translateX(18px);background:var(--on-fill)}
+.interruptor input:focus-visible{outline:2px solid var(--tint);outline-offset:3px}
+
+/* Pasos: el número en su columna de 28px, como en la receta, y el texto en un campo que crece */
+.pasos>li{list-style:none;display:grid;grid-template-columns:28px 1fr;gap:8px;padding:16px 20px 4px}
+.pasos>li+li{border-top:.5px solid var(--hair)}
+.n{padding-top:9px;font-size:19px;line-height:1.2;font-weight:600;color:var(--ink-2)}
+.pasos textarea{display:block;width:100%;min-height:44px;padding:10px 12px;border-radius:9px;background:var(--seg);font-size:17px;line-height:1.35;resize:none;outline:0;field-sizing:content}
+.pasos textarea:focus-visible{outline:2px solid var(--tint);outline-offset:3px}
+.usa{margin-top:6px;font-size:13px;font-weight:500;color:var(--ink-3);text-wrap:pretty}
+.usa b{font-weight:600;color:var(--ink-2)}
+.usa .nuevo{display:inline-block;animation:sube .34s var(--ease)}
+@keyframes sube{from{opacity:0;transform:translateY(6px)}}
+.paso-pie{display:flex;justify-content:space-between;align-items:center}
+.min{display:flex;align-items:center;gap:6px;width:112px;height:36px;padding:0 10px;border-radius:9px;background:var(--seg)}
+.min:focus-within{outline:2px solid var(--tint);outline-offset:3px}
+.min input{width:100%;min-width:0;font-size:15px;outline:0}
+.min input::placeholder{color:var(--ink-2);opacity:1}
+.min span{font-size:13px;color:var(--ink-2)}
+
+/* Añadir: el campo de añadir hecho botón */
+.anadir{display:flex;align-items:center;gap:8px;width:calc(100% - 40px);height:44px;margin:16px 20px 0;padding:0 12px;border-radius:9px;background:var(--seg);color:var(--ink-2);text-align:left}
+.anadir svg{width:20px;height:20px;fill:none;stroke:var(--ink-2);stroke-width:2;stroke-linecap:round}
+.anadir:active{opacity:.6}
+
+/* Línea de estado: quitar no borra en silencio; "Deshacer" se queda hasta la siguiente acción */
+.dock{position:fixed;left:0;right:0;bottom:0;background:var(--ground);border-top:.5px solid var(--hair);padding:10px 20px calc(env(safe-area-inset-bottom) + 14px)}
+.status{max-width:400px;margin:0 auto;font-size:13px;color:var(--ink-2);text-align:center}
+
+@media (prefers-reduced-motion:reduce){*,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="top">
+    <button class="cancel" id="cancelar" type="button">Cancelar</button>
+    <button class="save" id="guardar" type="button">Guardar</button>
+  </div>
+  <div class="descarte" id="descarte" role="alert" hidden>
+    <p>Hay cambios sin guardar.</p>
+    <div class="acciones"><button class="link" type="button" id="descartar">Descartar cambios</button><button class="quiet" type="button" id="seguir">Seguir editando</button></div>
+  </div>
+  <header><h1 id="titulo">Editar receta</h1></header>
+
+  <div class="seg" role="tablist" aria-label="Partes de la receta">
+    <button role="tab" id="t-receta" aria-controls="p-receta" aria-selected="true">Receta</button>
+    <button role="tab" id="t-ings" aria-controls="p-ings" aria-selected="false" tabindex="-1">Ingredientes</button>
+    <button role="tab" id="t-pasos" aria-controls="p-pasos" aria-selected="false" tabindex="-1">Pasos</button>
+  </div>
+
+  <section class="parte" id="p-receta" role="tabpanel" aria-labelledby="t-receta">
+    <label class="campo"><span class="rot">Nombre</span><span class="caja"><input id="nombre" autocomplete="off" enterkeyhint="next" placeholder="Cómo se llama el plato"></span></label>
+    <p class="error" id="error-nombre" role="alert" hidden>Ponle nombre a la receta.</p>
+    <div class="fila">
+      <label class="campo"><span class="rot">Raciones</span><span class="caja"><input id="raciones" inputmode="numeric" autocomplete="off"></span></label>
+      <label class="campo"><span class="rot" aria-hidden="true">Tiempo</span><span class="caja"><input id="minutos" inputmode="numeric" autocomplete="off" aria-label="Tiempo en minutos"><span class="uni" aria-hidden="true">min</span></span></label>
+    </div>
+    <p class="tipos" id="tipos" aria-live="polite"></p>
+    <div class="campo"><span class="rot" id="rot-foto">Foto</span></div>
+    <div class="foto" role="group" aria-labelledby="rot-foto">
+      <div class="hueco" id="hueco" aria-hidden="true"></div>
+      <div class="foto-acc" id="foto-acc"></div>
+      <input type="file" id="archivo" accept="image/*" hidden>
+    </div>
+    <p class="borrar" id="borrar-p"><button class="link" type="button" id="borrar">Borrar receta</button></p>
+  </section>
+
+  <section class="parte" id="p-ings" role="tabpanel" aria-labelledby="t-ings" hidden>
+    <ul class="ings" id="ings"></ul>
+    <button class="anadir" type="button" id="mas-ing"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Añadir ingrediente</button>
+  </section>
+
+  <section class="parte" id="p-pasos" role="tabpanel" aria-labelledby="t-pasos" hidden>
+    <ol class="pasos" id="pasos"></ol>
+    <button class="anadir" type="button" id="mas-paso"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Añadir paso</button>
+  </section>
+</main>
+
+<div class="dock" id="dock" hidden><p class="status" id="status" aria-live="polite"></p></div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const tema = params.get('tema');
+if (tema === 'claro') document.documentElement.dataset.theme = 'light';
+if (tema === 'oscuro') document.documentElement.dataset.theme = 'dark';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const llano = s => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+const sinMovimiento = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const TIPOS = ['hidratos', 'proteína', 'grasas', 'fibra'];
+const SECCIONES = ['Frutería y verdura', 'Panadería', 'Carnicería', 'Pescadería', 'Despensa', 'Lácteos y huevos', 'Congelados', 'Limpieza y hogar', 'Otros'];
+const CONOCIDOS = {'lentejas pardinas': 'Despensa', 'cebolla': 'Frutería y verdura', 'pimiento verde': 'Frutería y verdura', 'zanahorias': 'Frutería y verdura',
+  'ajo': 'Frutería y verdura', 'chorizo': 'Carnicería', 'aceite de oliva': 'Despensa', 'pimenton dulce': 'Despensa', 'laurel': 'Despensa', 'agua': 'Despensa', 'sal': 'Despensa'};
+const BASICOS = ['sal', 'aceite', 'aceite de oliva', 'agua', 'laurel', 'harina', 'pimienta', 'pimienta negra'];
+const seccionDe = n => CONOCIDOS[llano(n.trim())] ?? 'Otros';
+const esBasico = n => BASICOS.includes(llano(n.trim()));
+const frase = t => { const x = t.map((v, i) => i ? v : v[0].toUpperCase() + v.slice(1)); return x.length > 1 ? x.slice(0, -1).join(', ') + ' y ' + x.at(-1) : x[0]; };
+
+// Datos de ejemplo inventados (las lentejas de prototipo/recetas.html), con los pasos sin marcas
+let id = 0;
+const ing = (nombre, cantidad, tipo, extra = {}) => ({id: ++id, nombre, cantidad, tipo, seccion: seccionDe(nombre), basico: esBasico(nombre), compra: '', tocado: false, abierto: false, ...extra});
+const LENTEJAS = {
+  nombre: 'Lentejas estofadas', raciones: '6', minutos: '60', foto: params.get('foto') === '0' ? null : 'foto-ejemplo.jpg',
+  ings: [ing('Lentejas pardinas', '500 g', 'hidratos'), ing('Cebolla', '2', 'fibra'), ing('Pimiento verde', '1', 'fibra'), ing('Zanahorias', '3', 'fibra'),
+    ing('Ajo', '2 dientes', null, {compra: '1 cabeza'}), ing('Chorizo', '200 g', 'proteína'), ing('Aceite de oliva', '3 cucharadas', null),
+    ing('Pimentón dulce', '1 cucharadita', null, {compra: '1 bote'}), ing('Laurel', '1 hoja', null), ing('Agua', '1,5 l', null), ing('Sal', 'al gusto', null)],
+  pasos: [{t: 'Lava 500 g de lentejas y escúrrelas.', m: ''},
+    {t: 'Pica 2 cebollas, 1 pimiento verde y 2 dientes de ajo; corta 3 zanahorias en rodajas.', m: ''},
+    {t: 'Sofríe la verdura con 3 cucharadas de aceite a fuego medio.', m: '10'},
+    {t: 'Añade 200 g de chorizo en rodajas y 1 cucharadita de pimentón; remueve un minuto sin que se queme.', m: ''},
+    {t: 'Echa las lentejas, cubre con 1,5 l de agua y añade la hoja de laurel. Cuece a fuego suave.', m: '40'},
+    {t: 'Prueba, ajusta de sal y deja reposar antes de servir.', m: '5'}],
+};
+const nueva = params.get('estado') === 'nueva';
+const r = nueva
+  ? {nombre: '', raciones: '', minutos: '', foto: null, ings: [ing('', '', null)], pasos: [{t: '', m: ''}]}
+  : structuredClone(LENTEJAS);
+let cambios = false, subiendo = false, errorFoto = '';
+$('titulo').textContent = nueva ? 'Nueva receta' : 'Editar receta';
+$('borrar-p').hidden = nueva;
+document.title = 'Despensa · ' + $('titulo').textContent;
+
+// Los ingredientes que nombra un paso: el nombre entero o su primera palabra, con su plural
+function usa(texto) {
+  const plano = llano(texto);
+  return r.ings.filter(i => i.nombre.trim()).filter(i => {
+    const n = llano(i.nombre.trim()), primera = n.split(/\s+/)[0];
+    return [n, primera.length >= 3 ? primera : null].filter(Boolean).some(aguja =>
+      new RegExp(`(^|[^\\p{L}\\p{N}])${aguja.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(es|s)?(?![\\p{L}\\p{N}])`, 'u').test(plano));
+  });
+}
+
+// Receta
+function pintarTipos() {
+  const t = TIPOS.filter(x => r.ings.some(i => i.nombre.trim() && i.tipo === x));
+  $('tipos').textContent = !t.length ? 'El tipo de cada ingrediente dice si el plato es energético.'
+    : t.includes('hidratos') ? `${frase(t)}: plato energético, irá a los días activos.`
+    : `${frase(t)}: irá a los días sin actividad.`;
+}
+function pintarFoto() {
+  $('hueco').innerHTML = r.foto ? `<img src="${esc(r.foto)}" alt="">`
+    : '<svg viewBox="0 0 24 24"><path d="M4 8.5h3l1.6-2.5h6.8L17 8.5h3v10H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+  $('foto-acc').innerHTML = subiendo ? '<p aria-live="polite">Subiendo la foto…</p>'
+    : (r.foto ? '<button class="link" type="button" data-foto="elegir">Cambiar foto</button><button class="quiet" type="button" data-foto="quitar">Quitar foto</button>'
+      : '<button class="link" type="button" data-foto="elegir">Añadir foto</button>')
+    + (errorFoto ? `<p role="alert">${esc(errorFoto)}</p>` : '');
+}
+$('nombre').value = r.nombre; $('raciones').value = r.raciones; $('minutos').value = r.minutos;
+function errorNombre(si) {
+  $('error-nombre').hidden = !si;
+  if (si) { $('nombre').setAttribute('aria-invalid', 'true'); $('nombre').setAttribute('aria-describedby', 'error-nombre'); }
+  else { $('nombre').removeAttribute('aria-invalid'); $('nombre').removeAttribute('aria-describedby'); }
+}
+for (const k of ['nombre', 'raciones', 'minutos']) $(k).addEventListener('input', e => { r[k] = e.target.value; cambios = true; if (k === 'nombre') errorNombre(false); });
+$('foto-acc').addEventListener('click', e => {
+  const b = e.target.closest('[data-foto]');
+  if (!b) return;
+  if (b.dataset.foto === 'quitar') { r.foto = null; cambios = true; pintarFoto(); return; }
+  $('archivo').click();
+});
+$('archivo').addEventListener('change', e => {
+  const archivo = e.target.files[0];
+  if (!archivo) return;
+  subiendo = true; errorFoto = ''; pintarFoto();
+  setTimeout(() => { subiendo = false; r.foto = URL.createObjectURL(archivo); cambios = true; pintarFoto(); }, 900);
+});
+
+// Ingredientes
+const CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+function pintarIngs() {
+  $('ings').innerHTML = r.ings.map((i, k) => {
+    const n = k + 1, quien = i.nombre.trim() || `el ingrediente ${n}`;
+    const resumen = `${i.seccion} · ${i.basico ? 'no va a la lista' : i.compra ? 'se compra ' + i.compra : 'va a la lista'}`;
+    return `<li data-i="${k}">
+      <div class="ing-linea">
+        <span class="caja"><input data-campo="nombre" aria-label="Ingrediente ${n}" placeholder="Ingrediente" autocomplete="off" value="${esc(i.nombre)}"></span>
+        <span class="caja"><input data-campo="cantidad" aria-label="Cantidad del ingrediente ${n}" placeholder="Cantidad" autocomplete="off" value="${esc(i.cantidad)}"></span>
+      </div>
+      <div class="tipo" role="group" aria-label="Tipo del ingrediente ${n}">${TIPOS.map(t =>
+        `<button type="button" data-tipo="${t}" aria-pressed="${i.tipo === t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div>
+      <div class="ing-pie">
+        <button class="resumen" type="button" data-accion="mas" aria-expanded="${i.abierto}" aria-controls="mas-${i.id}"><span>${esc(resumen)}</span>${CHEVRON}<span class="sr"> (más opciones de ${esc(quien)})</span></button>
+        <button class="quiet" type="button" data-accion="quitar">Quitar<span class="sr"> ingrediente ${n}</span></button>
+      </div>
+      <div class="mas" id="mas-${i.id}" ${i.abierto ? '' : 'hidden'}>
+        <label class="campo"><span class="sr">Sección del ingrediente ${n}</span><span class="select"><select data-campo="seccion">${SECCIONES.map(s =>
+          `<option${s === i.seccion ? ' selected' : ''}>${s}</option>`).join('')}</select>${CHEVRON}</span></label>
+        <label class="interruptor"><span>No va a la lista</span><input type="checkbox" role="switch" data-campo="basico"${i.basico ? ' checked' : ''}></label>
+        <label class="campo"${i.basico ? ' hidden' : ''}><span class="rot">Se compra</span><span class="caja"><input data-campo="compra" placeholder="1 cabeza, 1 bote…" autocomplete="off" value="${esc(i.compra)}"></span></label>
+      </div>
+    </li>`;
+  }).join('');
+}
+$('ings').addEventListener('input', e => {
+  const li = e.target.closest('li[data-i]'), i = r.ings[+li.dataset.i], campo = e.target.dataset.campo;
+  cambios = true;
+  if (campo === 'nombre') {
+    i.nombre = e.target.value;
+    // Mientras no se toquen, la sección y si va a la lista salen del nombre
+    if (!i.tocado) { i.seccion = seccionDe(i.nombre); i.basico = esBasico(i.nombre); li.querySelector('.resumen span').textContent = `${i.seccion} · ${i.basico ? 'no va a la lista' : 'va a la lista'}`;
+      li.querySelector('[data-campo="seccion"]').value = i.seccion; li.querySelector('[data-campo="basico"]').checked = i.basico; }
+    pintarTipos();
+  } else if (campo === 'cantidad' || campo === 'compra') i[campo] = e.target.value;
+});
+$('ings').addEventListener('change', e => {
+  const li = e.target.closest('li[data-i]'), i = r.ings[+li.dataset.i], campo = e.target.dataset.campo;
+  if (campo === 'seccion') { i.seccion = e.target.value; i.tocado = true; pintarIngs(); }
+  if (campo === 'basico') { i.basico = e.target.checked; i.tocado = true; pintarIngs(); li.ownerDocument.querySelector(`li[data-i="${li.dataset.i}"] [data-campo="basico"]`).focus(); }
+  cambios = true;
+});
+$('ings').addEventListener('click', e => {
+  const li = e.target.closest('li[data-i]');
+  if (!li) return;
+  const k = +li.dataset.i, i = r.ings[k], b = e.target.closest('button');
+  if (!b) return;
+  if (b.dataset.tipo) { i.tipo = i.tipo === b.dataset.tipo ? null : b.dataset.tipo; cambios = true;
+    li.querySelectorAll('[data-tipo]').forEach(x => x.setAttribute('aria-pressed', x.dataset.tipo === i.tipo)); pintarTipos(); }
+  if (b.dataset.accion === 'mas') { i.abierto = !i.abierto; b.setAttribute('aria-expanded', i.abierto); $('mas-' + i.id).hidden = !i.abierto; }
+  if (b.dataset.accion === 'quitar') {
+    const [quitado] = r.ings.splice(k, 1); cambios = true; pintarIngs(); pintarTipos();
+    avisar('Ingrediente quitado', () => { r.ings.splice(k, 0, quitado); pintarIngs(); pintarTipos(); });
+  }
+});
+$('mas-ing').addEventListener('click', () => {
+  r.ings.push(ing('', '', null)); cambios = true; pintarIngs();
+  $('ings').lastElementChild.querySelector('input').focus();
+});
+
+// Pasos: la línea "Usa" se escribe sola mientras se teclea
+function lineaUsa(k, antes = []) {
+  const nombres = usa(r.pasos[k].t).map(i => i.nombre.trim());
+  if (!nombres.length) return '';
+  return 'Usa: ' + nombres.map(n => `<b class="${antes.includes(n) || sinMovimiento() ? '' : 'nuevo'}">${esc(n)}</b>`).join(', ');
+}
+function pintarPasos() {
+  $('pasos').innerHTML = r.pasos.map((p, k) => `<li data-p="${k}">
+    <span class="n" aria-hidden="true">${k + 1}</span>
+    <div>
+      <textarea aria-label="Paso ${k + 1}" rows="1" placeholder="Cómo se hace este paso">${esc(p.t)}</textarea>
+      <p class="usa" aria-live="polite">${lineaUsa(k, usa(p.t).map(i => i.nombre.trim()))}</p>
+      <div class="paso-pie">
+        <label class="min"><input inputmode="numeric" aria-label="Minutos del paso ${k + 1}" value="${esc(p.m)}"><span aria-hidden="true">min</span></label>
+        <button class="quiet" type="button" data-accion="quitar">Quitar<span class="sr"> paso ${k + 1}</span></button>
+      </div>
+    </div></li>`).join('');
+  crecer();
+}
+// El campo del paso crece con el texto; donde el navegador no tiene field-sizing, lo mide el script
+const conFieldSizing = CSS.supports('field-sizing', 'content');
+function crecer(t) {
+  if (conFieldSizing) return;
+  for (const x of t ? [t] : $('pasos').querySelectorAll('textarea')) { x.style.height = 'auto'; x.style.height = x.scrollHeight + 'px'; }
+}
+$('pasos').addEventListener('input', e => {
+  const li = e.target.closest('li[data-p]'), k = +li.dataset.p;
+  cambios = true;
+  if (e.target.tagName === 'TEXTAREA') {
+    const antes = usa(r.pasos[k].t).map(i => i.nombre.trim());
+    r.pasos[k].t = e.target.value;
+    crecer(e.target);
+    const ahora = usa(r.pasos[k].t).map(i => i.nombre.trim());
+    if (ahora.join() !== antes.join()) li.querySelector('.usa').innerHTML = lineaUsa(k, antes);
+  } else r.pasos[k].m = e.target.value;
+});
+$('pasos').addEventListener('click', e => {
+  const b = e.target.closest('[data-accion="quitar"]');
+  if (!b) return;
+  const k = +b.closest('li').dataset.p, [quitado] = r.pasos.splice(k, 1);
+  cambios = true; pintarPasos();
+  avisar('Paso quitado', () => { r.pasos.splice(k, 0, quitado); pintarPasos(); });
+});
+$('mas-paso').addEventListener('click', () => {
+  r.pasos.push({t: '', m: ''}); cambios = true; pintarPasos();
+  $('pasos').lastElementChild.querySelector('textarea').focus();
+});
+
+// Quitar deja "Deshacer" en la línea de estado hasta la siguiente acción
+let deshacer = null;
+function avisar(texto, fn) {
+  deshacer = fn ?? null;
+  $('status').innerHTML = fn ? `${esc(texto)} · <button class="link" type="button" id="deshacer">Deshacer</button>` : '';
+  $('dock').hidden = !fn;
+}
+$('status').addEventListener('click', e => {
+  if (!e.target.closest('#deshacer') || !deshacer) return;
+  const fn = deshacer;
+  avisar();
+  fn();
+});
+document.querySelector('.screen').addEventListener('input', () => { if (deshacer) avisar(); });
+document.querySelector('.screen').addEventListener('click', e => {
+  if (deshacer && !e.target.closest('[data-accion="quitar"]')) avisar();
+}, true);
+
+// Partes
+const PARTES = {receta: ['t-receta', 'p-receta'], ingredientes: ['t-ings', 'p-ings'], pasos: ['t-pasos', 'p-pasos']};
+function ir(parte, animar = true) {
+  for (const [nombre, [t, p]] of Object.entries(PARTES)) {
+    const si = nombre === parte;
+    // Pestañas con foco itinerante: solo la elegida entra en el orden del tabulador; las flechas mueven entre ellas
+    $(t).setAttribute('aria-selected', si); $(t).tabIndex = si ? 0 : -1; $(p).hidden = !si;
+    if (si && animar && !sinMovimiento()) { $(p).classList.remove('entra'); void $(p).offsetWidth; $(p).classList.add('entra'); }
+  }
+  if (parte === 'pasos') pintarPasos();
+}
+document.querySelector('.seg').addEventListener('click', e => {
+  const t = e.target.closest('[role="tab"]');
+  if (t) ir(Object.keys(PARTES).find(k => PARTES[k][0] === t.id));
+});
+document.querySelector('.seg').addEventListener('keydown', e => {
+  if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+  const tabs = [...document.querySelectorAll('.seg [role="tab"]')], k = tabs.indexOf(document.activeElement);
+  const sig = tabs[(k + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+  sig.focus(); sig.click();
+});
+
+// Guardar, cancelar y borrar (en el prototipo solo se enseña lo que pasaría)
+$('guardar').addEventListener('click', () => {
+  if (!r.nombre.trim()) { ir('receta'); errorNombre(true); $('nombre').focus(); return; }
+  location.href = 'recetas.html#lentejas' + location.search.replace(/^\?/, '?');
+});
+$('cancelar').addEventListener('click', () => {
+  if (!cambios) return history.length > 1 ? history.back() : (location.href = 'recetas.html');
+  $('descarte').hidden = false; $('descartar').focus();
+});
+$('seguir').addEventListener('click', () => { $('descarte').hidden = true; $('cancelar').focus(); });
+$('descartar').addEventListener('click', () => { location.href = 'recetas.html'; });
+$('borrar').addEventListener('click', () => { location.href = 'recetas.html?borrada=1'; });
+
+pintarTipos();
+pintarFoto();
+pintarIngs();
+pintarPasos();
+const inicial = params.get('parte');
+if (inicial && PARTES[inicial]) ir(inicial, false);
+if (params.get('demo') === 'descarte') { cambios = true; $('descarte').hidden = false; }
+if (params.get('demo') === 'error') { r.nombre = ''; $('nombre').value = ''; $('guardar').click(); }
+if (params.get('demo') === 'abierto') { r.ings[4].abierto = true; pintarIngs(); }
+if (params.get('demo') === 'subiendo') { subiendo = true; pintarFoto(); }
+if (params.get('demo') === 'quitado') { ir('ingredientes', false); $('ings').querySelector('li[data-i="1"] [data-accion="quitar"]').click(); }
+</script>
+</body>
+</html>

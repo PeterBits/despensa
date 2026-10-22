@@ -83,6 +83,32 @@ ul,ol{list-style:none}
 .back:active{opacity:.6}
 #receta header{padding-top:4px}
 
+/* Fila de arriba: volver a la izquierda y la acción de la vista a la derecha, como una barra de iOS sin barra */
+.top{display:flex;justify-content:space-between;align-items:center;min-height:44px}
+.top-indice{justify-content:flex-end;margin-bottom:-20px}
+.accion{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 20px 0 12px;font-weight:600}
+.accion svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.accion:active{opacity:.6}
+
+/* Índice vacío: una frase y el botón principal, sin buscador ni secciones */
+.vacio-todo{margin:12px 20px 0;font-size:17px;color:var(--ink-2);text-wrap:pretty}
+.cta{display:flex;align-items:center;justify-content:center;gap:6px;height:52px;margin:24px 20px 0;border-radius:14px;background:var(--fill);color:var(--on-fill);font-weight:600;transition:transform .12s var(--ease)}
+.cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.cta:active{transform:scale(.98)}
+
+/* Foto de la receta: una miniatura junto al título que no empuja los ingredientes; tocarla la abre a lo ancho */
+.cabeza{display:grid;grid-template-columns:1fr auto;column-gap:16px;align-items:start}
+.cabeza:has(>.mini[hidden]){grid-template-columns:1fr}
+.cabeza .meta,.cabeza .awake{grid-column:1/-1}
+.mini{display:block;width:72px;height:72px;margin-top:4px;border-radius:9px;overflow:hidden;background:var(--seg)}
+.mini img{display:block;width:100%;height:100%;object-fit:cover;transition:opacity .2s var(--ease)}
+.mini:active img{opacity:.6}
+.mini[aria-expanded="true"] img{opacity:.6}
+.grande{margin:16px 20px 0}
+.grande img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:9px}
+.grande.entra{animation:abre .32s var(--ease)}
+@keyframes abre{from{opacity:0;transform:translateY(6px)}}
+
 .ing li{display:flex;align-items:baseline;gap:8px;padding:4px 20px;font-size:15px}
 .ing .leader{transform:translateY(-4px)}
 .ing .qty{white-space:nowrap;color:var(--ink-2)}
@@ -127,7 +153,12 @@ ul,ol{list-style:none}
 <body>
 <main class="screen">
   <section id="indice" aria-labelledby="t-indice">
+    <div class="top top-indice" id="top-indice"><a class="accion" href="editor.html?estado=nueva"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva receta</a></div>
     <header><h1 id="t-indice">Recetas</h1></header>
+    <div id="vacio-todo" hidden>
+      <p class="vacio-todo">Todavía no hay recetas. Empezad por una que cocinéis a menudo: con dos o tres ya se puede planificar la semana.</p>
+      <a class="cta" href="editor.html?estado=nueva"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva receta</a>
+    </div>
     <form class="search" role="search" id="buscar">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>
       <label class="sr" for="q">Buscar receta</label>
@@ -137,12 +168,17 @@ ul,ol{list-style:none}
   </section>
 
   <section id="receta" aria-labelledby="r-titulo" hidden>
-    <button class="back" id="volver" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Recetas</button>
-    <header>
+    <div class="top">
+      <button class="back" id="volver" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Recetas</button>
+      <a class="accion" id="editar" href="editor.html">Editar</a>
+    </div>
+    <header class="cabeza">
       <h1 id="r-titulo"></h1>
+      <button class="mini" id="r-mini" type="button" aria-expanded="false" aria-controls="r-grande" aria-label="Ver la foto" hidden></button>
       <p class="meta" id="r-meta"></p>
       <p class="awake" id="r-despierta" hidden>La pantalla no se apagará mientras cocináis</p>
     </header>
+    <div class="grande" id="r-grande" hidden></div>
     <h2 class="sec">Ingredientes</h2>
     <ul class="ing" id="r-ing"></ul>
     <h2 class="sec">Pasos <small id="r-cuenta"></small></h2>
@@ -171,7 +207,7 @@ document.querySelectorAll('.tab[href$=".html"]').forEach(a => { a.search = locat
 
 // Datos de ejemplo inventados. En los pasos, {texto|ingrediente} marca la cantidad que se echa
 const RECETAS = {
-  lentejas: {nombre: 'Lentejas estofadas', tipos: ['hidratos', 'proteína', 'fibra'], raciones: 6, tiempo: '1 h', nota: '8',
+  lentejas: {nombre: 'Lentejas estofadas', tipos: ['hidratos', 'proteína', 'fibra'], raciones: 6, tiempo: '1 h', nota: '8', foto: 'foto-ejemplo.jpg',
     ing: [['lentejas', 'Lentejas pardinas', '500 g'], ['cebolla', 'Cebolla', '2'], ['pimiento', 'Pimiento verde', '1'], ['zanahoria', 'Zanahorias', '3'],
       ['ajo', 'Ajo', '2 dientes'], ['chorizo', 'Chorizo', '200 g'], ['aceite', 'Aceite de oliva', '3 cucharadas'], ['pimenton', 'Pimentón dulce', '1 cucharadita'],
       ['laurel', 'Laurel', '1 hoja'], ['agua', 'Agua', '1,5 l'], ['sal', 'Sal', 'al gusto']],
@@ -213,7 +249,7 @@ const RECETAS = {
       ['Dora el pollo y espolvorea {2 cucharadas de curry|curry}.', '5 min'],
       ['Vierte {400 ml de leche de coco|coco}, sala con {sal|sal} y cuece a fuego suave.', '15 min'],
       ['Mientras, cuece {400 g de arroz basmati|arroz} en agua con sal.', '12 min']]},
-  crema: {nombre: 'Crema de calabacín y tortilla', tipos: ['fibra', 'proteína', 'grasas'], raciones: 6, tiempo: '40 min', nota: '7',
+  crema: {nombre: 'Crema de calabacín y tortilla', tipos: ['fibra', 'proteína', 'grasas'], raciones: 6, tiempo: '40 min', nota: null,
     ing: [['calabacin', 'Calabacín', '3'], ['puerro', 'Puerro', '1'], ['patata', 'Patata', '1'], ['quesitos', 'Quesitos', '4'],
       ['huevos', 'Huevos', '8'], ['aceite', 'Aceite de oliva', '4 cucharadas'], ['sal', 'Sal', 'al gusto']],
     pasos: [['Trocea {3 calabacines|calabacin}, {1 puerro|puerro} y {1 patata|patata}.'],
@@ -270,17 +306,24 @@ const usa = paso => [...paso[0].matchAll(MARCA)].map(m => m[2]);
 // Índice
 function filaIndice(id, der, extra) {
   const r = RECETAS[id];
+  // Sin cifra a la derecha (una receta sin notas), la fila no lleva puntos guía
   return `<li><a class="row" href="#${id}"><span class="line"><span class="name">${r.nombre}</span>`
-    + `<span class="leader" aria-hidden="true"></span>${der}</span>`
+    + (der ? `<span class="leader" aria-hidden="true"></span>${der}` : '') + '</span>'
     + `<span class="from">${extra ? extra + ' · ' : ''}${frase(r.tipos)} · ${r.tiempo}</span></a></li>`;
 }
 const dias = (letras, activo, hoy) => `<span class="fig${activo ? ' on' : ''}">` + letras.map(d =>
   `<span class="dl${hoy !== undefined && DIAS.indexOf(d) < hoy ? ' past' : ''}">${d}</span>`).join('<span aria-hidden="true"> · </span>') + '</span>';
-const nota = id => `<span class="fig"><span class="lab">nota</span>${RECETAS[id].nota}</span>`;
+const nota = id => RECETAS[id].nota ? `<span class="fig"><span class="lab">nota</span>${RECETAS[id].nota}</span>` : '';
 
+// ?vacio=1 enseña el primer arranque, sin ninguna receta
+const vacio = params.get('vacio') === '1';
+const borradas = new Set();
 function pintarIndice() {
+  $('vacio-todo').hidden = !vacio;
+  $('top-indice').hidden = $('buscar').hidden = $('recetario').hidden = vacio;
+  if (vacio) return;
   const q = llano($('q').value.trim());
-  const todas = Object.keys(RECETAS).sort((a, b) => RECETAS[a].nombre.localeCompare(RECETAS[b].nombre, 'es'));
+  const todas = Object.keys(RECETAS).filter(id => !borradas.has(id)).sort((a, b) => RECETAS[a].nombre.localeCompare(RECETAS[b].nombre, 'es'));
   if (q) {
     const halla = todas.filter(id => llano(RECETAS[id].nombre).includes(q) || RECETAS[id].ing.some(i => llano(i[1]).includes(q)));
     $('recetario').innerHTML = `<h2 class="sec">Resultados <small>${halla.length}</small></h2>`
@@ -289,7 +332,7 @@ function pintarIndice() {
     return;
   }
   $('recetario').innerHTML = SEMANAS.map(s => `<h2 class="sec">${s.titulo}</h2><ul class="menu">`
-    + s.platos.map(([id, letras, activo]) => filaIndice(id, dias(letras, activo, s.hoy),
+    + s.platos.filter(([id]) => !borradas.has(id)).map(([id, letras, activo]) => filaIndice(id, dias(letras, activo, s.hoy),
       s.hoy !== undefined && letras.includes(DIAS[s.hoy]) ? 'Hoy' : '')).join('') + '</ul>').join('')
     + `<h2 class="sec">Todas <small>${todas.length}</small></h2><ul>${todas.map(id => filaIndice(id, nota(id))).join('')}</ul>`;
 }
@@ -385,6 +428,13 @@ function ruta() {
     const r = RECETAS[id];
     $('r-titulo').textContent = r.nombre;
     $('r-meta').textContent = `${frase(r.tipos)} · ${r.raciones} raciones · ${r.tiempo}`;
+    // En el prototipo solo las lentejas tienen editor de ejemplo
+    $('editar').href = 'editor.html' + location.search;
+    $('r-mini').hidden = !r.foto;
+    $('r-mini').innerHTML = r.foto ? `<img src="${r.foto}" alt="">` : '';
+    $('r-mini').setAttribute('aria-expanded', 'false');
+    $('r-grande').hidden = true;
+    $('r-grande').innerHTML = r.foto ? `<img src="${r.foto}" alt="Foto de ${esc(r.nombre)}">` : '';
     pintarReceta();
     $('indice').hidden = true;
     $('receta').hidden = false;
@@ -409,8 +459,22 @@ $('volver').addEventListener('click', () => {
   ruta();
 });
 
+// La miniatura abre la foto a lo ancho, debajo de la cabecera; otro toque la recoge
+$('r-mini').addEventListener('click', () => {
+  const abrir = $('r-grande').hidden;
+  $('r-grande').hidden = !abrir;
+  $('r-mini').setAttribute('aria-expanded', String(abrir));
+  if (abrir && !sinMovimiento()) { $('r-grande').classList.remove('entra'); void $('r-grande').offsetWidth; $('r-grande').classList.add('entra'); }
+});
+
 pintarIndice();
 ruta();
+// ?borrada=1: así queda el índice al borrar una receta desde el editor
+if (params.get('borrada') === '1' && !location.hash) {
+  borradas.add('lentejas');
+  pintarIndice();
+  avisar('Receta borrada', () => { borradas.delete('lentejas'); pintarIndice(); });
+}
 </script>
 </body>
 </html>
