@@ -9,7 +9,7 @@ const VOLUMEN: Record<string, number> = { ml: 1, l: 1000 };
 
 // Un punto con exactamente tres cifras detrás y nada numérico más es separador de miles
 // ("1.000 g"); en cualquier otro caso es decimal ("1.5 kg").
-const NUM = String.raw`(?:\d{1,3}(?:\.\d{3})+(?![\d.,])|\d+(?:[.,]\d+)?)`;
+const NUM = String.raw`(?:\d{1,3}(?:\.\d{3})+(?:,\d+)?(?![\d.,])|\d+(?:[.,]\d+)?)`;
 const ENTERO_Y_FRACCION = /^(\d+)\s+(\d+)\/(\d+)(.*)$/;
 const FRACCION = /^(\d+)\/(\d+)(.*)$/;
 const FRACCION_UNICODE = /^([½¼¾])(.*)$/;
@@ -18,14 +18,14 @@ const VALOR_UNICODE: Record<string, number> = { '½': 0.5, '¼': 0.25, '¾': 0.7
 const NUMERO_INICIAL = new RegExp(String.raw`^(${NUM})(?:(?:\s*-\s*|\s+a\s+)(${NUM}))?(.*)$`);
 
 const aNumero = (s: string): number =>
-  Number(/^\d{1,3}(?:\.\d{3})+$/.test(s) ? s.replaceAll('.', '') : s.replace(',', '.'));
+  Number(/^\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(s) ? s.replaceAll('.', '').replace(',', '.') : s.replace(',', '.'));
 
 // Máximo 3 decimales y sin ruido de coma flotante (0,1 + 0,2).
 const redondear = (n: number) => Math.round(n * 1000) / 1000;
 
 export function leerCantidad(texto: string): Cantidad {
   const limpio = texto.trim();
-  const texto_ = { valor: null, unidad: limpio };
+  const comoTexto = { valor: null, unidad: limpio };
 
   const unicode = FRACCION_UNICODE.exec(limpio);
   if (unicode) return { valor: VALOR_UNICODE[unicode[1]!]!, unidad: unicode[2]!.trim() };
@@ -33,19 +33,19 @@ export function leerCantidad(texto: string): Cantidad {
   const mixta = ENTERO_Y_FRACCION.exec(limpio);
   if (mixta) {
     const [, entero, num, den, resto] = mixta;
-    if (Number(den) === 0) return texto_;
+    if (Number(den) === 0) return comoTexto;
     return { valor: Number(entero) + Number(num) / Number(den), unidad: resto!.trim() };
   }
 
   const fraccion = FRACCION.exec(limpio);
   if (fraccion) {
     const [, num, den, resto] = fraccion;
-    if (Number(den) === 0) return texto_;
+    if (Number(den) === 0) return comoTexto;
     return { valor: Number(num) / Number(den), unidad: resto!.trim() };
   }
 
   const m = NUMERO_INICIAL.exec(limpio);
-  if (!m) return texto_;
+  if (!m) return comoTexto;
   return { valor: aNumero(m[2] ?? m[1]!), unidad: m[3]!.trim() };
 }
 

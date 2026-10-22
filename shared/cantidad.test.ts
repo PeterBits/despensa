@@ -62,6 +62,11 @@ describe('cantidades', () => {
     expect(leerCantidad('¾ taza')).toEqual({ valor: 0.75, unidad: 'taza' });
   });
 
+  it('lee miles con punto y decimales con coma', () => {
+    expect(leerCantidad('1.000,5 g')).toEqual({ valor: 1000.5, unidad: 'g' });
+    expect(leerCantidad('12.500,25 g')).toEqual({ valor: 12500.25, unidad: 'g' });
+  });
+
   it('una unidad con nombre de propiedad de objeto no rompe la suma', () => {
     expect(formatearCantidades(sumarCantidades([leerCantidad('2 constructor')]))).toBe('2 constructor');
   });
