@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { verificadorReal, type VerificadorPasskeys } from './auth/passkeys';
 import { rutasConSesion, rutasPublicas } from './auth/rutas';
 import { requiereSesion, soloMismoOrigen, type Entorno } from './auth/sesiones';
+import { rutasFotos } from './fotos/rutas';
 import { rutasSync } from './sync/rutas';
 
 // Primero el filtro de origen; luego las rutas públicas, antes del middleware de sesión; el resto de /api/* exige sesión.
@@ -14,6 +15,7 @@ export function crearApp(verificador: (env: Env) => VerificadorPasskeys) {
   app.use('/api/*', requiereSesion);
   rutasConSesion(app);
   rutasSync(app);
+  rutasFotos(app);
   // Un fallo inesperado (D1, por ejemplo) no enseña detalles: se registra y se responde en español.
   app.onError((e, c) => {
     console.error(e);

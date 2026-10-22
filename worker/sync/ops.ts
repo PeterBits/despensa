@@ -4,7 +4,7 @@
 import { columnasDe, MAX_OPS, NOMBRES_TABLAS, normalizarOp, type Fila, type Op, type TablaSync } from '../../shared/esquema';
 
 const VERSION_DEL_HOGAR = '(SELECT version FROM hogar WHERE id = ?)';
-const marcas = (n: number) => Array<string>(n).fill('?').join(', ');
+const huecos = (n: number) => Array<string>(n).fill('?').join(', ');
 
 async function versionActual(db: D1Database, hogarId: string): Promise<number> {
   const hogar = await db.prepare('SELECT version FROM hogar WHERE id = ?').bind(hogarId).first<{ version: number }>();
@@ -25,7 +25,7 @@ function sentenciaDe(db: D1Database, hogarId: string, miembroId: string, op: Op)
   const valores = propias.map((c) => (esNota && c === 'miembro_id' ? miembroId : (fila[c] ?? null)));
   return db.prepare(
     `INSERT INTO ${tabla} (id, hogar_id, version, borrado, ${propias.join(', ')})
-     VALUES (?, ?, ${VERSION_DEL_HOGAR}, 0, ${marcas(propias.length)})
+     VALUES (?, ?, ${VERSION_DEL_HOGAR}, 0, ${huecos(propias.length)})
      ON CONFLICT(id) DO UPDATE SET ${[...propias.map((c) => `${c} = excluded.${c}`), 'version = excluded.version', 'borrado = 0'].join(', ')}
      WHERE ${tabla}.hogar_id = excluded.hogar_id${esNota ? ' AND nota.miembro_id = excluded.miembro_id' : ''}`,
   ).bind(fila.id, hogarId, hogarId, ...valores);
@@ -45,7 +45,7 @@ export async function aplicarOps(
   for (const op of ops) if (!porId.has(op.id)) porId.set(op.id, normalizarOp(op));
   const ids = [...porId.keys()];
   const vistas = ids.length === 0 ? [] : (
-    await db.prepare(`SELECT id FROM op_vista WHERE id IN (${marcas(ids.length)})`).bind(...ids).all<{ id: string }>()
+    await db.prepare(`SELECT id FROM op_vista WHERE hogar_id = ? AND id IN (${huecos(ids.length)})`).bind(hogarId, ...ids).all<{ id: string }>()
   ).results.map((f) => f.id);
   const nuevas = ids.filter((id) => !vistas.includes(id)).map((id) => porId.get(id) as Op);
   if (nuevas.length === 0) return { version: await versionActual(db, hogarId), aplicadas: 0 };

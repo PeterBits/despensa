@@ -128,6 +128,18 @@ describe('aplicarOps', () => {
     expect(await versionDe(H)).toBe(v1 + 1);
   });
 
+  it('una operación vista en otro hogar no impide aplicarla en este', async () => {
+    const M = id();
+    const H = await hogarCon(M);
+    const OTRO = await hogarCon(id());
+    const opId = id();
+    await env.DB.prepare('INSERT INTO op_vista (id, hogar_id) VALUES (?, ?)').bind(opId, OTRO).run();
+    const op = opProducto(opId, id());
+    const r = await aplicarOps(env.DB, H, M, [op]);
+    expect(r.aplicadas).toBe(1);
+    expect(await cuenta('SELECT COUNT(*) AS n FROM producto WHERE id = ? AND hogar_id = ?', op.fila.id, H)).toBe(1);
+  });
+
   it('un upsert sobre tu fila borrada en lógico la recupera con borrado = 0', async () => {
     const M = id();
     const H = await hogarCon(M);
