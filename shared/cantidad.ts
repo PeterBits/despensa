@@ -7,24 +7,53 @@ export type Cantidad = { valor: number | null; unidad: string };
 const MASA: Record<string, number> = { g: 1, kg: 1000 };
 const VOLUMEN: Record<string, number> = { ml: 1, l: 1000 };
 
-const NUMERO_INICIAL = /^(\d+(?:[.,]\d+)?)(.*)$/;
+// Un punto con exactamente tres cifras detrás y nada numérico más es separador de miles
+// ("1.000 g"); en cualquier otro caso es decimal ("1.5 kg").
+const NUM = String.raw`(?:\d{1,3}(?:\.\d{3})+(?![\d.,])|\d+(?:[.,]\d+)?)`;
+const ENTERO_Y_FRACCION = /^(\d+)\s+(\d+)\/(\d+)(.*)$/;
+const FRACCION = /^(\d+)\/(\d+)(.*)$/;
+const FRACCION_UNICODE = /^([½¼¾])(.*)$/;
+const VALOR_UNICODE: Record<string, number> = { '½': 0.5, '¼': 0.25, '¾': 0.75 };
+// Un número o un rango ("2-3", "2 - 3", "2 a 3"); un rango vale por lo alto.
+const NUMERO_INICIAL = new RegExp(String.raw`^(${NUM})(?:(?:\s*-\s*|\s+a\s+)(${NUM}))?(.*)$`);
+
+const aNumero = (s: string): number =>
+  Number(/^\d{1,3}(?:\.\d{3})+$/.test(s) ? s.replaceAll('.', '') : s.replace(',', '.'));
 
 // Máximo 3 decimales y sin ruido de coma flotante (0,1 + 0,2).
 const redondear = (n: number) => Math.round(n * 1000) / 1000;
 
 export function leerCantidad(texto: string): Cantidad {
   const limpio = texto.trim();
-  const [, numero, resto] = NUMERO_INICIAL.exec(limpio) ?? [];
-  // Las fracciones ("1/2 taza") quedan fuera: se leen como texto.
-  if (numero === undefined || resto === undefined || resto.startsWith('/')) return { valor: null, unidad: limpio };
-  return { valor: Number(numero.replace(',', '.')), unidad: resto.trim() };
+  const texto_ = { valor: null, unidad: limpio };
+
+  const unicode = FRACCION_UNICODE.exec(limpio);
+  if (unicode) return { valor: VALOR_UNICODE[unicode[1]!]!, unidad: unicode[2]!.trim() };
+
+  const mixta = ENTERO_Y_FRACCION.exec(limpio);
+  if (mixta) {
+    const [, entero, num, den, resto] = mixta;
+    if (Number(den) === 0) return texto_;
+    return { valor: Number(entero) + Number(num) / Number(den), unidad: resto!.trim() };
+  }
+
+  const fraccion = FRACCION.exec(limpio);
+  if (fraccion) {
+    const [, num, den, resto] = fraccion;
+    if (Number(den) === 0) return texto_;
+    return { valor: Number(num) / Number(den), unidad: resto!.trim() };
+  }
+
+  const m = NUMERO_INICIAL.exec(limpio);
+  if (!m) return texto_;
+  return { valor: aNumero(m[2] ?? m[1]!), unidad: m[3]!.trim() };
 }
 
 // Clave de agrupación: familia de masa, de volumen, o el texto de la unidad.
 function clave(unidad: string): string {
   const u = unidad.toLowerCase();
-  if (u in MASA) return 'masa';
-  if (u in VOLUMEN) return 'volumen';
+  if (Object.hasOwn(MASA, u)) return 'masa';
+  if (Object.hasOwn(VOLUMEN, u)) return 'volumen';
   return `u:${u}`;
 }
 
@@ -48,7 +77,7 @@ export function sumarCantidades(lista: Cantidad[]): Cantidad[] {
     if (valor === null) continue;
     const k = clave(unidad);
     const u = unidad.toLowerCase();
-    const factor = MASA[u] ?? VOLUMEN[u] ?? 1;
+    const factor = (Object.hasOwn(MASA, u) ? MASA[u] : undefined) ?? (Object.hasOwn(VOLUMEN, u) ? VOLUMEN[u] : undefined) ?? 1;
     const previo = grupos.get(k);
     if (previo) previo.base += valor * factor;
     else grupos.set(k, { base: valor * factor, unidad });

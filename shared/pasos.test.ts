@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ingredientesDe, ingredientesGastados, sugerirMarcas, trozos } from './pasos';
+import { ingredientesDe, ingredientesGastados, marcarPaso, quitarMarcas, sugerirMarcas, trozos } from './pasos';
 
 const p = [
   'Lava {500 g de lentejas|lentejas} y escúrrelas.',
@@ -72,5 +72,33 @@ describe('sugerirMarcas', () => {
     expect(sugerirMarcas('Lava las lentejas', [{ id: 'l', nombre: 'Lentejas pardinas' }])).toEqual([
       { id: 'l', desde: 9, hasta: 17 },
     ]);
+  });
+});
+
+describe('marcarPaso', () => {
+  const ings = [
+    { id: 'lentejas', nombre: 'Lentejas pardinas' }, { id: 'cebolla', nombre: 'Cebolla' },
+    { id: 'pimiento', nombre: 'Pimiento verde' }, { id: 'ajo', nombre: 'Ajo' },
+    { id: 'laurel', nombre: 'Laurel' }, { id: 'sal', nombre: 'Sal' }, { id: 'jengibre', nombre: 'Jengibre' },
+  ];
+  it('marca lo que nombra cada paso con la cantidad que lleva delante', () => {
+    expect(marcarPaso('Lava 500 g de lentejas y escúrrelas.', ings)).toBe('Lava {500 g de lentejas|lentejas} y escúrrelas.');
+    expect(marcarPaso('Pica 2 cebollas, 1 pimiento verde y 2 dientes de ajo.', ings))
+      .toBe('Pica {2 cebollas|cebolla}, {1 pimiento verde|pimiento} y {2 dientes de ajo|ajo}.');
+    expect(marcarPaso('Ralla un trozo de jengibre.', ings)).toBe('Ralla {un trozo de jengibre|jengibre}.');
+    expect(marcarPaso('Añade la hoja de laurel.', ings)).toBe('Añade la hoja de {laurel|laurel}.');
+  });
+  it('no confunde la sal con la salsa', () => {
+    expect(marcarPaso('Liga la salsa y echa sal.', ings)).toBe('Liga la salsa y echa {sal|sal}.');
+  });
+  it('no toma por cantidad lo que no lo es', () => {
+    expect(marcarPaso('Hornea a 200 °C con las lentejas.', ings)).toBe('Hornea a 200 °C con las {lentejas|lentejas}.');
+  });
+  it('quitar las marcas devuelve el texto escrito', () => {
+    const texto = 'Pica 2 cebollas y sofríe con sal.';
+    expect(quitarMarcas(marcarPaso(texto, ings))).toBe(texto);
+  });
+  it('no deja que unas llaves escritas a mano rompan las marcas', () => {
+    expect(marcarPaso('Sala {al gusto} | sal', ings)).toBe('Sala (al gusto) / {sal|sal}');
   });
 });

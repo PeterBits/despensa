@@ -59,8 +59,13 @@ export function sugerirMarcas(
   const buscar = (aguja: string): Rango | undefined => {
     for (let desde = plano.indexOf(aguja); desde !== -1; desde = plano.indexOf(aguja, desde + 1)) {
       if (esLetra(texto[desde - 1])) continue;
+      // Solo se alarga con el plural (es, s) y si detrás no sigue otra letra: "sal" no es "salsa".
       let hasta = desde + aguja.length;
-      while (esLetra(texto[hasta])) hasta++;
+      if (esLetra(texto[hasta])) {
+        const sufijo = ['es', 's'].find((s) => plano.startsWith(s, hasta) && !esLetra(texto[hasta + s.length]));
+        if (sufijo === undefined) continue;
+        hasta += sufijo.length;
+      }
       const rango = { desde, hasta };
       if (!ocupados.some((o) => solapa(o, rango))) return rango;
     }
@@ -81,4 +86,29 @@ export function sugerirMarcas(
     }
   }
   return sugerencias.sort((a, b) => a.desde - b.desde);
+}
+
+// el grupo 1 es lo que se suma a la marca
+const CANTIDAD_DELANTE = /(?:^|[^\p{L}\p{N}])((?:\d+(?:[.,]\d+)*(?:\s*(?:-|a)\s*\d+(?:[.,]\d+)?)?(?:\s+\d+\/\d+)?|\d+\/\d+|[½¼¾]|un|una|unos|unas|medio|media|dos|tres|cuatro|cinco|seis)\s+(?:\p{L}+\s+)?(?:de\s+)?)$/iu;
+
+// Marca en un texto sin marcas los ingredientes que nombra, con la cantidad que lleva delante.
+export function marcarPaso(texto: string, ingredientes: { id: string; nombre: string }[]): string {
+  const limpio = texto.replaceAll('{', '(').replaceAll('}', ')').replaceAll('|', '/');
+  let finAnterior = 0;
+  const marcadas = sugerirMarcas(limpio, ingredientes).map(({ id, desde, hasta }) => {
+    const delante = CANTIDAD_DELANTE.exec(limpio.slice(finAnterior, desde));
+    const inicio = delante ? desde - delante[1]!.length : desde;
+    finAnterior = hasta;
+    return { id, desde: inicio, hasta };
+  });
+  // De atrás adelante, para que las marcas ya escritas no muevan los índices de las que quedan.
+  let resultado = limpio;
+  for (const { id, desde, hasta } of marcadas.reverse()) {
+    resultado = `${resultado.slice(0, desde)}{${resultado.slice(desde, hasta)}|${id}}${resultado.slice(hasta)}`;
+  }
+  return resultado;
+}
+
+export function quitarMarcas(texto: string): string {
+  return texto.replace(marcas(), (_, t: string) => t);
 }

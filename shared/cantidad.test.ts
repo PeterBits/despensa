@@ -24,9 +24,9 @@ describe('cantidades', () => {
     expect(sumar('1 KG', '500 g')).toBe('1,5 kg');
   });
 
-  it('trata el texto sin número, vacío o con fracción como texto', () => {
+  it('trata el texto sin número, vacío o con fracción imposible como texto', () => {
     expect(leerCantidad('   ')).toEqual({ valor: null, unidad: '' });
-    expect(leerCantidad('1/2 taza')).toEqual({ valor: null, unidad: '1/2 taza' });
+    expect(leerCantidad('1/0 taza')).toEqual({ valor: null, unidad: '1/0 taza' });
     expect(sumar('', '200 g', '  ')).toBe('200 g');
     expect(sumar('', '')).toBe('');
   });
@@ -42,5 +42,27 @@ describe('cantidades', () => {
     expect(sumar('999 ml')).toBe('999 ml');
     expect(sumar('0,1 g', '0,2 g')).toBe('0,3 g');
     expect(formatearCantidades([])).toBe('');
+  });
+
+  it('lee miles con punto, rangos por lo alto y fracciones', () => {
+    expect(leerCantidad('1.000 g')).toEqual({ valor: 1000, unidad: 'g' });
+    expect(leerCantidad('1.5 kg')).toEqual({ valor: 1.5, unidad: 'kg' });
+    expect(leerCantidad('2-3 dientes')).toEqual({ valor: 3, unidad: 'dientes' });
+    expect(leerCantidad('2 a 3 dientes')).toEqual({ valor: 3, unidad: 'dientes' });
+    expect(leerCantidad('1/2 taza')).toEqual({ valor: 0.5, unidad: 'taza' });
+    expect(leerCantidad('1 1/2 tazas')).toEqual({ valor: 1.5, unidad: 'tazas' });
+    expect(leerCantidad('½ limón')).toEqual({ valor: 0.5, unidad: 'limón' });
+    expect(formatearCantidades(sumarCantidades(['1.000 g', '500 g'].map(leerCantidad)))).toBe('1,5 kg');
+  });
+
+  it('lee otros casos de miles, rangos y fracciones', () => {
+    expect(leerCantidad('12.500 g')).toEqual({ valor: 12500, unidad: 'g' });
+    expect(leerCantidad('2 - 3 dientes')).toEqual({ valor: 3, unidad: 'dientes' });
+    expect(leerCantidad('¼ l')).toEqual({ valor: 0.25, unidad: 'l' });
+    expect(leerCantidad('¾ taza')).toEqual({ valor: 0.75, unidad: 'taza' });
+  });
+
+  it('una unidad con nombre de propiedad de objeto no rompe la suma', () => {
+    expect(formatearCantidades(sumarCantidades([leerCantidad('2 constructor')]))).toBe('2 constructor');
   });
 });
