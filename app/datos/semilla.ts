@@ -6,9 +6,9 @@ import { esBasico, type Tipo } from '../../shared/recetas';
 import { seccionDe } from '../../shared/secciones';
 import { guardarReceta, type BorradorReceta } from './recetas';
 
-// [nombre, cantidad, tipo, compra]. Aceite de oliva y Sal no llevan tipo: así los tipos de cada receta
-// salen solo de los ingredientes que los aportan, como en el prototipo.
-type Ing = readonly [nombre: string, cantidad: string, tipo: Tipo | null, compra?: string];
+// [nombre, cantidad, tipo]. El aceite de oliva es la grasa de las cinco recetas con `grasas`; en el resto,
+// y en la sal, no lleva tipo. La compra sale del nombre (ajo, pimentón, vino).
+type Ing = readonly [nombre: string, cantidad: string, tipo: Tipo | null];
 // [texto con marcas del prototipo, minutos]
 type Paso = readonly [texto: string, minutos?: number];
 
@@ -19,14 +19,14 @@ function receta(clave: string, nombre: string, minutos: number, ing: Ing[], paso
     raciones: 6,
     minutos,
     fotoKey: null,
-    ingredientes: ing.map(([n, cantidad, tipo, compra], i) => ({
+    ingredientes: ing.map(([n, cantidad, tipo], i) => ({
       id: `ejemplo-${clave}-i${i + 1}`,
       nombre: n,
       cantidad,
       tipo,
       seccion: seccionDe(n),
       aLaLista: !esBasico(n),
-      compra: compra ?? (n === 'Ajo' ? '1 cabeza' : n === 'Pimentón dulce' ? '1 bote' : n === 'Vino blanco' ? '1 botella' : ''),
+      compra: (n === 'Ajo' ? '1 cabeza' : n === 'Pimentón dulce' ? '1 bote' : n === 'Vino blanco' ? '1 botella' : ''),
     })),
     // Sin marcas: guardarReceta las vuelve a poner.
     pasos: pasos.map(([texto, min], i) => ({ id: `ejemplo-${clave}-p${i + 1}`, texto: quitarMarcas(texto), minutos: min ?? null })),
@@ -48,9 +48,9 @@ export const RECETAS_DE_EJEMPLO: BorradorReceta[] = [
     ['Prueba, ajusta de {sal|sal} y deja reposar antes de servir.', 5],
   ]),
   receta('merluza', 'Merluza en salsa verde', 45, [
-    ['Merluza en rodajas', '1 kg', 'proteína'], ['Almejas', '300 g', 'grasas'], ['Patatas', '1,5 kg', null],
+    ['Merluza en rodajas', '1 kg', 'proteína'], ['Almejas', '300 g', null], ['Patatas', '1,5 kg', null],
     ['Ajo', '4 dientes', null], ['Perejil', '1 manojo', null], ['Vino blanco', '1 vaso', null],
-    ['Harina', '1 cucharada', null], ['Aceite de oliva', '4 cucharadas', null], ['Sal', 'al gusto', null],
+    ['Harina', '1 cucharada', null], ['Aceite de oliva', '4 cucharadas', 'grasas'], ['Sal', 'al gusto', null],
   ], [
     ['Pon {las almejas|almejas} en agua con sal para que suelten la arena.', 30],
     ['Pela {1,5 kg de patatas|patatas}, córtalas en trozos y cuécelas en agua con sal.', 20],
@@ -71,8 +71,8 @@ export const RECETAS_DE_EJEMPLO: BorradorReceta[] = [
   ]),
   receta('pisto', 'Pisto con huevo', 60, [
     ['Calabacín', '2', 'fibra'], ['Berenjena', '1', null], ['Pimiento rojo', '1', null], ['Cebolla', '2', null],
-    ['Tomate triturado', '400 g', 'grasas'], ['Huevos', '6', 'proteína'],
-    ['Aceite de oliva', '5 cucharadas', null], ['Sal', 'al gusto', null],
+    ['Tomate triturado', '400 g', null], ['Huevos', '6', 'proteína'],
+    ['Aceite de oliva', '5 cucharadas', 'grasas'], ['Sal', 'al gusto', null],
   ], [
     ['Corta en dados {2 calabacines|calabacin}, {1 berenjena|berenjena}, {1 pimiento rojo|pimiento} y {2 cebollas|cebolla}.'],
     ['Pocha la cebolla y el pimiento en {5 cucharadas de aceite|aceite}.', 15],
@@ -92,8 +92,8 @@ export const RECETAS_DE_EJEMPLO: BorradorReceta[] = [
     ['Mientras, cuece {400 g de arroz basmati|arroz} en agua con sal.', 12],
   ]),
   receta('crema', 'Crema de calabacín y tortilla', 40, [
-    ['Calabacín', '3', 'fibra'], ['Puerro', '1', null], ['Patata', '1', null], ['Quesitos', '4', 'grasas'],
-    ['Huevos', '8', 'proteína'], ['Aceite de oliva', '4 cucharadas', null], ['Sal', 'al gusto', null],
+    ['Calabacín', '3', 'fibra'], ['Puerro', '1', null], ['Patata', '1', null], ['Quesitos', '4', null],
+    ['Huevos', '8', 'proteína'], ['Aceite de oliva', '4 cucharadas', 'grasas'], ['Sal', 'al gusto', null],
   ], [
     ['Trocea {3 calabacines|calabacin}, {1 puerro|puerro} y {1 patata|patata}.'],
     ['Rehoga la verdura en {2 cucharadas de aceite|aceite} y cúbrela de agua.', 20],
@@ -112,7 +112,7 @@ export const RECETAS_DE_EJEMPLO: BorradorReceta[] = [
   ]),
   receta('salmon', 'Salmón al horno con patatas', 50, [
     ['Lomos de salmón', '6', 'proteína'], ['Patatas', '1 kg', 'hidratos'], ['Cebolla', '1', null], ['Limón', '1', null],
-    ['Eneldo', '1 cucharadita', 'grasas'], ['Aceite de oliva', '4 cucharadas', null], ['Sal', 'al gusto', null],
+    ['Eneldo', '1 cucharadita', null], ['Aceite de oliva', '4 cucharadas', 'grasas'], ['Sal', 'al gusto', null],
   ], [
     ['Precalienta el horno a 200 °C.'],
     ['Corta {1 kg de patatas|patatas} y {1 cebolla|cebolla} en láminas y alíñalas con {3 cucharadas de aceite|aceite}.'],
@@ -130,9 +130,9 @@ export const RECETAS_DE_EJEMPLO: BorradorReceta[] = [
     ['Sirve con {100 g de queso rallado|queso} por encima.'],
   ]),
   receta('albondigas', 'Albóndigas en salsa', 75, [
-    ['Carne picada mixta', '750 g', 'proteína'], ['Huevo', '1', 'grasas'], ['Pan rallado', '4 cucharadas', null],
+    ['Carne picada mixta', '750 g', 'proteína'], ['Huevo', '1', 'proteína'], ['Pan rallado', '4 cucharadas', null],
     ['Ajo', '2 dientes', null], ['Harina', '3 cucharadas', null], ['Cebolla', '1', null], ['Zanahoria', '1', null],
-    ['Tomate triturado', '200 g', null], ['Aceite de oliva', '4 cucharadas', null], ['Sal', 'al gusto', null],
+    ['Tomate triturado', '200 g', null], ['Aceite de oliva', '4 cucharadas', 'grasas'], ['Sal', 'al gusto', null],
   ], [
     ['Mezcla {750 g de carne picada|carne} con {1 huevo|huevo}, {4 cucharadas de pan rallado|pan}, {2 dientes de ajo|ajo} picados y {sal|sal}.'],
     ['Forma las albóndigas, pásalas por {harina|harina} y dóralas en {4 cucharadas de aceite|aceite}.', 10],

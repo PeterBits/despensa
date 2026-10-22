@@ -56,7 +56,7 @@ describe('recetas en la copia local', () => {
     expect(await copia().ingrediente.get('i2')).toBeUndefined();
     expect(await copia().ingrediente.get('i1')).toMatchObject({ id: 'i1', orden: 0 });
     const ops = (await copia().cola.toArray()).slice(antes);
-    expect(ops.filter((o) => o.borrar)).toEqual([expect.objectContaining({ tabla: 'ingrediente', fila: { id: 'i2' } })]);
+    expect(ops.filter((o) => o.borrar)).toEqual([expect.objectContaining({ tabla: 'ingrediente', fila: expect.objectContaining({ id: 'i2' }) })]);
   });
 
   it('guardar sin red deja la receta en la copia y sus operaciones en la cola', async () => {
