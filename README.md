@@ -10,19 +10,21 @@ sola. Es una PWA para iPhone: React, Vite y TypeScript, servida por un Worker de
 
 ## En qué punto está
 
-La app se construye en seis planes. Los dos primeros están terminados:
+La app se construye en seis planes. Los tres primeros están terminados:
 - **El 1, los cimientos:** acceso, base de datos, sincronización y las reglas de la semana.
 - **El 2, las recetas:** el recetario, la receta para cocinar y el editor con fotos.
+- **El 3, la semana:** la propuesta, los días activos, el domingo, cambiar platos, hacer la lista y
+  Ajustes.
 
-Las demás pantallas de uso diario llegan en los planes 3 a 5.
+La pantalla de la lista y el registro llegan en los planes 4 y 5. Hay 276 tests y todos pasan.
 
 | Parte | Estado |
 |---|---|
-| Entrar sin contraseñas: passkey, invitación y sesión | Funciona |
+| Entrar sin contraseñas: passkey, invitación y sesión | Funciona. La invitación y cerrar sesión están en Ajustes |
 | Copia en el móvil y sincronización | Funciona. La copia se abre con tu hogar y se sincroniza sola al abrir, al escribir y al volver a la app |
-| Reglas: reparto, propuesta, lista, cantidades y notas | Funcionan. Las recetas ya usan las suyas: cantidades, tipos y marcas de los pasos |
-| Recetas: índice, búsqueda, cocinar, crear, editar, borrar y fotos | Funciona |
-| Semana | Plan 3 |
+| Reglas: reparto, propuesta, lista, cantidades y notas | Funcionan. Las recetas y la semana ya usan las suyas |
+| Recetas: índice, búsqueda, cocinar, crear, editar, borrar y fotos | Funciona. El índice enseña también los platos de esta semana y de la que viene |
+| Semana: propuesta, días activos, domingo, cambiar platos y hacer la lista | Funciona. La lista ya guarda sus productos; su pantalla llega en el plan 4 |
 | Lista de la compra | Plan 4 |
 | Registro | Plan 5 |
 | En vivo entre los dos, sin conexión y publicación | Plan 6 |
@@ -36,27 +38,41 @@ Las pantallas que ya existen, en un iPhone de 390 puntos.
     <td width="25%"><img src="docs/capturas/app-bienvenida-claro.png" alt="Bienvenida: el título Despensa, una línea que explica la app, el botón Crear nuestro hogar y el enlace Ya tengo cuenta: entrar"></td>
     <td width="25%"><img src="docs/capturas/app-invitacion-claro.png" alt="Invitación: Tu pareja te invita a su Despensa, con el botón Entrar con Face ID"></td>
     <td width="25%"><img src="docs/capturas/app-invitacion-caducada-claro.png" alt="Invitación que ya no vale, con el enlace Entrar con mi passkey"></td>
-    <td width="25%"><img src="docs/capturas/app-semana-claro.png" alt="Semana tras entrar: el título y la barra de cuatro pestañas, aún vacía"></td>
+    <td width="25%"><img src="docs/capturas/app-ajustes-claro.png" alt="Ajustes: Tu pareja con el botón Invitar a tu pareja, Sesión con Cerrar sesión y la versión 0.3.0"></td>
   </tr>
   <tr>
     <td><b>Bienvenida</b><br>Crear vuestro hogar o volver a entrar con tu passkey.</td>
     <td><b>Invitación</b><br>Lo que ve tu pareja al abrir el enlace.</td>
     <td><b>Invitación que ya no vale</b><br>Caducó, ya se usó o el hogar está completo.</td>
-    <td><b>Tras entrar</b><br>Semana, Lista y Registro aún están vacías.</td>
+    <td><b>Ajustes</b><br>Invitar a tu pareja, cerrar sesión y la versión. Se abre con el engranaje de Semana.</td>
   </tr>
 </table>
 
-Las recetas, con las diez recetas inventadas de la semilla de desarrollo y una foto también inventada.
+La semana y las recetas, con las diez recetas inventadas de la semilla de desarrollo, su historial de
+notas también inventado y una foto ilustrada.
 
 <table>
   <tr>
-    <td width="25%"><img src="docs/capturas/app-recetas-claro.png" alt="Recetas: el título, Nueva receta, el buscador y la lista de todas las recetas con sus tipos y su tiempo"></td>
-    <td width="25%"><img src="docs/capturas/app-receta-claro.png" alt="Lentejas estofadas a medio cocinar: los dos primeros pasos y los ingredientes que ya no se usan, tachados"></td>
-    <td width="25%"><img src="docs/capturas/app-editor-claro.png" alt="Editor de receta en la parte Ingredientes: cada ingrediente con su cantidad, su tipo y su sección"></td>
-    <td width="25%"><img src="docs/capturas/app-receta-foto-claro.png" alt="Lentejas estofadas con la miniatura de su foto junto al título"></td>
+    <td width="25%"><img src="docs/capturas/app-semana-esta-claro.png" alt="Esta semana: Hoy toca pollo al curry con arroz, los días activos y el menú de dos platos con el domingo fuera"></td>
+    <td width="25%"><img src="docs/capturas/app-semana-claro.png" alt="La que viene: la propuesta de arroz con pollo y pisto con huevo, Elegir otra receta en cada plato, el domingo fuera con Comer en casa, una sugerencia y la lista ya hecha con 10 productos"></td>
+    <td width="25%"><img src="docs/capturas/app-elegir-claro.png" alt="Elegir receta en lugar de pisto con huevo: Cancelar, el buscador y todas las recetas que no están en el menú"></td>
+    <td width="25%"><img src="docs/capturas/app-recetas-claro.png" alt="Recetas: Nueva receta, el buscador, los platos de esta semana y de la que viene con sus días, y todas las recetas con su nota"></td>
   </tr>
   <tr>
-    <td><b>Recetas</b><br>Todas, por nombre, con búsqueda por plato o ingrediente.</td>
+    <td><b>Esta semana</b><br>Lo que toca hoy y los días que ya pasaron, tachados.</td>
+    <td><b>La que viene</b><br>La propuesta ya escrita: tocas los días activos, cambias un plato y haces la lista.</td>
+    <td><b>Elegir receta</b><br>Cualquier receta para un plato del menú, sin las que ya están.</td>
+    <td><b>Recetas</b><br>Primero los platos de las dos semanas; luego todas, con búsqueda.</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="33%"><img src="docs/capturas/app-receta-claro.png" alt="Lentejas estofadas a medio cocinar: los dos primeros pasos y los ingredientes que ya no se usan, tachados"></td>
+    <td width="33%"><img src="docs/capturas/app-editor-claro.png" alt="Editor de receta en la parte Ingredientes: cada ingrediente con su cantidad, su tipo y su sección"></td>
+    <td width="33%"><img src="docs/capturas/app-receta-foto-claro.png" alt="Lentejas estofadas con la miniatura de su foto junto al título"></td>
+  </tr>
+  <tr>
     <td><b>Cocinar</b><br>Al tachar un paso se tachan arriba los ingredientes que ya no se usan.</td>
     <td><b>Editor</b><br>Por partes: la receta, los ingredientes y los pasos.</td>
     <td><b>Con foto</b><br>Una miniatura junto al título; al tocarla se abre a lo ancho.</td>
@@ -68,14 +84,20 @@ Las recetas, con las diez recetas inventadas de la semilla de desarrollo y una f
 
 <table>
   <tr>
-    <td width="33%"><img src="docs/capturas/app-bienvenida-oscuro.png" alt="Bienvenida en modo oscuro"></td>
-    <td width="33%"><img src="docs/capturas/app-invitacion-oscuro.png" alt="Invitación en modo oscuro"></td>
-    <td width="33%"><img src="docs/capturas/app-invitacion-caducada-oscuro.png" alt="Invitación que ya no vale en modo oscuro"></td>
+    <td width="25%"><img src="docs/capturas/app-bienvenida-oscuro.png" alt="Bienvenida en modo oscuro"></td>
+    <td width="25%"><img src="docs/capturas/app-invitacion-oscuro.png" alt="Invitación en modo oscuro"></td>
+    <td width="25%"><img src="docs/capturas/app-invitacion-caducada-oscuro.png" alt="Invitación que ya no vale en modo oscuro"></td>
+    <td width="25%"><img src="docs/capturas/app-ajustes-oscuro.png" alt="Ajustes en modo oscuro"></td>
   </tr>
   <tr>
-    <td width="33%"><img src="docs/capturas/app-recetas-oscuro.png" alt="Recetas en modo oscuro"></td>
-    <td width="33%"><img src="docs/capturas/app-receta-oscuro.png" alt="Lentejas estofadas a medio cocinar en modo oscuro"></td>
-    <td width="33%"><img src="docs/capturas/app-editor-oscuro.png" alt="Editor de receta en modo oscuro"></td>
+    <td width="25%"><img src="docs/capturas/app-semana-esta-oscuro.png" alt="Esta semana en modo oscuro"></td>
+    <td width="25%"><img src="docs/capturas/app-semana-oscuro.png" alt="La que viene en modo oscuro"></td>
+    <td width="25%"><img src="docs/capturas/app-elegir-oscuro.png" alt="Elegir receta en modo oscuro"></td>
+    <td width="25%"><img src="docs/capturas/app-recetas-oscuro.png" alt="Recetas en modo oscuro"></td>
+  </tr>
+  <tr>
+    <td width="25%"><img src="docs/capturas/app-receta-oscuro.png" alt="Lentejas estofadas a medio cocinar en modo oscuro"></td>
+    <td width="25%"><img src="docs/capturas/app-editor-oscuro.png" alt="Editor de receta en modo oscuro"></td>
   </tr>
 </table>
 
@@ -83,9 +105,9 @@ Las recetas, con las diez recetas inventadas de la semilla de desarrollo y una f
 
 ## Cómo será
 
-Los cuatro prototipos aprobados, con recetas inventadas. Recetas ya está construida (arriba); el resto
-es el diseño que se construye en los planes 3 a 5. El editor de recetas tiene su propio prototipo,
-`prototipo/editor.html`.
+Los cuatro prototipos aprobados, con recetas inventadas. Semana y Recetas ya están construidas (arriba);
+Lista y Registro son el diseño que se construye en los planes 4 y 5. El editor de recetas y Ajustes
+tienen su propio prototipo, `prototipo/editor.html` y `prototipo/ajustes.html`.
 
 <table>
   <tr>
@@ -120,15 +142,10 @@ es el diseño que se construye en los planes 3 a 5. El editor de recetas tiene s
 
 1. **Crea vuestro hogar.** Abre la app y pulsa **Crear nuestro hogar**. Face ID crea tu passkey y
    entras en Semana. No hay usuario ni contraseña, y la app no pide nombre, correo ni teléfono.
-2. **Invita a tu pareja.** La pantalla de Ajustes con el botón de invitar llega más adelante.
-   Mientras tanto, con la sesión abierta, pide el enlace desde la consola del navegador:
-
-   ```js
-   fetch('/api/invitaciones', { method: 'POST' }).then(r => r.json()).then(console.log)
-   ```
-
-   La respuesta trae el `enlace` y cuándo `caduca`. Mándaselo por WhatsApp o AirDrop. Vale una sola
-   vez durante 24 horas, y el hogar admite dos personas.
+2. **Invita a tu pareja.** En Semana, el engranaje de arriba abre **Ajustes**. **Invitar a tu pareja**
+   abre la hoja de compartir del iPhone para mandarle el enlace por WhatsApp o AirDrop; si no hay hoja,
+   el enlace se copia. Vale una sola vez durante 24 horas, y el hogar admite dos personas. Con los
+   dos dentro, Ajustes ya no ofrece invitar.
 3. **Tu pareja acepta.** Abre el enlace, pulsa **Entrar con Face ID** y crea su propia passkey. Desde
    ese momento los dos estáis en el mismo hogar.
 4. **Volver a entrar.** **Ya tengo cuenta: entrar** usa la passkey que ya tienes. Lo necesitarás en la
@@ -146,6 +163,22 @@ es el diseño que se construye en los planes 3 a 5. El editor de recetas tiene s
    **Deshacer**).
 7. **Corrige o borra.** **Editar** abre la receta en el editor. **Borrar receta** la quita, y en el
    índice queda **Deshacer** hasta la siguiente acción.
+8. **Planifica la semana que viene.** Semana se abre en **Esta semana** de lunes a jueves, con lo que
+   toca hoy, y en **La que viene** de viernes a domingo. En La que viene la propuesta ya está escrita:
+   un plato con hidratos para los días activos y otro para el resto, elegidos entre los que tienen
+   buena nota y hace tiempo que no coméis.
+   - **Días activos:** toca un día para cambiarlo y los platos se recolocan solos.
+   - **El domingo:** empieza fuera; **Comer en casa** lo mete en el reparto.
+   - **Cambiar un plato:** **Cambiar por …** en una sugerencia, o **Elegir otra receta** para poner
+     cualquiera. El plato de antes queda en **En lugar de … · Deshacer**.
+   - **La lista:** **Hacer la lista de la compra** la llena con los ingredientes de los dos platos. Si
+     después cambias un plato, **Actualizar la lista** rehace lo que sale de las recetas y respeta lo
+     demás. La pantalla de la lista llega en el plan 4.
+
+   Nada de la propuesta se guarda hasta que tocáis algo, y lo que toca cada uno se ve en el otro
+   móvil al sincronizar.
+9. **Cerrar sesión.** En Ajustes, **Cerrar sesión** envía antes lo pendiente. Para volver, **Ya tengo
+   cuenta: entrar**.
 
 > Si una invitación ya no vale, pide un enlace nuevo. Si en realidad ya estabas dentro, usa **Entrar
 > con mi passkey**. No se puede sacar a nadie de un hogar, y de momento no hace falta: si alguien
@@ -167,6 +200,9 @@ permite probar las passkeys con un autenticador virtual.
    ```sh
    npm run db:migrar:local
    ```
+
+   Repítelo cada vez que actualices el repo: aplica solo las migraciones nuevas (la `0002` añade a
+   cada semana de qué recetas salió su lista).
 
 3. Comprueba que pasan los tests:
 
@@ -190,8 +226,10 @@ permite probar las passkeys con un autenticador virtual.
    await despensa.semilla()
    ```
 
-   Carga las diez recetas inventadas de los prototipos. Solo existe en desarrollo (`npm run dev`) y se
-   puede repetir sin duplicar nada. Hazlo en un solo hogar: las recetas de la semilla tienen ids fijos.
+   Carga las diez recetas inventadas de los prototipos y un historial también inventado: esta semana
+   planificada y seis semanas de comidas con una nota cada una, para que Semana tenga qué proponer y
+   qué sugerir. Solo existe en desarrollo (`npm run dev`) y se puede repetir sin duplicar nada. Hazlo
+   en un solo hogar: la semilla usa ids fijos.
 
 ### Comandos
 
@@ -234,7 +272,7 @@ hacer nada más.
 | Nombre, correo o teléfono | No se piden |
 | Tu passkey | En tu llavero |
 | Sesiones e invitaciones | Solo su hash |
-| Recetas, semana y notas | En la D1 de tu cuenta de Cloudflare |
+| Recetas, semana, lista y notas | En la D1 de tu cuenta de Cloudflare |
 | Fotos de las recetas | En R2, en tu cuenta de Cloudflare, reducidas en el móvil y sin datos de la cámara ni de ubicación |
 | Progreso al cocinar | Solo en tu móvil, 12 horas |
 

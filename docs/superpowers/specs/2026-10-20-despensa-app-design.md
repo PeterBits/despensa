@@ -325,17 +325,19 @@ principal de cada punto:
     domingo (el supuesto del apartado 14). El segmento elegido va en la dirección
     (`/semana?ver=viene`), así se conserva al volver de elegir una receta.
 25. La propuesta no se guarda hasta que alguien toca la semana, y cada gesto escribe solo lo
-    que toca (la semana, un día o un hueco) con ids fijos sacados del lunes. Los dos móviles
-    escriben las mismas filas y nunca hay dos semanas para el mismo lunes. "Hacer la lista"
-    fija el menú y los siete días.
+    que toca (un día o un hueco) con ids fijos sacados del lunes. Los dos móviles escriben las
+    mismas filas y nunca hay dos semanas para el mismo lunes. La fila de la semana solo la
+    escribe "Hacer la lista", que fija el menú y los siete días: así un móvil sin sincronizar
+    no deshace, al tocar un día, la lista que hizo el otro.
 26. Una semana nueva copia los días activos y el domingo de la última semana guardada; sin
     ninguna, L, X y V activos y el domingo fuera.
 27. La propuesta, las sugerencias y "Hace N semanas" se calculan respecto al lunes de la
     semana que se planifica, y solo con lo anterior a ese lunes: lo apuntado en el Registro y,
     en los días sin registro, lo planificado. Así el menú de una semana no cambia a mitad de
     semana.
-28. Con recetas de un solo tipo, los dos huecos se llenan con ese tipo. Un hueco sin receta
-    posible, o cuya receta se borró, queda "Sin plato".
+28. Con recetas de un solo tipo, los dos huecos se llenan con ese tipo, sin repetir receta. Un
+    hueco sin receta posible, o cuya receta se borró, queda "Sin plato" y conserva sus días, para
+    que se vea qué días se quedan sin plato.
 29. "Hace tiempo que no coméis" enseña dos recetas: la mejor energética y la mejor que no lo
     es, fuera del menú. Una receta sin notas dice "Por probar".
 30. Cada plato del menú tiene su "Elegir otra receta", que abre el recetario en modo elegir

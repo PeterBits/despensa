@@ -583,7 +583,7 @@ El índice de Recetas es la carta entera. Arriba, "Recetas" en display y el busc
 ### Recipe Picker (modo elegir)
 El índice de Recetas convertido en una tarea de un toque, abierta desde la acción de un plato de Semana.
 - **Arriba:** "Cancelar" a la izquierda como cancelar tranquilo (15px peso 500 `ink-2`, 44px); sin "Nueva receta". Debajo, "Elegir receta" en display y, 8px por debajo, "En lugar de **plato**" en 17px `ink-2` con el plato en tinta peso 600; en un hueco sin plato no hay línea.
-- **Lista:** el mismo buscador y una sola sección "Todas" con su recuento; cada receta es un botón de ancho completo con la anatomía de la fila del índice (nombre, puntos guía y nota, tipos y tiempo debajo). Las recetas que ya están en el menú no aparecen. Sin resultados, la misma frase del buscador.
+- **Lista:** el mismo buscador y una sola sección "Todas" con su recuento; cada receta es un botón de ancho completo con la anatomía de la fila del índice (nombre, puntos guía y nota, tipos y tiempo debajo). Las recetas que ya están en el menú no aparecen. Sin resultados, la misma frase del buscador; si todas las recetas están ya en el menú, "No hay más recetas que ofrecer." en 15px `ink-2`, sin botón.
 - **Elegir:** al tocar una receta se vuelve a Semana con ella en el hueco y "En lugar de ~~plato anterior~~ · Deshacer" debajo (The Strike, Don't Erase Rule).
 
 ### Ingredient Row
