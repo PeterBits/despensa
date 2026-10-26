@@ -32,6 +32,6 @@ STORY: Entran una vez para mandar la invitación por WhatsApp o AirDrop con la h
 
 FIRST VIEWPORT: "‹ Semana" arriba a la izquierda; "Ajustes" en display; "Tu pareja" (19px) con una frase y el botón principal "Invitar a tu pareja" con el icono de compartir; "Sesión" con una frase y "Cerrar sesión" tranquilo; "Versión 0.3.0" en 13px ink-2; la barra de pestañas con Semana seleccionada.
 
-FORM: Extensión del mundo de Semana (sin ronda de conceptos: superficie pequeña y fijada por el plan 3). seed: none (unavailable)
+FORM: Extensión del mundo de Semana, sin ronda de conceptos propia (superficie pequeña y fijada por el plan 3): hereda el contrato y la tirada de Semana. seed:e1e535766387b1e0
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
