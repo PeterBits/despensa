@@ -1,5 +1,5 @@
-# Claude Code: ajustes personales de cada máquina
-.claude/settings.local.json
+# Claude Code: configuración local, fuera del repositorio
+.claude/
 
 # Bocetos del brainstorming (servidor visual de superpowers)
 .superpowers/
