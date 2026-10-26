@@ -1,0 +1,58 @@
+/* Semana: la pantalla bajo `.semana`; el dock y los botones, fuera de ella, porque `.line`, `.leader`, `.fig`, `.meta` y `.txt` también existen en Recetas con otras medidas. */
+
+/* Fila de arriba: el segmentado y, a su derecha, Ajustes (Task 7); el icono queda dentro del margen de 20px */
+.semana .bar{display:flex;align-items:center;gap:4px;padding:0 8px 0 20px}
+.semana .seg{flex:1;display:grid;grid-template-columns:1fr 1fr;padding:2px;border-radius:9px;background:var(--seg)}
+.semana .seg button{height:32px;border-radius:7px;font-size:14px;font-weight:500;color:var(--ink);transition:background-color .2s var(--ease)}
+.semana .seg button[aria-selected="true"]{background:var(--seg-on);box-shadow:var(--seg-shadow);font-weight:600}
+.semana [role="tabpanel"][hidden]{display:none}
+
+.semana .days{display:grid;grid-template-columns:repeat(7,1fr);margin:20px 12px 0;border:0}
+.semana .day{display:flex;flex-direction:column;align-items:center;gap:6px;padding:2px 0}
+.semana .day b{font-size:13px;font-weight:600;color:var(--ink-2);letter-spacing:.02em}
+.semana .day span{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;font-size:17px;font-weight:600;
+  transition:background-color .18s var(--ease),color .18s var(--ease),box-shadow .18s var(--ease),transform .12s var(--ease)}
+.semana .day:not(:disabled):active span{transform:scale(.9)}
+.semana .day.on span{background:var(--tint);color:var(--on-tint)}
+.semana .day:disabled{cursor:default}
+.semana .day.fuera span{color:var(--ink-3);font-weight:500}
+.semana .legend{display:flex;align-items:center;gap:8px;margin:12px 20px 0;font-size:13px;color:var(--ink-2)}
+.semana .legend i{width:10px;height:10px;border-radius:50%;background:var(--tint);flex:none}
+
+.semana h2{font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.015em;margin:32px 20px 12px}
+.semana .menu,.semana .sug{list-style:none}
+.semana .item{padding:0 20px 16px}
+.semana .name{font-size:19px;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.semana .txt{background:linear-gradient(currentColor,currentColor) no-repeat 0 62%/0 2px;transition:none}
+.semana .name.striking .txt{background-size:100% 2px;transition:background-size .3s var(--ease)}
+.semana .name.entering{animation:entra .34s var(--ease)}
+@keyframes entra{from{opacity:0;transform:translateY(6px)}}
+.semana .fig{font-size:17px;font-weight:600;white-space:nowrap}
+.semana .fig.none{color:var(--ink-3);font-weight:500}
+.semana .dl.on{color:var(--tint-ink)}
+.semana .dl{display:inline-block}
+.semana .dl.past{position:relative;color:var(--ink-3)}
+.semana .dl.past::after{content:"";position:absolute;left:-4px;right:-4px;top:52%;height:1.5px;border-radius:1px;background:currentColor}
+.semana .meta{margin-top:4px;font-size:15px;color:var(--ink-2);text-wrap:wrap}
+.semana .was{margin-top:2px;font-size:13px;color:var(--ink-3)}
+.semana .was s{text-decoration-thickness:1.5px}
+.semana .was .link{font-size:15px}
+.semana .sug .name{font-size:17px;font-weight:500}
+/* La acción de un plato: su propia línea de 15px bajo la descripción, como "Cambiar por" en las sugerencias */
+.semana .act{margin-top:4px;font-size:15px}
+.semana .hueco .name{font-size:17px;font-weight:500;color:var(--ink-3)}
+.semana .out .name,.semana .out .fig{font-size:17px;font-weight:500;color:var(--ink-3)}
+.semana .out .act{margin-top:2px}
+/* ink-3 es solo para lo que queda fuera: el domingo en casa baja a ink-2, no a ink-3 */
+.semana .out.casa .name,.semana .out.casa .fig{color:var(--ink-2)}
+
+/* Sin recetas: una frase y el botón principal, como el índice vacío de Recetas */
+.semana .vacio-todo{margin:12px 20px 0;font-size:17px;color:var(--ink-2);text-wrap:pretty}
+.cta.solo{width:auto;margin:24px 20px 0;gap:6px}
+.cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cta.solo svg{stroke-width:2.2}
+
+.dock-in{max-width:400px;margin:0 auto}
+.cta{gap:8px}
+.cta.quiet{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--hair)}
+.dock .status:empty{display:none}

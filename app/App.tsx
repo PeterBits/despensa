@@ -10,6 +10,7 @@ import { Invitacion } from './pantallas/Invitacion';
 import { Pantalla } from './pantallas/Pantalla';
 import { Receta } from './pantallas/Receta';
 import { Recetas } from './pantallas/Recetas';
+import { Semana } from './pantallas/Semana';
 
 export function App() {
   return (
@@ -62,7 +63,7 @@ export function Rutas() {
   return (
     <>
       <Routes>
-        <Route path="/semana" element={<Pantalla titulo="Semana" />} />
+        <Route path="/semana" element={<Semana />} />
         <Route path="/recetas" element={<Recetas />} />
         <Route path="/recetas/nueva" element={<Editor />} />
         <Route path="/recetas/:id" element={<Receta />} />

@@ -132,7 +132,7 @@ describe('Invitación', () => {
     render(<MemoryRouter initialEntries={['/invitacion#tok']}><Rutas /></MemoryRouter>);
     await userEvent.click(await screen.findByRole('button', { name: 'Entrar con Face ID' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Entrar con mi passkey' }));
-    expect(await screen.findByRole('heading', { name: 'Semana' })).toBeInTheDocument();
+    expect(await screen.findByRole('tablist', { name: 'Semana' })).toBeInTheDocument();
     expect(servidor.cuerpo('/api/entrar')).toEqual({ retoId: 'reto-3', respuesta: RESPUESTA_ENTRADA });
   });
 
@@ -158,7 +158,7 @@ describe('Invitación', () => {
     });
     render(<MemoryRouter initialEntries={['/invitacion#tok']}><Rutas /></MemoryRouter>);
     await userEvent.click(await screen.findByRole('button', { name: 'Entrar con Face ID' }));
-    expect(await screen.findByRole('heading', { name: 'Semana' })).toBeInTheDocument();
+    expect(await screen.findByRole('tablist', { name: 'Semana' })).toBeInTheDocument();
     expect(servidor.cuerpo('/api/invitaciones/aceptar')).toEqual({ token: 'tok', retoId: 'reto-2', respuesta: RESPUESTA });
   });
 });
@@ -182,7 +182,7 @@ describe('Bienvenida', () => {
     });
     render(<MemoryRouter initialEntries={['/bienvenida']}><Rutas /></MemoryRouter>);
     await userEvent.click(await screen.findByRole('button', { name: 'Crear nuestro hogar' }));
-    expect(await screen.findByRole('heading', { name: 'Semana' })).toBeInTheDocument();
+    expect(await screen.findByRole('tablist', { name: 'Semana' })).toBeInTheDocument();
     expect(servidor.cuerpo('/api/hogar')).toEqual({ retoId: 'reto-1', respuesta: RESPUESTA });
   });
 
@@ -207,7 +207,7 @@ describe('Entrada a la app', () => {
   it('con sesión, la bienvenida lleva a la semana', async () => {
     servidor.responde('/api/yo', 200, { miembroId: 'miembro-1', hogarId: 'hogar-1', miembros: 2 });
     render(<MemoryRouter initialEntries={['/bienvenida']}><Rutas /></MemoryRouter>);
-    expect(await screen.findByRole('heading', { name: 'Semana' })).toBeInTheDocument();
+    expect(await screen.findByRole('tablist', { name: 'Semana' })).toBeInTheDocument();
   });
 
   it('si /api/yo no responde en 4 s, abre la app', async () => {
@@ -218,6 +218,6 @@ describe('Entrada a la app', () => {
     const { container } = render(<MemoryRouter initialEntries={['/semana']}><Rutas /></MemoryRouter>);
     expect(container).toBeEmptyDOMElement();
     await act(() => vi.advanceTimersByTimeAsync(4000));
-    expect(screen.getByRole('heading', { name: 'Semana' })).toBeInTheDocument();
+    expect(screen.getByRole('tablist', { name: 'Semana' })).toBeInTheDocument();
   });
 });
