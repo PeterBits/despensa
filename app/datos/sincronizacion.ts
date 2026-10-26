@@ -15,19 +15,28 @@ type Opciones = {
 export function iniciarSincronizacion({ alPerderSesion, fetcher = fetch, espera = 300 }: Opciones): () => void {
   let parado = false;
   let temporizador: ReturnType<typeof setTimeout> | undefined;
+  let enMarcha = false;
+  let otraVez = false;
 
   const programar = () => {
     clearTimeout(temporizador);
     temporizador = setTimeout(vuelta, espera);
   };
 
-  // sincronizar() ya garantiza una vuelta a la vez; quien llega mientras otra corre comparte su resultado.
+  // Una vuelta a la vez. Un disparo que llega con otra en marcha no se pierde: esa vuelta pudo pedir los cambios
+  // antes de lo que lo motivó, así que se hace otra al acabar (también si falla: puede ser que la red acaba de volver).
   async function vuelta() {
     if (parado) return;
+    if (enMarcha) {
+      otraVez = true;
+      return;
+    }
+    enMarcha = true;
+    otraVez = false;
     try {
       await sincronizar(fetcher);
       // Lo escrito mientras se enviaba se quedó en la cola: sale en la vuelta siguiente.
-      if (!parado && (await copia().cola.count()) > 0) programar();
+      if (!parado && (await copia().cola.count()) > 0) otraVez = true;
     } catch (e) {
       if (e instanceof SinSesion) {
         if (parado) return;
@@ -36,6 +45,9 @@ export function iniciarSincronizacion({ alPerderSesion, fetcher = fetch, espera 
       } else {
         console.debug('La sincronización ha fallado:', e instanceof Error ? e.message : typeof e);
       }
+    } finally {
+      enMarcha = false;
+      if (otraVez && !parado) programar();
     }
   }
 

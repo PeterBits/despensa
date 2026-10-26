@@ -98,6 +98,28 @@ describe('iniciarSincronizacion', () => {
     expect(llamadas.filter((l) => l.url === '/api/ops')).toHaveLength(2);
   });
 
+  it('un disparo que llega con una vuelta en marcha pide los cambios otra vez al acabar', async () => {
+    let soltar!: () => void;
+    const retenido = new Promise<void>((r) => (soltar = r));
+    let primera = true;
+    const { fetcher, llamadas } = falso(async (l) => {
+      if (l.url.startsWith('/api/cambios') && primera) {
+        primera = false;
+        await retenido;
+      }
+      return normal(l);
+    });
+    parar = iniciarSincronizacion({ alPerderSesion: vi.fn(), fetcher, espera: 0 });
+    await vi.waitFor(() => expect(cambios(llamadas)).toBe(1));
+    // La primera vuelta ya pidió los cambios: lo que motivó el disparo pudo llegar después.
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+    document.dispatchEvent(new Event('visibilitychange'));
+    soltar();
+    await vi.waitFor(() => expect(cambios(llamadas)).toBe(2));
+    await pasar(50);
+    expect(cambios(llamadas)).toBe(2);
+  });
+
   it('avisa una sola vez si no hay sesión, deja de sincronizar y no pierde la cola', async () => {
     const { fetcher, llamadas } = falso((l) => (l.url === '/api/ops' ? json(401, { error: 'Sin sesión.' }) : normal(l)));
     const alPerderSesion = vi.fn();
