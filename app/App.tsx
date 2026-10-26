@@ -6,6 +6,7 @@ import { abrirCopia } from './datos/local';
 import { iniciarSincronizacion } from './datos/sincronizacion';
 import { Bienvenida } from './pantallas/Bienvenida';
 import { Editor } from './pantallas/Editor';
+import { ElegirReceta } from './pantallas/ElegirReceta';
 import { Invitacion } from './pantallas/Invitacion';
 import { Pantalla } from './pantallas/Pantalla';
 import { Receta } from './pantallas/Receta';
@@ -64,6 +65,7 @@ export function Rutas() {
     <>
       <Routes>
         <Route path="/semana" element={<Semana />} />
+        <Route path="/semana/elegir/:lunes/:hueco" element={<ElegirReceta />} />
         <Route path="/recetas" element={<Recetas />} />
         <Route path="/recetas/nueva" element={<Editor />} />
         <Route path="/recetas/:id" element={<Receta />} />

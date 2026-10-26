@@ -49,17 +49,20 @@ function DiasDeLaFila({ plato, pasados }: { plato: PlatoEnSemana; pasados?: Set<
 }
 
 function FilaPlato({
+  lunes,
   plato,
   tachando,
   entrando,
   alDeshacer,
 }: {
+  lunes: string;
   plato: PlatoEnSemana;
   tachando: boolean;
   entrando: boolean;
   alDeshacer: (recetaId: string) => void;
 }) {
-  const { receta, enLugarDe, vaAActivos } = plato;
+  const { receta, enLugarDe, vaAActivos, hueco } = plato;
+  const elegir = `/semana/elegir/${lunes}/${hueco}`;
   const fig = <DiasDeLaFila plato={plato} />;
   if (!receta) {
     return (
@@ -69,6 +72,11 @@ function FilaPlato({
           <span className="leader" aria-hidden="true" />
           {fig}
         </div>
+        <p className="act">
+          <Link className="link" to={elegir} state={{ desde: 'semana' }}>
+            Elegir receta
+          </Link>
+        </p>
       </li>
     );
   }
@@ -92,6 +100,16 @@ function FilaPlato({
           </button>
         </p>
       )}
+      <p className="act">
+        <Link
+          className="link"
+          to={elegir}
+          state={{ desde: 'semana' }}
+          aria-label={`Elegir otra receta en lugar de ${receta.nombre}`}
+        >
+          Elegir otra receta
+        </Link>
+      </p>
     </li>
   );
 }
@@ -349,6 +367,7 @@ function LaQueViene({ vista }: { vista: VistaSemana }) {
         {vista.menu.map((plato) => (
           <FilaPlato
             key={plato.hueco}
+            lunes={lunes}
             plato={plato}
             tachando={cambio?.tacha === true && cambio.hueco === plato.hueco && plato.receta?.id !== cambio.id}
             entrando={entra?.hueco === plato.hueco && entra.id === plato.receta?.id}

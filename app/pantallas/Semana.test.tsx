@@ -7,6 +7,7 @@ import { borrarReceta, guardarReceta } from '../datos/recetas';
 import { RECETAS_DE_EJEMPLO } from '../datos/semilla';
 import { ponerPlato } from '../datos/semana';
 import { escribir } from '../datos/sync';
+import { ElegirReceta } from './ElegirReceta';
 import { Semana } from './Semana';
 
 const VIERNES = '2026-10-30T10:00:00+01:00';
@@ -39,6 +40,7 @@ const pintar = (ruta = '/semana') =>
     <MemoryRouter initialEntries={[ruta]}>
       <Routes>
         <Route path="/semana" element={<Semana />} />
+        <Route path="/semana/elegir/:lunes/:hueco" element={<ElegirReceta />} />
         <Route path="/lista" element={<p>Lista de prueba</p>} />
         <Route path="/recetas/nueva" element={<p>Nueva receta de prueba</p>} />
       </Routes>
@@ -236,5 +238,53 @@ describe('Semana, esta semana', () => {
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
     expect(esta.queryByText(/Hoy toca/)).not.toBeInTheDocument();
     expect(esta.queryByRole('heading', { name: 'Menú' })).not.toBeInTheDocument();
+  });
+});
+
+describe('Semana, elegir otra receta', () => {
+  it('cada plato lleva a elegir otra receta para su hueco', async () => {
+    pintar();
+    expect(await screen.findByRole('link', { name: 'Elegir otra receta en lugar de Lentejas estofadas' })).toHaveAttribute(
+      'href',
+      '/semana/elegir/2026-11-02/1',
+    );
+  });
+
+  it('Esta semana no lleva enlaces de elegir', async () => {
+    pintar('/semana?ver=esta');
+    await screen.findByRole('heading', { level: 1, name: 'Del 26 oct al 1 nov' });
+    expect(within(document.getElementById('p-esta')!).queryByRole('link', { name: /Elegir/ })).not.toBeInTheDocument();
+  });
+
+  it('elegir una receta la pone en el hueco y vuelve a La que viene', async () => {
+    pintar('/semana?ver=viene');
+    await userEvent.click(await screen.findByRole('link', { name: 'Elegir otra receta en lugar de Lentejas estofadas' }));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Elegir receta' })).toBeInTheDocument();
+    expect(screen.getByText(/En lugar de/)).toHaveTextContent('Lentejas estofadas');
+    expect(screen.queryByRole('button', { name: /Merluza en salsa verde/ })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Pisto con huevo/ }));
+    await waitFor(() => expect(fila('Pisto con huevo')).toHaveTextContent(/En lugar de\s*Lentejas estofadas/));
+    expect(screen.getByTestId('ubicacion')).toHaveTextContent('/semana?ver=viene');
+  });
+
+  it('Cancelar vuelve sin cambiar nada', async () => {
+    pintar('/semana?ver=viene');
+    await userEvent.click(await screen.findByRole('link', { name: 'Elegir otra receta en lugar de Lentejas estofadas' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Cancelar' }));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Del 2 al 8 nov' })).toBeInTheDocument();
+    expect(fila('Lentejas estofadas')).toBeInTheDocument();
+    expect(screen.getByTestId('ubicacion')).toHaveTextContent('/semana?ver=viene');
+  });
+
+  it('un hueco sin plato ofrece "Elegir receta"', async () => {
+    await ponerPlato('2026-11-02', '2', 'ejemplo-pisto');
+    await borrarReceta('ejemplo-pisto');
+    pintar();
+    expect(await screen.findByRole('link', { name: 'Elegir receta' })).toHaveAttribute('href', '/semana/elegir/2026-11-02/2');
+  });
+
+  it('una dirección rara vuelve a Semana', async () => {
+    pintar('/semana/elegir/ayer/3');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Del 2 al 8 nov' })).toBeInTheDocument();
   });
 });

@@ -18,11 +18,16 @@
   font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.015em}
 .sec small{font-size:13px;font-weight:500;color:var(--ink-2)}
 .recetas ul{list-style:none}
-.row{display:block;padding:10px 20px}
+.row{display:block;width:100%;padding:10px 20px;text-align:left}
 .row:active .line,.row:active .from{opacity:.6}
 .row:focus-visible{outline-offset:-2px}
 .line{display:flex;align-items:baseline;align-items:last baseline;gap:10px}
 .leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule);transform:translateY(-5px)}
+/* En las filas de carta los puntos se dibujan aparte: si el nombre ocupa dos líneas, --ext (medido tras maquetar) los alarga
+   hacia la izquierda hasta 8px después de la última palabra, sin mover el nombre. */
+.row .name{text-wrap:balance}
+.row .leader{position:relative;border-bottom:0}
+.row .leader::before{content:"";position:absolute;left:calc(-1 * var(--ext, 0px));right:0;bottom:-2px;border-bottom:2px dotted var(--rule)}
 .fig{font-weight:600;white-space:nowrap}
 .fig.on{color:var(--tint-ink)}
 .fig.none{color:var(--ink-3);font-weight:500}
@@ -35,6 +40,14 @@
 .menu .name{font-size:19px;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
 .menu .from{margin-top:4px;font-size:15px;font-weight:400;color:var(--ink-2)}
 .vacio{margin:16px 20px 0;font-size:15px;color:var(--ink-2)}
+
+/* Modo elegir (desde Semana): una tarea que se cierra con Cancelar o eligiendo, sin barra de pestañas */
+.top-elegir{padding:0 20px}
+.top-elegir .cancel{min-height:44px;font-size:15px;font-weight:500;color:var(--ink-2)}
+.top-elegir .cancel:active{opacity:.6}
+.en-lugar{margin-top:8px;font-size:17px;color:var(--ink-2);text-wrap:pretty}
+.en-lugar strong{color:var(--ink);font-weight:600}
+.screen.recetas.elegir{padding-bottom:calc(env(safe-area-inset-bottom) + 40px)}
 
 /* Índice vacío: una frase y el botón principal, sin buscador ni secciones */
 .vacio-todo{margin:12px 20px 0;font-size:17px;color:var(--ink-2);text-wrap:pretty}

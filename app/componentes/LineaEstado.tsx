@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import { matchPath, useLocation } from 'react-router';
 import { ponerAviso, useAviso } from '../datos/avisos';
 
-// Las rutas sin barra de pestañas: el editor, que se cierra con Cancelar o Guardar.
-const SIN_PESTANAS = ['/recetas/nueva', '/recetas/:id/editar'];
+// Las rutas sin barra de pestañas: el editor, que se cierra con Cancelar o Guardar, y el selector de receta, con Cancelar o eligiendo.
+const SIN_PESTANAS = ['/recetas/nueva', '/recetas/:id/editar', '/semana/elegir/:lunes/:hueco'];
 
 // La línea de estado de la app: "texto · Deshacer", sobre `ground` y encima de la barra de pestañas
 // (en una ruta sin barra, abajo del todo y con el filete de la barra).

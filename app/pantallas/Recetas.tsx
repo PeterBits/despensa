@@ -6,6 +6,7 @@ import { coincide, formatearMinutos, fraseTipos } from '../../shared/recetas';
 import type { Dia } from '../../shared/semana';
 import { BarraPestanas } from '../componentes/BarraPestanas';
 import { DiasDelPlato } from '../componentes/DiasDelPlato';
+import { FilaReceta } from '../componentes/FilaReceta';
 import { useRecetas, type ResumenReceta } from '../datos/recetas';
 import { useSemana, type PlatoEnSemana, type VistaSemana } from '../datos/semana';
 import '../estilos/recetas.css';
@@ -21,30 +22,6 @@ const Mas = () => (
     <path d="M12 5v14M5 12h14" />
   </svg>
 );
-
-function Fila({ receta, alAbrir }: { receta: ResumenReceta; alAbrir: () => void }) {
-  const detalle = [fraseTipos(receta.tipos), formatearMinutos(receta.minutos)].filter((p) => p !== '').join(' · ');
-  return (
-    <li>
-      <Link className="row" to={`/recetas/${receta.id}`} state={{ desde: 'indice' }} onClick={alAbrir}>
-        <span className="line">
-          <span className="name">{receta.nombre}</span>
-          {receta.media !== null && (
-            <>
-              <span className="leader" aria-hidden="true" />
-              <span className="fig">
-                <span className="lab">nota</span>
-                <span className="sr"> </span>
-                {formatearNota(receta.media)}
-              </span>
-            </>
-          )}
-        </span>
-        {detalle !== '' && <span className="from">{detalle}</span>}
-      </Link>
-    </li>
-  );
-}
 
 // Un plato de la semana en el índice: sus días a la derecha y, si es el de hoy, "Hoy" antes del detalle.
 function FilaSemana({
@@ -203,11 +180,7 @@ export function Recetas() {
             {mostradas.length > 0 ? (
               <ul>
                 {mostradas.map((r) => (
-                  <Fila
-                    key={r.id}
-                    receta={r}
-                    alAbrir={recordar}
-                  />
+                  <FilaReceta key={r.id} receta={r} como="enlace" alAbrir={recordar} />
                 ))}
               </ul>
             ) : (
