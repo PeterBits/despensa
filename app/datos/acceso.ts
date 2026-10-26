@@ -88,6 +88,18 @@ const CLAVE_SESION = 'despensa.sesion';
 
 export type Sesion = { hogarId: string; miembroId: string };
 
+// Cuántos sois según lo último que dijo /api/yo (null: no se sabe). Va aparte de `Sesion`, que no lo guarda:
+// Ajustes lo enseña al abrirse sin esperar a la red y lo vuelve a preguntar.
+let miembrosSabidos: number | null = null;
+
+export const miembrosConocidos = (): number | null => miembrosSabidos;
+
+const anotarMiembros = (miembros: unknown): number | null => {
+  if (typeof miembros !== 'number') return null;
+  miembrosSabidos = miembros;
+  return miembros;
+};
+
 // Un localStorage que lanza (modo privado, datos bloqueados) cuenta como vacío.
 function guardada(): Sesion | null {
   try {
@@ -101,6 +113,7 @@ function guardada(): Sesion | null {
 }
 
 export function olvidarSesion(): void {
+  miembrosSabidos = null;
   try {
     localStorage.removeItem(CLAVE_SESION);
   } catch {
@@ -122,8 +135,9 @@ export async function leerSesion(): Promise<Sesion | null> {
       return null;
     }
     if (respuesta.ok) {
-      const { hogarId, miembroId } = (await respuesta.json()) as Partial<Sesion>;
+      const { hogarId, miembroId, miembros } = (await respuesta.json()) as Partial<Sesion> & { miembros?: unknown };
       if (typeof hogarId === 'string' && typeof miembroId === 'string') {
+        anotarMiembros(miembros);
         const sesion = { hogarId, miembroId };
         try {
           localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
@@ -141,15 +155,20 @@ export async function leerSesion(): Promise<Sesion | null> {
   }
 }
 
-// Cuántas personas hay en el hogar (1: falta invitar a la pareja). Sin red o sin respuesta válida, null.
+// Cuántas personas hay en el hogar (1: falta invitar a la pareja). Sin red, sin respuesta válida o si tarda más
+// de 4 s, null.
 export async function contarMiembros(): Promise<number | null> {
+  const corte = new AbortController();
+  const reloj = setTimeout(() => corte.abort(), ESPERA_SESION);
   try {
-    const respuesta = await fetch('/api/yo');
+    const respuesta = await fetch('/api/yo', { signal: corte.signal });
     if (!respuesta.ok) return null;
     const { miembros } = (await respuesta.json()) as { miembros?: unknown };
-    return typeof miembros === 'number' ? miembros : null;
+    return anotarMiembros(miembros);
   } catch {
     return null;
+  } finally {
+    clearTimeout(reloj);
   }
 }
 

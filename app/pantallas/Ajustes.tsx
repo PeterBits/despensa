@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { version } from '../../package.json';
-import { compartirInvitacion, contarMiembros, invitar, salir } from '../datos/acceso';
+import { compartirInvitacion, contarMiembros, invitar, miembrosConocidos, salir } from '../datos/acceso';
 import { BarraPestanas } from '../componentes/BarraPestanas';
 import '../estilos/ajustes.css';
 
@@ -11,8 +11,9 @@ const mensaje = (error: unknown) => (error instanceof Error ? error.message : 'A
 
 // Ajustes: invitar a tu pareja, cerrar sesión y la versión. Al salir, `alSalir` vuelve a la bienvenida.
 export function Ajustes({ alSalir }: { alSalir: () => void }) {
-  // undefined: aún se cuenta; null: sin red (se ofrece invitar y el fallo saldrá al intentarlo).
-  const [miembros, setMiembros] = useState<number | null | undefined>(undefined);
+  // Lo que se sepa al abrir (de /api/yo al entrar) y luego lo que responda al contar. null: no se sabe, y se ofrece
+  // invitar mientras tanto: así nada queda en blanco ni salta. Solo con 2 se dice que ya estáis los dos.
+  const [miembros, setMiembros] = useState<number | null>(miembrosConocidos);
   const [invitando, setInvitando] = useState(false);
   const [saliendo, setSaliendo] = useState(false);
   const [estado, setEstado] = useState('');
@@ -20,14 +21,38 @@ export function Ajustes({ alSalir }: { alSalir: () => void }) {
   const [errorSalir, setErrorSalir] = useState('');
   const [aMano, setAMano] = useState<string | null>(null);
   const campo = useRef<HTMLInputElement>(null);
+  // El enlace pedido por adelantado (nunca va a la consola), si hay una petición en marcha y si la pantalla sigue
+  // montada.
+  const preparado = useRef<string | null>(null);
+  const pidiendo = useRef(false);
+  const montada = useRef(false);
 
   useEffect(() => {
-    let vigente = true;
-    contarMiembros().then((n) => vigente && setMiembros(n));
+    montada.current = true;
+    contarMiembros().then((n) => montada.current && n !== null && setMiembros(n));
     return () => {
-      vigente = false;
+      montada.current = false;
     };
   }, []);
+
+  // Safari solo abre la hoja de compartir (o copia) dentro del toque, y esperar a la red antes lo puede perder.
+  // Por eso el enlace se pide al abrir Ajustes si falta alguien (o no se sabe), y otra vez tras usarlo.
+  // Si falla, no se dice nada: al tocar se pedirá como siempre y el fallo saldrá entonces.
+  const prepararEnlace = () => {
+    if (pidiendo.current || preparado.current !== null) return;
+    pidiendo.current = true;
+    invitar()
+      .then((enlace) => {
+        if (montada.current) preparado.current = enlace;
+      })
+      .catch(() => {})
+      .finally(() => {
+        pidiendo.current = false;
+      });
+  };
+  useEffect(() => {
+    if (miembros !== 2) prepararEnlace();
+  }, [miembros]);
 
   // Sin hoja ni portapapeles, el enlace queda seleccionado y con el foco para copiarlo.
   useEffect(() => {
@@ -38,19 +63,26 @@ export function Ajustes({ alSalir }: { alSalir: () => void }) {
 
   const alInvitar = async () => {
     if (invitando) return;
+    // Con el enlace listo, se comparte aquí mismo, antes de cualquier espera; si no, se pide y luego se comparte.
+    const listo = preparado.current;
+    preparado.current = null;
+    const compartiendo = listo === null ? null : compartirInvitacion(listo);
     setInvitando(true);
     setEstado('');
     setErrorInvitar('');
     setAMano(null);
     try {
-      const enlace = await invitar();
-      const resultado = await compartirInvitacion(enlace);
+      const enlace = listo ?? (await invitar());
+      const resultado = await (compartiendo ?? compartirInvitacion(enlace));
       if (resultado === 'compartida') setEstado(`Invitación lista. ${VALE}`);
       if (resultado === 'copiada') setEstado(`Enlace copiado. ${VALE}`);
       if (resultado === 'a mano') {
         setAMano(enlace);
         setEstado(VALE);
       }
+      // Cerrar la hoja no gasta el enlace: sirve para el siguiente toque. Si se mandó o se enseñó, se pide otro.
+      if (resultado === 'cancelada') preparado.current ??= enlace;
+      else prepararEnlace();
     } catch (error) {
       setErrorInvitar(mensaje(error));
     } finally {
@@ -91,7 +123,7 @@ export function Ajustes({ alSalir }: { alSalir: () => void }) {
             Tu pareja
           </h2>
           {miembros === 2 && <p className="dentro">Ya estáis los dos en este hogar.</p>}
-          {miembros !== 2 && miembros !== undefined && (
+          {miembros !== 2 && (
             <div>
               <p className="txt">Mándale un enlace para que entre en vuestra Despensa desde su iPhone.</p>
               <button

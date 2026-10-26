@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { compartirInvitacion, contarMiembros, invitar, leerSesion, olvidarSesion } from './acceso';
+import { compartirInvitacion, contarMiembros, invitar, leerSesion, miembrosConocidos, olvidarSesion } from './acceso';
 
 const respuesta = (estado: number, cuerpo: unknown) =>
   new Response(JSON.stringify(cuerpo), { status: estado, headers: { 'Content-Type': 'application/json' } });
@@ -53,6 +53,37 @@ it('contarMiembros devuelve cuántos hay y null sin red', async () => {
   expect(await contarMiembros()).toBe(1);
   sinRed();
   expect(await contarMiembros()).toBeNull();
+});
+
+it('contarMiembros se rinde a los 4 s con null', async () => {
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+  try {
+    // Un /api/yo que no responde hasta que se cancela.
+    vi.stubGlobal('fetch', (_ruta: string, { signal }: RequestInit) =>
+      new Promise((_, rechazar) => signal?.addEventListener('abort', () => rechazar(new DOMException('', 'AbortError')))),
+    );
+    const cuenta = contarMiembros();
+    await vi.advanceTimersByTimeAsync(3_999);
+    let resuelta = false;
+    void cuenta.then(() => (resuelta = true));
+    await Promise.resolve();
+    expect(resuelta).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(await cuenta).toBeNull();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it('lo que dijo /api/yo de cuántos sois se recuerda sin ensanchar la sesión, y se olvida con ella', async () => {
+  vi.stubGlobal('fetch', async () => respuesta(200, { miembroId: 'm1', hogarId: 'h1', miembros: 2 }));
+  expect(await leerSesion()).toEqual({ hogarId: 'h1', miembroId: 'm1' });
+  expect(miembrosConocidos()).toBe(2);
+  conSesion();
+  await contarMiembros();
+  expect(miembrosConocidos()).toBe(1);
+  olvidarSesion();
+  expect(miembrosConocidos()).toBeNull();
 });
 
 it('invitar devuelve el enlace y, si falla, lanza la frase de enviar', async () => {

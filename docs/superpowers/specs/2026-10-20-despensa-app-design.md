@@ -353,7 +353,10 @@ principal de cada punto:
     del hogar y de su nombre: si los dos móviles hacen la lista sin sincronizar, escriben las
     mismas filas y la lista no sale doble.
 33. Ajustes se abre desde Semana. Invitar usa la hoja de compartir del iPhone y, si no la
-    hay, copia el enlace. Cerrar sesión envía antes lo pendiente.
+    hay, copia el enlace. Safari solo abre la hoja (o copia) dentro del toque, así que el
+    enlace se pide al abrir Ajustes cuando falta alguien en el hogar (o aún no se sabe) y el
+    toque lo comparte sin esperar a la red; tras usarlo se pide otro. Cerrar sesión envía
+    antes lo pendiente.
 34. La versión que enseña Ajustes es la de `package.json`: 0.3.0 con este plan.
 
 ## 14. Sigue abierto (no bloquea el plan)
