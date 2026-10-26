@@ -360,13 +360,18 @@ export async function hacerLista(lunes: string): Promise<number> {
 
     // Los de origen nulo los añadió una persona: no se tocan.
     const deRecetas = (await db.producto.toArray()).filter((p) => p.origen != null);
-    const previos = new Set(deRecetas.map((p) => p.id as string));
+    const previos = new Map(deRecetas.map((p) => [p.id as string, p]));
     const escritos = new Set<string>();
     for (const l of lineas) {
       const id = idProducto(l.nombre);
       escritos.add(id);
       const campos = { nombre: l.nombre, cantidad: l.cantidad, seccion: l.seccion, origen: l.origen.join(' · ') };
-      if (teniaLista && previos.has(id)) {
+      const previo = previos.get(id);
+      if (teniaLista && previo) {
+        // Al actualizar, lo que sigue igual no se escribe: escribir envía la fila local entera, y su `estado` o su
+        // `cogido_por`, quizá viejos, desharían lo que la pareja marcó.
+        const igual = (Object.keys(campos) as (keyof typeof campos)[]).every((c) => previo[c] === campos[c]);
+        if (igual) continue;
         // Sin `estado` ni `cogido_por`: escribir mezcla con la fila local y los conserva.
         await escribir('producto', { id, ...campos });
       } else {
@@ -375,7 +380,7 @@ export async function hacerLista(lunes: string): Promise<number> {
       }
     }
     // Se borran solo los que ya no salen: un id que se reescribe no se borra y se vuelve a añadir.
-    for (const id of previos) {
+    for (const id of previos.keys()) {
       if (!escritos.has(id)) await escribir('producto', { id }, { borrar: true });
     }
     return lineas.length;

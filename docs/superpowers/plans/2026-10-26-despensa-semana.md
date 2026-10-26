@@ -52,7 +52,7 @@
 
 Este es el plan 3 de 6.
 
-4. **Lista:** repaso en casa, en el súper, frecuentes, terminar, vaciar y el botón de borrar producto. Lee los productos que escribe la Task 2 de este plan (`origen` con los nombres cortos unidos por " · ", y `null` lo añadido a mano).
+4. **Lista:** repaso en casa, en el súper, frecuentes, terminar, vaciar y el botón de borrar producto. Lee los productos que escribe la Task 2 de este plan (`origen` con los nombres cortos unidos por " · ", y `null` lo añadido a mano). Tiene que impedir que reescribir la lista pise las marcas (`estado`, `cogido_por`): "Actualizar la lista" ya no reescribe lo que sigue igual, pero un producto que cambia viaja con el `estado` de este móvil, quizá viejo.
 5. **Registro:** diario, notas de cada uno y "Comimos otra cosa". Sus comidas alimentan la última vez de cada receta (Task 1).
 6. **En vivo y sin conexión:** Durable Object y service worker, abrir sin red en un móvil que nunca entró, limpiar fotos sin receta, KV si no se quiere R2, `docs/cloudflare.md` y primer despliegue.
 

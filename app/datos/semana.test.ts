@@ -169,6 +169,23 @@ describe('la semana en la copia local', () => {
     expect(despues.filter((p) => p.nombre === 'Cebolla')).toHaveLength(2);
   });
 
+  it('actualizar no reescribe los productos que siguen igual: no pisa lo que marcó la pareja', async () => {
+    await hacerLista(LUNES);
+    const id = idProducto;
+    const antes = await copia().cola.count();
+    await ponerPlato(LUNES, '2', 'ejemplo-pisto');
+    await hacerLista(LUNES);
+    const ops = (await copia().cola.toArray()).slice(antes).filter((o) => o.tabla === 'producto');
+    const tocados = ops.map((o) => o.fila.id);
+    // Solo de las lentejas, igual que antes: ninguna operación.
+    expect(tocados).not.toContain(id('Lentejas pardinas'));
+    expect(tocados).not.toContain(id('Chorizo'));
+    // Cambia su origen o su cantidad: se reescriben sin estado. Lo de la merluza se borra.
+    expect(ops.find((o) => o.fila.id === id('Ajo'))?.fila).toMatchObject({ origen: 'lentejas' });
+    expect(ops.find((o) => o.fila.id === id('Cebolla'))?.fila).toMatchObject({ origen: 'lentejas · pisto' });
+    expect(ops.find((o) => o.fila.id === id('Merluza en rodajas'))).toMatchObject({ borrar: true });
+  });
+
   it('la lista de una semana nueva rehace desde cero lo que sale de recetas', async () => {
     await hacerLista(LUNES);
     const chorizo = (await copia().producto.toArray()).find((p) => p.nombre === 'Chorizo')!;
