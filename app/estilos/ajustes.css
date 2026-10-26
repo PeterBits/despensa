@@ -1,0 +1,27 @@
+/* Ajustes: la pantalla bajo `.config`; `.top`, `.back`, `.sec`, `.txt` y `.cta` existen en otras pantallas con otras medidas. */
+
+/* Fila de arriba: volver a Semana, como "‹ Recetas" en la receta */
+.config{padding-bottom:calc(env(safe-area-inset-bottom) + 112px)}
+.config .top{display:flex;align-items:center;min-height:44px}
+.config .back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 20px 0 12px;font-weight:600}
+.config .back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.config .back:active{opacity:.6}
+.config header{padding:4px 20px 0}
+
+/* Cada parte, un título de sección sin fondo ni filete y una frase corta */
+.config .sec{display:block;margin:32px 20px 0;font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:inherit}
+.config .txt{margin:6px 20px 0;font-size:15px;color:var(--ink-2);text-wrap:pretty}
+.config .dentro{margin:6px 20px 0;font-size:17px;text-wrap:pretty}
+.config .cta{gap:8px;width:calc(100% - 40px);margin:16px 20px 0}
+.config .cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.config .cta.quiet{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--hair)}
+/* El estado tras invitar y el error: el estado en 13px ink-2; el error, la frase de 13px peso 600 en tinta (sin rojo) */
+.config .estado{margin:10px 20px 0;font-size:13px;color:var(--ink-2);text-align:center}
+.config .error{margin:10px 20px 0;font-size:13px;font-weight:600}
+.config .estado:empty{display:none}
+/* Sin hoja de compartir ni portapapeles: el enlace en un campo para copiarlo a mano */
+.config .campo{display:block;margin:16px 20px 0}
+.config .rot{display:block;margin-bottom:6px;font-size:13px;font-weight:500;color:var(--ink-2)}
+.config .campo input{display:block;width:100%;height:44px;padding:0 12px;border-radius:9px;background:var(--seg);font:inherit;font-size:15px;color:inherit;border:0;outline:0;text-overflow:ellipsis}
+.config .campo input:focus-visible{outline:2px solid var(--tint);outline-offset:3px}
+.config .version{margin:40px 20px 0;font-size:13px;color:var(--ink-2)}

@@ -8,6 +8,7 @@ import {
   type PublicKeyCredentialCreationOptionsJSON,
   type PublicKeyCredentialRequestOptionsJSON,
 } from '@simplewebauthn/browser';
+import { sincronizar, SinSesion } from './sync';
 
 export const FALLO_FACE_ID = 'No se pudo usar Face ID. Vuelve a intentarlo.';
 const SIN_CONEXION = 'No hay conexión. Inténtalo otra vez.';
@@ -137,5 +138,55 @@ export async function leerSesion(): Promise<Sesion | null> {
     return guardada();
   } finally {
     clearTimeout(reloj);
+  }
+}
+
+// Cuántas personas hay en el hogar (1: falta invitar a la pareja). Sin red o sin respuesta válida, null.
+export async function contarMiembros(): Promise<number | null> {
+  try {
+    const respuesta = await fetch('/api/yo');
+    if (!respuesta.ok) return null;
+    const { miembros } = (await respuesta.json()) as { miembros?: unknown };
+    return typeof miembros === 'number' ? miembros : null;
+  } catch {
+    return null;
+  }
+}
+
+// Pide un enlace de invitación nuevo: vale 24 horas y una sola vez. Nunca se escribe en la consola.
+export async function invitar(): Promise<string> {
+  const { enlace } = await enviar<{ enlace: string; caduca: string }>('/api/invitaciones');
+  return enlace;
+}
+
+// Lo pendiente se envía antes de cerrar la sesión: después ya no habría con qué subirlo. Sin sesión
+// (401) no hay nada que enviar y se sigue; cualquier otro fallo impide salir.
+export async function salir(): Promise<void> {
+  try {
+    await sincronizar();
+  } catch (e) {
+    if (!(e instanceof SinSesion)) throw new Error(SIN_CONEXION);
+  }
+  await enviar('/api/salir');
+}
+
+export type ResultadoCompartir = 'compartida' | 'copiada' | 'cancelada' | 'a mano';
+
+// La hoja de compartir del iPhone; sin ella, o si falla, el portapapeles; y si tampoco, 'a mano'.
+// Cerrar la hoja (AbortError) no es un fallo: no se copia ni se dice nada.
+export async function compartirInvitacion(enlace: string): Promise<ResultadoCompartir> {
+  if (typeof navigator.share === 'function') {
+    try {
+      await navigator.share({ title: 'Despensa', text: 'Te invito a nuestra Despensa.', url: enlace });
+      return 'compartida';
+    } catch (e) {
+      if (typeof e === 'object' && e !== null && 'name' in e && e.name === 'AbortError') return 'cancelada';
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(enlace);
+    return 'copiada';
+  } catch {
+    return 'a mano';
   }
 }

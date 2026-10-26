@@ -5,6 +5,7 @@ import { LineaEstado } from './componentes/LineaEstado';
 import { abrirCopia } from './datos/local';
 import { iniciarSincronizacion } from './datos/sincronizacion';
 import { Bienvenida } from './pantallas/Bienvenida';
+import { Ajustes } from './pantallas/Ajustes';
 import { Editor } from './pantallas/Editor';
 import { ElegirReceta } from './pantallas/ElegirReceta';
 import { Invitacion } from './pantallas/Invitacion';
@@ -48,6 +49,11 @@ export function Rutas() {
 
   if (sesion === undefined) return null;
 
+  const alSalir = () => {
+    olvidarSesion();
+    setSesion(null);
+  };
+
   if (!sesion) {
     // Al entrar, se vuelve a leer la sesión y la ruta en la que esté redirige a /semana.
     const alEntrar = () => leerSesion().then(setSesion);
@@ -65,6 +71,7 @@ export function Rutas() {
     <>
       <Routes>
         <Route path="/semana" element={<Semana />} />
+        <Route path="/semana/ajustes" element={<Ajustes alSalir={alSalir} />} />
         <Route path="/semana/elegir/:lunes/:hueco" element={<ElegirReceta />} />
         <Route path="/recetas" element={<Recetas />} />
         <Route path="/recetas/nueva" element={<Editor />} />

@@ -2,6 +2,9 @@
 
 /* Fila de arriba: el segmentado y, a su derecha, Ajustes (Task 7); el icono queda dentro del margen de 20px */
 .semana .bar{display:flex;align-items:center;gap:4px;padding:0 8px 0 20px}
+.semana .ajustes{display:grid;place-items:center;flex:none;width:44px;height:44px;color:var(--ink-2)}
+.semana .ajustes svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.semana .ajustes:active{opacity:.6}
 .semana .seg{flex:1;display:grid;grid-template-columns:1fr 1fr;padding:2px;border-radius:9px;background:var(--seg)}
 .semana .seg button{height:32px;border-radius:7px;font-size:14px;font-weight:500;color:var(--ink);transition:background-color .2s var(--ease)}
 .semana .seg button[aria-selected="true"]{background:var(--seg-on);box-shadow:var(--seg-shadow);font-weight:600}

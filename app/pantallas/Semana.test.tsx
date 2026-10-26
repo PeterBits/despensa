@@ -41,6 +41,7 @@ const pintar = (ruta = '/semana') =>
       <Routes>
         <Route path="/semana" element={<Semana />} />
         <Route path="/semana/elegir/:lunes/:hueco" element={<ElegirReceta />} />
+        <Route path="/semana/ajustes" element={<p>Ajustes de prueba</p>} />
         <Route path="/lista" element={<p>Lista de prueba</p>} />
         <Route path="/recetas/nueva" element={<p>Nueva receta de prueba</p>} />
       </Routes>
@@ -286,5 +287,16 @@ describe('Semana, elegir otra receta', () => {
   it('una dirección rara vuelve a Semana', async () => {
     pintar('/semana/elegir/ayer/3');
     expect(await screen.findByRole('heading', { level: 1, name: 'Del 2 al 8 nov' })).toBeInTheDocument();
+  });
+});
+
+describe('Semana, Ajustes', () => {
+  it('el enlace Ajustes lleva a /semana/ajustes', async () => {
+    pintar();
+    await screen.findByRole('heading', { level: 1, name: 'Del 2 al 8 nov' });
+    const enlace = screen.getByRole('link', { name: 'Ajustes' });
+    expect(enlace).toHaveAttribute('href', '/semana/ajustes');
+    await userEvent.click(enlace);
+    expect(await screen.findByText('Ajustes de prueba')).toBeInTheDocument();
   });
 });
