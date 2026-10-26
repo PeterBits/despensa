@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { abrirCopia } from '../datos/local';
+import { abrirCopia, copia } from '../datos/local';
 import { guardarReceta } from '../datos/recetas';
 import { RECETAS_DE_EJEMPLO } from '../datos/semilla';
 import { leerSemana } from '../datos/semana';
@@ -62,10 +62,22 @@ describe('ElegirReceta', () => {
     expect((await leerSemana('2026-11-02')).menu[0]?.receta?.id).toBe('ejemplo-pisto');
   });
 
-  it('un lunes de esta semana vuelve a Esta semana', async () => {
-    pintar(['/semana/elegir/2026-10-26/2']);
+  it('sin venir de Semana, Cancelar vuelve a La que viene', async () => {
+    pintar(['/semana/elegir/2026-11-02/2']);
     await userEvent.click(await screen.findByRole('button', { name: 'Cancelar' }));
-    await waitFor(() => expect(screen.getByTestId('ubicacion')).toHaveTextContent('/semana?ver=esta'));
+    await waitFor(() => expect(screen.getByTestId('ubicacion')).toHaveTextContent('/semana?ver=viene'));
+  });
+
+  // Solo se planifica la semana que viene: una dirección vieja o tocada no escribe en otra semana.
+  it.each([
+    ['el lunes de esta semana', '2026-10-26'],
+    ['un martes', '2026-11-03'],
+    ['el lunes de dentro de dos semanas', '2026-11-09'],
+  ])('%s redirige a Semana sin escribir nada', async (_, lunes) => {
+    pintar([`/semana/elegir/${lunes}/1`]);
+    expect(await screen.findByText('Semana de prueba')).toBeInTheDocument();
+    expect(screen.getByTestId('ubicacion')).toHaveTextContent(/^\/semana$/);
+    expect((await copia().cola.toArray()).filter((o) => o.tabla.startsWith('semana'))).toEqual([]);
   });
 
   it('viniendo de Semana, Cancelar vuelve atrás', async () => {

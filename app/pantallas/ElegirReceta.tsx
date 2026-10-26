@@ -1,20 +1,20 @@
 import { useRef, useState } from 'react';
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router';
-import { hoyEnMadrid, lunesDe, sumarDias } from '../../shared/fechas';
+import { lunesDe, sumarDias } from '../../shared/fechas';
 import { coincide } from '../../shared/recetas';
 import type { Hueco } from '../../shared/semana';
 import { FilaReceta } from '../componentes/FilaReceta';
+import { useHoy } from '../datos/hoy';
 import { useRecetas } from '../datos/recetas';
 import { ponerPlato, useSemana } from '../datos/semana';
 import '../estilos/recetas.css';
 
-// Un lunes de verdad: YYYY-MM-DD que sobrevive a una vuelta por el calendario (el 31 de febrero no).
-const esFecha = (texto: string) =>
-  /^\d{4}-\d{2}-\d{2}$/.test(texto) && !Number.isNaN(Date.parse(`${texto}T12:00:00Z`)) && sumarDias(texto, 0) === texto;
-
+// Solo se planifica la semana que viene: cualquier otro lunes (una dirección vieja o tocada) vuelve a Semana sin
+// escribir nada, y si cambia la semana con el selector abierto, también.
 export function ElegirReceta() {
   const { lunes = '', hueco = '' } = useParams();
-  if (!esFecha(lunes) || (hueco !== '1' && hueco !== '2')) return <Navigate to="/semana" replace />;
+  const lunesViene = sumarDias(lunesDe(useHoy()), 7);
+  if (lunes !== lunesViene || (hueco !== '1' && hueco !== '2')) return <Navigate to="/semana" replace />;
   return <Selector lunes={lunes} hueco={hueco} />;
 }
 
@@ -27,14 +27,13 @@ function Selector({ lunes, hueco }: { lunes: string; hueco: Hueco }) {
   const [consulta, setConsulta] = useState('');
   const ocupado = useRef(false);
 
-  // Se vuelve a donde se estaba: atrás si se vino de Semana y, si no, a la semana de este lunes.
+  // Se vuelve a donde se estaba: atrás si se vino de Semana y, si no, a La que viene.
   const volver = () => {
     if ((location.state as { desde?: string } | null)?.desde === 'semana') {
       navigate(-1);
       return;
     }
-    const ver = lunes === sumarDias(lunesDe(hoyEnMadrid(new Date())), 7) ? 'viene' : 'esta';
-    navigate(`/semana?ver=${ver}`, { replace: true });
+    navigate('/semana?ver=viene', { replace: true });
   };
 
   const elegir = async (recetaId: string) => {
