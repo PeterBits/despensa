@@ -9,7 +9,8 @@ import { ponerPlato, useSemana } from '../datos/semana';
 import '../estilos/recetas.css';
 
 // Un lunes de verdad: YYYY-MM-DD que sobrevive a una vuelta por el calendario (el 31 de febrero no).
-const esFecha = (texto: string) => /^\d{4}-\d{2}-\d{2}$/.test(texto) && sumarDias(texto, 0) === texto;
+const esFecha = (texto: string) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(texto) && !Number.isNaN(Date.parse(`${texto}T12:00:00Z`)) && sumarDias(texto, 0) === texto;
 
 export function ElegirReceta() {
   const { lunes = '', hueco = '' } = useParams();

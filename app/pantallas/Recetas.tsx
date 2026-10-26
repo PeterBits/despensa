@@ -1,12 +1,12 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useNavigationType } from 'react-router';
 import { hoyEnMadrid, lunesDe, sumarDias } from '../../shared/fechas';
-import { formatearNota } from '../../shared/notas';
 import { coincide, formatearMinutos, fraseTipos } from '../../shared/recetas';
 import type { Dia } from '../../shared/semana';
 import { BarraPestanas } from '../componentes/BarraPestanas';
 import { DiasDelPlato } from '../componentes/DiasDelPlato';
 import { FilaReceta } from '../componentes/FilaReceta';
+import { useGuiaLarga } from '../componentes/useGuiaLarga';
 import { useRecetas, type ResumenReceta } from '../datos/recetas';
 import { useSemana, type PlatoEnSemana, type VistaSemana } from '../datos/semana';
 import '../estilos/recetas.css';
@@ -38,12 +38,14 @@ function FilaSemana({
   alAbrir: () => void;
 }) {
   const { receta, dias, vaAActivos } = plato;
+  const linea = useRef<HTMLSpanElement>(null);
+  useGuiaLarga(linea, receta !== null, receta?.nombre ?? '');
   if (!receta) return null;
   const detalle = [hoy ? 'Hoy' : '', fraseTipos(receta.tipos), formatearMinutos(minutos)].filter((p) => p !== '').join(' · ');
   return (
     <li>
       <Link className="row" to={`/recetas/${receta.id}`} state={{ desde: 'indice' }} onClick={alAbrir}>
-        <span className="line">
+        <span className="line" ref={linea}>
           <span className="name">{receta.nombre}</span>
           <span className="leader" aria-hidden="true" />
           <span className={`fig${dias.length === 0 ? ' none' : vaAActivos ? ' on' : ''}`}>

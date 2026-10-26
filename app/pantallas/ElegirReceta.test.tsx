@@ -80,8 +80,8 @@ describe('ElegirReceta', () => {
     expect(await screen.findByText('Semana de prueba')).toBeInTheDocument();
   });
 
-  it('un lunes que no existe redirige a Semana', async () => {
-    pintar(['/semana/elegir/2026-02-31/1']);
+  it.each(['2026-02-31', '2026-02-32', '2026-13-01', '2026-00-10'])('un lunes imposible (%s) redirige a Semana', async (lunes) => {
+    pintar([`/semana/elegir/${lunes}/1`]);
     expect(await screen.findByText('Semana de prueba')).toBeInTheDocument();
   });
 });
