@@ -318,11 +318,39 @@ Del plan 2 (recetas), 22/10/2026:
     borra la anterior: la limpieza de fotos sin receta va en el plan 6.
 23. Borrar una receta se puede deshacer, como cualquier otro cambio.
 
+Del plan 3 (semana), 26/10/2026. El usuario pidió continuar sin preguntas; son el supuesto
+principal de cada punto:
+
+24. Semana se abre en "Esta semana" de lunes a jueves y en "La que viene" de viernes a
+    domingo (el supuesto del apartado 14). El segmento elegido va en la dirección
+    (`/semana?ver=viene`), así se conserva al volver de elegir una receta.
+25. La propuesta no se guarda hasta que alguien toca la semana, y cada gesto escribe solo lo
+    que toca (la semana, un día o un hueco) con ids fijos sacados del lunes. Los dos móviles
+    escriben las mismas filas y nunca hay dos semanas para el mismo lunes. "Hacer la lista"
+    fija el menú y los siete días.
+26. Una semana nueva copia los días activos y el domingo de la última semana guardada; sin
+    ninguna, L, X y V activos y el domingo fuera.
+27. La propuesta, las sugerencias y "Hace N semanas" se calculan respecto al lunes de la
+    semana que se planifica, y solo con lo anterior a ese lunes: lo apuntado en el Registro y,
+    en los días sin registro, lo planificado. Así el menú de una semana no cambia a mitad de
+    semana.
+28. Con recetas de un solo tipo, los dos huecos se llenan con ese tipo. Un hueco sin receta
+    posible, o cuya receta se borró, queda "Sin plato".
+29. "Hace tiempo que no coméis" enseña dos recetas: la mejor energética y la mejor que no lo
+    es, fuera del menú. Una receta sin notas dice "Por probar".
+30. Cada plato del menú tiene su "Elegir otra receta", que abre el recetario en modo elegir
+    para ese hueco, sin las recetas que ya están en el menú.
+31. La lista sabe de qué recetas salió (columna `semana.lista`). Cambiar un plato pide
+    actualizarla; cambiar los días no, porque cada receta se cocina una vez.
+32. "Hacer la lista" rehace desde cero los productos que salen de recetas; "Actualizar la
+    lista" conserva el estado de los que siguen. Lo añadido a mano no se toca nunca, aunque
+    se llame igual que un ingrediente.
+33. Ajustes se abre desde Semana. Invitar usa la hoja de compartir del iPhone y, si no la
+    hay, copia el enlace. Cerrar sesión envía antes lo pendiente.
+34. La versión que enseña Ajustes es la de `package.json`: 0.3.0 con este plan.
+
 ## 14. Sigue abierto (no bloquea el plan)
 
-- Qué se ve al abrir Semana entre semana: la semana en curso, con lo que toca hoy, o la
-  siguiente, la que se está planificando. Supuesto: la semana en curso hasta el jueves y la
-  siguiente desde el viernes. Se puede cambiar de una a otra con el control segmentado.
 - Temporizadores en los pasos con tiempo y cambiar las raciones de una receta. Fuera de la
   primera versión.
 
