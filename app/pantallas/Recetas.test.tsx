@@ -150,6 +150,13 @@ describe('Recetas, la semana', () => {
     expect(arroz.querySelector('.past')).toBeNull();
   });
 
+  it('no pinta la lista hasta tener las dos semanas, para que "Todas" no baje después', async () => {
+    pintar();
+    await screen.findByRole('heading', { name: /Todas/ });
+    expect(screen.getByRole('heading', { name: 'Esta semana' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'La que viene' })).toBeInTheDocument();
+  });
+
   it('al buscar desaparecen las secciones de la semana', async () => {
     const usuario = userEvent.setup();
     pintar();

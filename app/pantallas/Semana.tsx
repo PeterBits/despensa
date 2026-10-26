@@ -96,8 +96,33 @@ function FilaPlato({
   );
 }
 
+// Sin recetas no hay semana que proponer: una frase y el botón principal, en cualquiera de los dos segmentos.
+function SinRecetas() {
+  return (
+    <div>
+      <p className="vacio-todo">
+        Todavía no hay recetas. Con una que lleve hidratos y otra que no, la semana se propone sola.
+      </p>
+      <Link className="cta solo" to="/recetas/nueva">
+        <Mas />
+        Nueva receta
+      </Link>
+    </div>
+  );
+}
+
 // Esta semana, solo para mirar: los días que ya pasaron van tachados y no hay acciones sobre los platos.
 function EstaSemana({ vista, hoy, titulo }: { vista: VistaSemana; hoy: string; titulo: string }) {
+  if (!vista.hayRecetas) {
+    return (
+      <>
+        <header>
+          <h1>{titulo}</h1>
+        </header>
+        <SinRecetas />
+      </>
+    );
+  }
   const pasados = new Set(vista.dias.filter((d) => d.fecha < hoy).map((d) => d.dia));
   const hoyEnLaSemana = vista.dias.find((d) => d.fecha === hoy);
   const domingo = vista.dias.find((d) => d.dia === 'D')!;
@@ -293,19 +318,7 @@ function LaQueViene({ vista }: { vista: VistaSemana }) {
     }
   };
 
-  if (!vista.hayRecetas) {
-    return (
-      <div>
-        <p className="vacio-todo">
-          Todavía no hay recetas. Con una que lleve hidratos y otra que no, la semana se propone sola.
-        </p>
-        <Link className="cta solo" to="/recetas/nueva">
-          <Mas />
-          Nueva receta
-        </Link>
-      </div>
-    );
-  }
+  if (!vista.hayRecetas) return <SinRecetas />;
 
   return (
     <>

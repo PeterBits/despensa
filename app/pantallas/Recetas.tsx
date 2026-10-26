@@ -130,7 +130,8 @@ export function Recetas() {
     alAbrirReceta = null;
   }, []);
 
-  const listo = recetas !== undefined;
+  // Nada bajo el título se pinta hasta tener también las dos semanas: si no, aparecerían encima de "Todas" y moverían lo restaurado.
+  const listo = recetas !== undefined && esta !== undefined && viene !== undefined;
   useLayoutEffect(() => {
     if (listo && recuerdo && recuerdo.scroll > 0) window.scrollTo(0, recuerdo.scroll);
   }, [listo, recuerdo]);

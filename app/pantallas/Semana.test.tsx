@@ -222,4 +222,18 @@ describe('Semana, esta semana', () => {
     expect(esta.getByText('Sin plato').closest('li')).toHaveTextContent(/Sin plato\s*M · J · S/);
     expect(esta.getByText('Sin plato').closest('li')!.querySelector('button, a')).toBeNull();
   });
+
+  it('sin recetas, Esta semana dice lo mismo que La que viene y no pinta tira ni menú', async () => {
+    abrirCopia(crypto.randomUUID());
+    vi.setSystemTime(new Date('2026-10-26T10:00:00+01:00'));
+    pintar();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Del 26 oct al 1 nov' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Esta semana' })).toHaveAttribute('aria-selected', 'true');
+    const esta = within(document.getElementById('p-esta')!);
+    expect(esta.getByText(/Todavía no hay recetas/)).toBeInTheDocument();
+    expect(esta.getByRole('link', { name: 'Nueva receta' })).toHaveAttribute('href', '/recetas/nueva');
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(esta.queryByText(/Hoy toca/)).not.toBeInTheDocument();
+    expect(esta.queryByRole('heading', { name: 'Menú' })).not.toBeInTheDocument();
+  });
 });
