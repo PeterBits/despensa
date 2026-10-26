@@ -161,13 +161,12 @@ export function componerSemana(lunes: string, f: FilasDeLaSemana): VistaSemana {
     const viejo = fila?.sustituye_a ? recetas.get(fila.sustituye_a) : undefined;
     return { hueco, receta: receta ? delMenu(receta) : null, viejo };
   });
-  const presentes = elegidos.filter((e) => e.receta !== null);
   const reparto = repartir(
-    presentes.map((e) => ({ id: e.hueco, energetico: e.receta!.energetica })),
+    elegidos.map((e) => ({ id: e.hueco, energetico: e.receta?.energetica === true })),
     DIAS.filter((_, i) => dias[i]!.activo),
     DIAS.filter((_, i) => dias[i]!.fuera),
   );
-  const huecoActivos = (presentes.find((e) => e.receta!.energetica) ?? presentes[0])?.hueco;
+  const huecoActivos = (elegidos.find((e) => e.receta?.energetica) ?? elegidos[0])?.hueco;
 
   const menu = elegidos.map(({ hueco, receta, viejo }): PlatoEnSemana => {
     const lleva = DIAS.filter((d) => reparto[d] === hueco);

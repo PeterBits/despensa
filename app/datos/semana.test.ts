@@ -66,10 +66,25 @@ describe('la semana en la copia local', () => {
     await ponerPlato(LUNES, '2', 'ejemplo-pisto');
     await borrarReceta('ejemplo-pisto');
     const s = await leerSemana(LUNES);
-    expect(s.menu[1]).toMatchObject({ receta: null, dias: [] });
+    expect(s.menu[1]).toMatchObject({ receta: null, dias: ['M', 'J', 'S'] });
     expect(s.menu[0]!.dias).toEqual(['L', 'X', 'V']);
     await hacerLista(LUNES);
     expect((await copia().producto.toArray()).every((p) => p.origen === 'lentejas')).toBe(true);
+  });
+
+  it('un hueco vacío sin energética guarda los días activos', async () => {
+    abrirCopia(crypto.randomUUID());
+    for (const clave of ['merluza', 'pisto']) {
+      await guardarReceta(RECETAS_DE_EJEMPLO.find((r) => r.id === `ejemplo-${clave}`)!);
+    }
+    await ponerPlato(LUNES, '1', 'ejemplo-pisto');
+    await ponerPlato(LUNES, '2', 'ejemplo-merluza');
+    await borrarReceta('ejemplo-pisto');
+    const s = await leerSemana(LUNES);
+    expect(s.menu.map((p) => [p.receta?.id ?? null, p.dias, p.vaAActivos])).toEqual([
+      [null, ['L', 'X', 'V'], true],
+      ['ejemplo-merluza', ['M', 'J', 'S'], false],
+    ]);
   });
 
   it('hacer la lista escribe los productos y fija el menú', async () => {
