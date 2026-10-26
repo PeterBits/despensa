@@ -60,6 +60,8 @@ export const TABLAS_SYNC = {
   nota: z.strictObject({
     id: idTexto, comida_id: idTexto, miembro_id: idTexto.optional(), valor: z.number().int().min(1).max(10),
   }),
+  // origen: null si se añadió a mano; si no, los nombres cortos de sus recetas unidos por " · " ("lentejas · merluza").
+  // El 'a mano' de las pruebas del Worker es solo un dato de prueba.
   producto: z.strictObject({
     id: idTexto, nombre: texto, cantidad: textoOpcional, seccion, origen: textoOpcional,
     estado: z.enum(['pendiente', 'carro', 'casa']).default('pendiente'), cogido_por: textoOpcional,

@@ -114,12 +114,12 @@ sin conexión), `hogar_id`, `version` (secuencia del hogar en la última escritu
 | `receta` | id, nombre, corto (nombre corto para el origen en la lista: "lentejas"), raciones, minutos, tipos (calculados de sus ingredientes), foto_key, notas |
 | `ingrediente` | id, receta_id, orden, nombre, cantidad, unidad, tipo (hidratos, proteína, grasas, fibra o ninguno), seccion, a_la_lista (no para básicos como sal, aceite o agua), compra (texto opcional de lo que se compra: "1 cabeza", "1 bote") |
 | `paso` | id, receta_id, orden, texto (con marcas `{texto\|ingrediente_id}`), minutos |
-| `semana` | id, lunes (fecha), propuesta_aceptada |
+| `semana` | id, lunes (fecha), propuesta_aceptada, lista (ids de las recetas del menú al hacer la lista) |
 | `semana_dia` | semana_id, dia (0–6), activo, fuera |
 | `semana_plato` | semana_id, hueco, receta_id, sustituye_a (para "En lugar de") |
 | `comida` | id, fecha, receta_id o texto, fuera, planificada_receta_id |
 | `nota` | comida_id, miembro_id, valor (1–10) |
-| `producto` | id, nombre, cantidad, seccion, origen (recetas o "a mano"), estado (pendiente, carro, casa), cogido_por |
+| `producto` | id, nombre, cantidad, seccion, origen (`null`: añadido a mano; si no, los nombres cortos de sus recetas unidos por " · ": "lentejas · merluza"), estado (pendiente, carro, casa), cogido_por |
 | `frecuente` | nombre, seccion, cantidad_habitual, veces |
 | `reto` | id, valor, caduca (retos de passkeys de un solo uso; sin hogar) |
 | `op_vista` | id, hogar_id, creada (operaciones ya aplicadas, para no repetirlas) |
@@ -250,7 +250,8 @@ configuración.
 4. Activar R2: avisa de que pide tarjeta, de lo que cubre el plan gratuito y de cómo poner una
    alerta de gasto.
 5. Crear el bucket.
-6. Aplicar las migraciones.
+6. Aplicar las migraciones, siempre antes de desplegar el Worker: el código nuevo cuenta con
+   ellas (`/api/cambios` lee `semana.lista`, que añade la migración 0002).
 7. Configurar los valores del entorno: el dominio, que las passkeys necesitan. La app se
    queda en su dirección `*.workers.dev` **[Decisión de Claude]**; un dominio propio solo
    conviene ponerlo antes de empezar a usarla, porque las passkeys y la app instalada van
