@@ -1,9 +1,13 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Link, useNavigationType } from 'react-router';
+import { hoyEnMadrid, lunesDe, sumarDias } from '../../shared/fechas';
 import { formatearNota } from '../../shared/notas';
 import { coincide, formatearMinutos, fraseTipos } from '../../shared/recetas';
+import type { Dia } from '../../shared/semana';
 import { BarraPestanas } from '../componentes/BarraPestanas';
+import { DiasDelPlato } from '../componentes/DiasDelPlato';
 import { useRecetas, type ResumenReceta } from '../datos/recetas';
+import { useSemana, type PlatoEnSemana, type VistaSemana } from '../datos/semana';
 import '../estilos/recetas.css';
 
 // Lo que el índice recuerda al abrir una receta: la posición y la búsqueda. Solo se recupera al volver
@@ -42,8 +46,82 @@ function Fila({ receta, alAbrir }: { receta: ResumenReceta; alAbrir: () => void 
   );
 }
 
+// Un plato de la semana en el índice: sus días a la derecha y, si es el de hoy, "Hoy" antes del detalle.
+function FilaSemana({
+  plato,
+  minutos,
+  hoy,
+  pasados,
+  alAbrir,
+}: {
+  plato: PlatoEnSemana;
+  minutos: number | null;
+  hoy: boolean;
+  pasados?: Set<Dia>;
+  alAbrir: () => void;
+}) {
+  const { receta, dias, vaAActivos } = plato;
+  if (!receta) return null;
+  const detalle = [hoy ? 'Hoy' : '', fraseTipos(receta.tipos), formatearMinutos(minutos)].filter((p) => p !== '').join(' · ');
+  return (
+    <li>
+      <Link className="row" to={`/recetas/${receta.id}`} state={{ desde: 'indice' }} onClick={alAbrir}>
+        <span className="line">
+          <span className="name">{receta.nombre}</span>
+          <span className="leader" aria-hidden="true" />
+          <span className={`fig${dias.length === 0 ? ' none' : vaAActivos ? ' on' : ''}`}>
+            <DiasDelPlato dias={dias} pasados={pasados} />
+          </span>
+        </span>
+        {detalle !== '' && <span className="from">{detalle}</span>}
+      </Link>
+    </li>
+  );
+}
+
+// Una semana del menú encima de "Todas": sin platos (o sin que la copia haya respondido) no hay sección.
+function SeccionSemana({
+  titulo,
+  vista,
+  recetas,
+  hoy,
+  alAbrir,
+}: {
+  titulo: string;
+  vista: VistaSemana | undefined;
+  recetas: ResumenReceta[];
+  hoy?: string;
+  alAbrir: () => void;
+}) {
+  const platos = vista?.menu.filter((p) => p.receta !== null) ?? [];
+  if (!vista || platos.length === 0) return null;
+  const diaDeHoy = hoy === undefined ? undefined : vista.dias.find((d) => d.fecha === hoy && !d.fuera)?.dia;
+  const pasados = hoy === undefined ? undefined : new Set(vista.dias.filter((d) => d.fecha < hoy).map((d) => d.dia));
+  return (
+    <>
+      <h2 className="sec">{titulo}</h2>
+      <ul className="menu">
+        {platos.map((p) => (
+          <FilaSemana
+            key={p.hueco}
+            plato={p}
+            minutos={recetas.find((r) => r.id === p.receta!.id)?.minutos ?? null}
+            hoy={diaDeHoy !== undefined && p.dias.includes(diaDeHoy)}
+            pasados={pasados}
+            alAbrir={alAbrir}
+          />
+        ))}
+      </ul>
+    </>
+  );
+}
+
 export function Recetas() {
   const recetas = useRecetas();
+  const hoy = hoyEnMadrid(new Date());
+  const lunesEsta = lunesDe(hoy);
+  const esta = useSemana(lunesEsta);
+  const viene = useSemana(sumarDias(lunesEsta, 7));
   const tipoNavegacion = useNavigationType();
   // Se lee una vez, al montar (y es idempotente para StrictMode): ¿venimos de una receta con el botón atrás?
   const [recuerdo] = useState(() => (tipoNavegacion === 'POP' ? alAbrirReceta : null));
@@ -60,6 +138,9 @@ export function Recetas() {
   const vacio = listo && recetas.length === 0;
   const buscando = consulta.trim() !== '';
   const mostradas = !listo ? [] : buscando ? recetas.filter((r) => coincide(r, consulta)) : recetas;
+  const recordar = () => {
+    alAbrirReceta = { scroll: window.scrollY, consulta };
+  };
   const entra = listo && recuerdo !== null && !sinMovimiento();
 
   return (
@@ -109,6 +190,12 @@ export function Recetas() {
                 onChange={(e) => setConsulta(e.target.value)}
               />
             </form>
+            {!buscando && (
+              <>
+                <SeccionSemana titulo="Esta semana" vista={esta} recetas={recetas} hoy={hoy} alAbrir={recordar} />
+                <SeccionSemana titulo="La que viene" vista={viene} recetas={recetas} alAbrir={recordar} />
+              </>
+            )}
             <h2 className="sec">
               {buscando ? 'Resultados' : 'Todas'} <small>{mostradas.length}</small>
             </h2>
@@ -118,9 +205,7 @@ export function Recetas() {
                   <Fila
                     key={r.id}
                     receta={r}
-                    alAbrir={() => {
-                      alAbrirReceta = { scroll: window.scrollY, consulta };
-                    }}
+                    alAbrir={recordar}
                   />
                 ))}
               </ul>

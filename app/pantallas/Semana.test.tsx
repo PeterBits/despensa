@@ -46,7 +46,10 @@ const pintar = (ruta = '/semana') =>
     </MemoryRouter>,
   );
 
-const fila = (nombre: string) => screen.getByText(nombre).closest('li');
+// Los dos paneles llevan platos con los mismos nombres: cada fila se busca en el suyo.
+const filaEn = (panel: string, nombre: string) =>
+  within(document.getElementById(panel)!).getByText(nombre).closest('li');
+const fila = (nombre: string) => filaEn('p-viene', nombre);
 
 describe('Semana, la que viene', () => {
   it('el viernes abre La que viene con la propuesta', async () => {
@@ -170,5 +173,53 @@ describe('Semana, la que viene', () => {
     pintar('/semana?ver=viene');
     expect(await screen.findByRole('tab', { name: 'La que viene' })).toHaveAttribute('aria-selected', 'true');
     await act(async () => {});
+  });
+});
+
+describe('Semana, esta semana', () => {
+  beforeEach(async () => {
+    await ponerPlato('2026-10-26', '1', 'ejemplo-lentejas');
+    await ponerPlato('2026-10-26', '2', 'ejemplo-merluza');
+  });
+
+  it('un miércoles abre Esta semana con lo que toca hoy y los días pasados tachados', async () => {
+    vi.setSystemTime(new Date('2026-10-28T10:00:00+01:00'));
+    pintar();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Del 26 oct al 1 nov' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Esta semana' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText(/Hoy toca/)).toHaveTextContent('Hoy toca lentejas estofadas');
+    expect(screen.getByRole('img', { name: 'lunes 26, activo' })).toHaveClass('past');
+    expect(screen.getByRole('img', { name: 'miércoles 28, activo' })).toHaveClass('is-today');
+    expect(screen.getByRole('img', { name: 'jueves 29' })).not.toHaveClass('past');
+    expect(screen.queryByRole('button', { name: /lista de la compra/ })).not.toBeInTheDocument();
+    const lentejas = filaEn('p-esta', 'Lentejas estofadas')!;
+    expect(lentejas.querySelector('.dl.past')).toHaveTextContent('L');
+    expect(lentejas.querySelectorAll('.dl.past')).toHaveLength(1);
+    const merluza = filaEn('p-esta', 'Merluza en salsa verde')!;
+    expect(merluza).toHaveTextContent(/verde\s*M · J · S/);
+    expect(merluza.querySelectorAll('.dl.past')).toHaveLength(1);
+    // Es de solo lectura: sin sugerencias ni acciones sobre los platos.
+    expect(document.getElementById('p-esta')!.querySelector('button, a')).toBeNull();
+  });
+
+  it('el domingo de esta semana se come fuera', async () => {
+    vi.setSystemTime(new Date('2026-11-01T12:00:00+01:00'));
+    pintar('/semana?ver=esta');
+    expect(await screen.findByText('Hoy coméis fuera')).toBeInTheDocument();
+    const domingo = within(document.getElementById('p-esta')!).getByText('Domingo').closest('li')!;
+    expect(domingo).toHaveTextContent(/Domingo\s*fuera/);
+    expect(screen.getByRole('img', { name: 'domingo 1, fuera' })).toHaveClass('is-today');
+  });
+
+  it('un hueco vacío enseña "Sin plato" con sus días y sin acciones, y hoy no dice nada', async () => {
+    await borrarReceta('ejemplo-merluza');
+    vi.setSystemTime(new Date('2026-10-29T10:00:00+01:00'));
+    pintar('/semana?ver=esta');
+    await screen.findByRole('heading', { level: 1, name: 'Del 26 oct al 1 nov' });
+    const esta = within(document.getElementById('p-esta')!);
+    expect(esta.queryByText(/Hoy toca/)).not.toBeInTheDocument();
+    expect(esta.queryByText(/Hoy coméis fuera/)).not.toBeInTheDocument();
+    expect(esta.getByText('Sin plato').closest('li')).toHaveTextContent(/Sin plato\s*M · J · S/);
+    expect(esta.getByText('Sin plato').closest('li')!.querySelector('button, a')).toBeNull();
   });
 });

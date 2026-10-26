@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router';
 import { hoyEnMadrid, lunesDe, rangoDeFechas, sumarDias } from '../../shared/fechas';
 import { formatearNota } from '../../shared/notas';
 import { fraseTipos } from '../../shared/recetas';
-import { NOMBRE_DIA, semanaQueSeAbre, type Hueco } from '../../shared/semana';
+import { NOMBRE_DIA, semanaQueSeAbre, type Dia, type Hueco } from '../../shared/semana';
 import { BarraPestanas } from '../componentes/BarraPestanas';
 import { DiasDelPlato } from '../componentes/DiasDelPlato';
 import {
@@ -38,6 +38,16 @@ const Hecho = () => (
   </svg>
 );
 
+// Los días de un plato a la derecha de su fila: en naranja si va a los días activos, apagados si no tiene ninguno.
+function DiasDeLaFila({ plato, pasados }: { plato: PlatoEnSemana; pasados?: Set<Dia> }) {
+  const { dias, vaAActivos } = plato;
+  return (
+    <span className={`fig${dias.length === 0 ? ' none' : vaAActivos ? ' on' : ''}`}>
+      <DiasDelPlato dias={dias} pasados={pasados} />
+    </span>
+  );
+}
+
 function FilaPlato({
   plato,
   tachando,
@@ -49,12 +59,8 @@ function FilaPlato({
   entrando: boolean;
   alDeshacer: (recetaId: string) => void;
 }) {
-  const { receta, enLugarDe, dias, vaAActivos } = plato;
-  const fig = (
-    <span className={`fig${dias.length === 0 ? ' none' : vaAActivos ? ' on' : ''}`}>
-      <DiasDelPlato dias={dias} />
-    </span>
-  );
+  const { receta, enLugarDe, vaAActivos } = plato;
+  const fig = <DiasDeLaFila plato={plato} />;
   if (!receta) {
     return (
       <li className="item hueco">
@@ -87,6 +93,85 @@ function FilaPlato({
         </p>
       )}
     </li>
+  );
+}
+
+// Esta semana, solo para mirar: los días que ya pasaron van tachados y no hay acciones sobre los platos.
+function EstaSemana({ vista, hoy, titulo }: { vista: VistaSemana; hoy: string; titulo: string }) {
+  const pasados = new Set(vista.dias.filter((d) => d.fecha < hoy).map((d) => d.dia));
+  const hoyEnLaSemana = vista.dias.find((d) => d.fecha === hoy);
+  const domingo = vista.dias.find((d) => d.dia === 'D')!;
+  const deHoy = hoyEnLaSemana && !hoyEnLaSemana.fuera ? vista.menu.find((p) => p.dias.includes(hoyEnLaSemana.dia)) : undefined;
+  const nombreDeHoy = deHoy?.receta?.nombre;
+
+  return (
+    <>
+      <header>
+        <h1>{titulo}</h1>
+        {hoyEnLaSemana?.fuera && <p className="today">Hoy coméis fuera</p>}
+        {nombreDeHoy && (
+          <p className="today">
+            Hoy toca <strong>{nombreDeHoy.charAt(0).toLowerCase() + nombreDeHoy.slice(1)}</strong>
+          </p>
+        )}
+      </header>
+      <div className="days" role="group" aria-label="Días de esta semana">
+        {vista.dias.map(({ dia, fecha, activo, fuera }) => (
+          <div
+            key={dia}
+            role="img"
+            className={`day${fuera ? ' fuera' : ''}${activo ? ' on' : ''}${fecha < hoy ? ' past' : ''}${fecha === hoy ? ' is-today' : ''}`}
+            aria-label={`${NOMBRE_DIA[dia]} ${Number(fecha.slice(8))}${fuera ? ', fuera' : activo ? ', activo' : ''}`}
+          >
+            <b aria-hidden="true">{dia}</b>
+            <span aria-hidden="true">{Number(fecha.slice(8))}</span>
+          </div>
+        ))}
+      </div>
+      <p className="legend">
+        <i />
+        Días activos
+      </p>
+
+      <h2>Menú</h2>
+      <ul className="menu">
+        {vista.menu.map((plato) => {
+          const { receta, vaAActivos } = plato;
+          const fig = <DiasDeLaFila plato={plato} pasados={pasados} />;
+          if (!receta) {
+            return (
+              <li key={plato.hueco} className="item hueco">
+                <div className="line">
+                  <span className="name">Sin plato</span>
+                  <span className="leader" aria-hidden="true" />
+                  {fig}
+                </div>
+              </li>
+            );
+          }
+          const detalle = [fraseTipos(receta.tipos), vaAActivos ? 'va a los días activos' : ''].filter((p) => p !== '').join(' · ');
+          return (
+            <li key={plato.hueco} className="item">
+              <div className="line">
+                <span className="name">{receta.nombre}</span>
+                <span className="leader" aria-hidden="true" />
+                {fig}
+              </div>
+              <p className="meta">{detalle}</p>
+            </li>
+          );
+        })}
+        {domingo.fuera && (
+          <li className="item out">
+            <div className="line">
+              <span className="name">Domingo</span>
+              <span className="leader" aria-hidden="true" />
+              <span className="fig">fuera</span>
+            </div>
+          </li>
+        )}
+      </ul>
+    </>
   );
 }
 
@@ -319,6 +404,7 @@ export function Semana() {
   const lunesEsta = lunesDe(hoy);
   const lunesViene = sumarDias(lunesEsta, 7);
   const vista = useSemana(lunesViene);
+  const vistaEsta = useSemana(lunesEsta);
 
   const elegir = (segmento: Segmento) => setParams({ ver: segmento }, { replace: true });
 
@@ -350,13 +436,11 @@ export function Semana() {
           </div>
         </div>
 
-        {/* Mientras la copia no responde solo se pinta el segmentado. Esta semana llega con su vista: su panel solo lleva el título. */}
-        {vista && (
+        {/* Mientras la copia no responde solo se pinta el segmentado. */}
+        {vista && vistaEsta && (
           <>
             <section id="p-esta" role="tabpanel" aria-labelledby="t-esta" hidden={ver !== 'esta'}>
-              <header>
-                <h1>{rangoDeFechas(lunesEsta)}</h1>
-              </header>
+              <EstaSemana vista={vistaEsta} hoy={hoy} titulo={rangoDeFechas(lunesEsta)} />
             </section>
             <section id="p-viene" role="tabpanel" aria-labelledby="t-viene" hidden={ver !== 'viene'}>
               <header>

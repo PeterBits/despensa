@@ -24,8 +24,16 @@
 .line{display:flex;align-items:baseline;align-items:last baseline;gap:10px}
 .leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule);transform:translateY(-5px)}
 .fig{font-weight:600;white-space:nowrap}
+.fig.on{color:var(--tint-ink)}
+.fig.none{color:var(--ink-3);font-weight:500}
+.dl{display:inline-block}
+.dl.past{position:relative;color:var(--ink-3)}
+.dl.past::after{content:"";position:absolute;left:-4px;right:-4px;top:52%;height:1.5px;border-radius:1px;background:currentColor}
 .fig .lab{font-size:13px;font-weight:500;color:var(--ink-2);margin-right:5px}
 .from{display:block;margin-top:2px;font-size:13px;font-weight:500;color:var(--ink-3)}
+/* Los platos de la semana se escriben como en Semana; "Todas" baja un paso porque son decenas */
+.menu .name{font-size:19px;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.menu .from{margin-top:4px;font-size:15px;font-weight:400;color:var(--ink-2)}
 .vacio{margin:16px 20px 0;font-size:15px;color:var(--ink-2)}
 
 /* Índice vacío: una frase y el botón principal, sin buscador ni secciones */

@@ -1,11 +1,13 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Link, MemoryRouter, Route, Routes } from 'react-router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LineaEstado } from '../componentes/LineaEstado';
 import { ponerAviso } from '../datos/avisos';
 import { abrirCopia } from '../datos/local';
 import { borradorVacio, guardarReceta, type BorradorReceta } from '../datos/recetas';
+import { RECETAS_DE_EJEMPLO } from '../datos/semilla';
+import { ponerPlato } from '../datos/semana';
 import { escribir } from '../datos/sync';
 import { Recetas } from './Recetas';
 
@@ -46,14 +48,18 @@ const pintar = () =>
     </MemoryRouter>,
   );
 
+// "Todas" va debajo de las secciones de la semana, que repiten platos: las pruebas del recetario buscan ahí.
+const todas = () => within(screen.getByRole('heading', { name: /Todas/ }).nextElementSibling as HTMLElement);
+
 describe('Recetas', () => {
   it('lista las recetas por nombre con su nota, y sin nota no pinta cifra', async () => {
     await sembrar();
     pintar();
-    const lentejas = await screen.findByRole('link', { name: /Lentejas estofadas/ });
+    await screen.findByRole('heading', { name: /Todas/ });
+    const lentejas = todas().getByRole('link', { name: /Lentejas estofadas/ });
     expect(lentejas).toHaveAttribute('href', expect.stringMatching(/^\/recetas\/.+/));
     expect(lentejas).toHaveTextContent(/nota\s*8/);
-    expect(screen.getByRole('link', { name: /Merluza/ })).not.toHaveTextContent(/nota/);
+    expect(todas().getByRole('link', { name: /Merluza/ })).not.toHaveTextContent(/nota/);
     expect(screen.getByRole('heading', { name: /Todas/ })).toHaveTextContent('2');
     // Con recetas, "Nueva receta" vive en la fila de arriba y es la única.
     expect(screen.getAllByRole('link', { name: 'Nueva receta' })).toHaveLength(1);
@@ -108,6 +114,52 @@ function pintarAvisos(inicial: string) {
     </MemoryRouter>,
   );
 }
+
+describe('Recetas, la semana', () => {
+  beforeEach(async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-28T10:00:00+01:00'));
+    for (const clave of ['lentejas', 'merluza', 'arroz', 'pisto']) {
+      await guardarReceta(RECETAS_DE_EJEMPLO.find((r) => r.id === `ejemplo-${clave}`)!);
+    }
+    await escribir('comida', { id: 'c-arroz', fecha: '2026-10-20', receta_id: 'ejemplo-arroz' });
+    await escribir('comida', { id: 'c-lentejas', fecha: '2026-09-28', receta_id: 'ejemplo-lentejas' });
+    await escribir('comida', { id: 'c-pisto', fecha: '2026-10-05', receta_id: 'ejemplo-pisto' });
+    await ponerPlato('2026-10-26', '1', 'ejemplo-lentejas');
+    await ponerPlato('2026-10-26', '2', 'ejemplo-merluza');
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it('enseña Esta semana y La que viene encima de Todas, y el plato de hoy lleva "Hoy"', async () => {
+    pintar();
+    await screen.findByRole('heading', { level: 2, name: 'La que viene' });
+    const titulos = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent?.replace(/\d+$/, '').trim());
+    expect(titulos).toEqual(['Esta semana', 'La que viene', 'Todas']);
+
+    const esta = within(screen.getByRole('heading', { name: 'Esta semana' }).nextElementSibling as HTMLElement);
+    const lentejas = esta.getByRole('link', { name: /Lentejas estofadas/ });
+    expect(lentejas).toHaveAttribute('href', '/recetas/ejemplo-lentejas');
+    expect(lentejas).toHaveTextContent('Hoy');
+    expect(lentejas.querySelector('.dl.past')).toHaveTextContent('L');
+    expect(esta.getByRole('link', { name: /Merluza/ })).not.toHaveTextContent('Hoy');
+
+    const viene = within(screen.getByRole('heading', { name: 'La que viene' }).nextElementSibling as HTMLElement);
+    // La semana que viene propone otros platos, y ninguno lleva "Hoy" ni días tachados.
+    const arroz = viene.getByRole('link', { name: /Arroz con pollo/ });
+    expect(arroz).not.toHaveTextContent('Hoy');
+    expect(arroz.querySelector('.past')).toBeNull();
+  });
+
+  it('al buscar desaparecen las secciones de la semana', async () => {
+    const usuario = userEvent.setup();
+    pintar();
+    await screen.findByRole('heading', { level: 2, name: 'Esta semana' });
+    await usuario.type(screen.getByRole('searchbox', { name: 'Buscar receta' }), 'pisto');
+    expect(screen.queryByRole('heading', { name: 'Esta semana' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'La que viene' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Resultados/ })).toBeInTheDocument();
+  });
+});
 
 describe('LineaEstado', () => {
   it('el aviso con deshacer se queda hasta usarlo', async () => {

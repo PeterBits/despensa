@@ -16,6 +16,12 @@
 .semana .day.on span{background:var(--tint);color:var(--on-tint)}
 .semana .day:disabled{cursor:default}
 .semana .day.fuera span{color:var(--ink-3);font-weight:500}
+.semana .day.past span{color:var(--ink-3);font-weight:500;text-decoration:line-through;text-decoration-thickness:1.5px}
+.semana .day.past.on span{background:transparent;box-shadow:inset 0 0 0 2px var(--tint);color:var(--ink-3)}
+.semana .day.is-today span{box-shadow:inset 0 0 0 2px var(--ink)}
+.semana .day.is-today.on span{box-shadow:inset 0 0 0 2px var(--ink),inset 0 0 0 4px var(--ground)}
+.semana .today{margin-top:8px;font-size:17px;color:var(--ink-2)}
+.semana .today strong{color:var(--ink);font-weight:600}
 .semana .legend{display:flex;align-items:center;gap:8px;margin:12px 20px 0;font-size:13px;color:var(--ink-2)}
 .semana .legend i{width:10px;height:10px;border-radius:50%;background:var(--tint);flex:none}
 
