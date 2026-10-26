@@ -18,7 +18,8 @@
 /* El estado tras invitar y el error: el estado en 13px ink-2; el error, la frase de 13px peso 600 en tinta (sin rojo) */
 .config .estado{margin:10px 20px 0;font-size:13px;color:var(--ink-2);text-align:center}
 .config .error{margin:10px 20px 0;font-size:13px;font-weight:600}
-.config .estado:empty{display:none}
+/* Vacío se pliega sin salir del árbol de accesibilidad (con display:none, VoiceOver podría no anunciarlo al llenarse) */
+.config .estado:empty{margin:0;min-height:0}
 /* Sin hoja de compartir ni portapapeles: el enlace en un campo para copiarlo a mano */
 .config .campo{display:block;margin:16px 20px 0}
 .config .rot{display:block;margin-bottom:6px;font-size:13px;font-weight:500;color:var(--ink-2)}

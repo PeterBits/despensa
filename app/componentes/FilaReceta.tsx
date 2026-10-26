@@ -30,7 +30,8 @@ export function FilaReceta({ receta, como, alAbrir, alElegir }: Props) {
             <span className="leader" aria-hidden="true" />
             <span className="fig">
               <span className="lab">nota</span>
-              <span className="sr"> </span>
+              {/* Un separador que no empieza por espacio, como en las sugerencias de Semana: "nota: 8" */}
+              <span className="sr">: </span>
               {formatearNota(receta.media)}
             </span>
           </>

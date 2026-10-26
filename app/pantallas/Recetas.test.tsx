@@ -58,11 +58,20 @@ describe('Recetas', () => {
     await screen.findByRole('heading', { name: /Todas/ });
     const lentejas = todas().getByRole('link', { name: /Lentejas estofadas/ });
     expect(lentejas).toHaveAttribute('href', expect.stringMatching(/^\/recetas\/.+/));
-    expect(lentejas).toHaveTextContent(/nota\s*8/);
+    expect(lentejas).toHaveTextContent(/nota:\s*8/);
     expect(todas().getByRole('link', { name: /Merluza/ })).not.toHaveTextContent(/nota/);
     expect(screen.getByRole('heading', { name: /Todas/ })).toHaveTextContent('2');
     // Con recetas, "Nueva receta" vive en la fila de arriba y es la única.
     expect(screen.getAllByRole('link', { name: 'Nueva receta' })).toHaveLength(1);
+  });
+
+  it('el texto para lectores de pantalla nunca empieza por espacio', async () => {
+    await sembrar();
+    pintar();
+    await screen.findByRole('heading', { name: /Todas/ });
+    const textos = [...document.querySelectorAll('.sr')].map((e) => e.textContent ?? '');
+    expect(textos.length).toBeGreaterThan(1);
+    expect(textos.filter((t) => t.startsWith(' '))).toEqual([]);
   });
 
   it('busca por ingrediente y dice cuando no hay ninguna', async () => {

@@ -84,7 +84,7 @@ export function BloqueIngrediente({
             {i.seccion} · {lista}
           </span>
           <Chevron />
-          <span className="sr"> (más opciones de {quien})</span>
+          <span className="sr">, más opciones de {quien}</span>
         </button>
         <button id={`quitar-${i.id}`} className="quiet" type="button" onClick={quitar}>
           Quitar <span className="sr">ingrediente {n}</span>

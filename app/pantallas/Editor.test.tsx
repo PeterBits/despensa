@@ -115,6 +115,17 @@ describe('Editor', () => {
     expect(screen.getByRole('button', { name: /más opciones de Salmón/ })).toHaveTextContent(/Despensa · va a la lista/);
   });
 
+  it('el texto para lectores de pantalla nunca empieza por espacio', async () => {
+    const usuario = userEvent.setup();
+    pintarEdicion(await guardarLentejas());
+    await screen.findByLabelText('Nombre');
+    await usuario.click(parte('Ingredientes'));
+    expect(screen.getByRole('button', { name: /más opciones de Lentejas pardinas/ })).toBeInTheDocument();
+    const textos = [...document.querySelectorAll('.sr')].map((e) => e.textContent ?? '');
+    expect(textos.length).toBeGreaterThan(1);
+    expect(textos.filter((t) => t.startsWith(' '))).toEqual([]);
+  });
+
   it('sin nombre no guarda y lo dice', async () => {
     const usuario = userEvent.setup();
     pintar();
