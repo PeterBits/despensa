@@ -115,7 +115,8 @@ describe('Semana, la que viene', () => {
   it('sin recetas lo dice y lleva a crear una', async () => {
     abrirCopia(crypto.randomUUID());
     pintar();
-    expect(await screen.findByText(/Todavía no hay recetas/)).toBeInTheDocument();
+    await screen.findByRole('heading', { level: 1, name: 'Del 2 al 8 nov' });
+    expect(within(document.getElementById('p-viene')!).getByText(/Todavía no hay recetas/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Nueva receta' })).toHaveAttribute('href', '/recetas/nueva');
     expect(screen.queryByRole('button', { name: /la lista de la compra/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Ver la lista' })).not.toBeInTheDocument();
