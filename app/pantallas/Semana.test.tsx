@@ -165,6 +165,34 @@ describe('Semana, la que viene', () => {
     expect(screen.getByRole('tab', { name: 'Esta semana' })).toHaveAttribute('aria-selected', 'true');
   });
 
+  it('al volver a la app un lunes, la semana se pone al día sin recargar', async () => {
+    vi.setSystemTime(new Date('2026-11-01T12:00:00+01:00'));
+    pintar();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Del 2 al 8 nov' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'La que viene' })).toHaveAttribute('aria-selected', 'true');
+    expect(within(document.getElementById('p-esta')!).getByText('Hoy coméis fuera')).toBeInTheDocument();
+
+    // El iPhone la tuvo en segundo plano hasta el lunes: sus temporizadores no saltaron.
+    vi.setSystemTime(new Date('2026-11-02T08:00:00+01:00'));
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' });
+    try {
+      act(() => {
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
+      const esta = document.getElementById('p-esta')!;
+      await waitFor(() =>
+        expect(within(esta).getByRole('heading', { level: 1, hidden: true })).toHaveTextContent('Del 2 al 8 nov'),
+      );
+      expect(screen.getByRole('tab', { name: 'Esta semana' })).toHaveAttribute('aria-selected', 'true');
+      expect(await within(esta).findByText(/Hoy toca/)).toHaveTextContent('Hoy toca lentejas estofadas');
+      expect(within(document.getElementById('p-viene')!).getByRole('heading', { level: 1, hidden: true })).toHaveTextContent(
+        'Del 9 al 15 nov',
+      );
+    } finally {
+      Reflect.deleteProperty(document, 'visibilityState');
+    }
+  });
+
   it('el segmento elegido queda en la dirección', async () => {
     const primero = pintar();
     await userEvent.click(await screen.findByRole('tab', { name: 'Esta semana' }));

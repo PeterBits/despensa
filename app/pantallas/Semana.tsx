@@ -1,11 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { hoyEnMadrid, lunesDe, rangoDeFechas, sumarDias } from '../../shared/fechas';
+import { lunesDe, rangoDeFechas, sumarDias } from '../../shared/fechas';
 import { formatearNota } from '../../shared/notas';
 import { fraseTipos } from '../../shared/recetas';
 import { NOMBRE_DIA, semanaQueSeAbre, type Dia, type Hueco } from '../../shared/semana';
 import { BarraPestanas } from '../componentes/BarraPestanas';
 import { DiasDelPlato } from '../componentes/DiasDelPlato';
+import { useHoy } from '../datos/hoy';
 import {
   cambiarDia,
   cambiarFuera,
@@ -437,7 +438,8 @@ function LaQueViene({ vista }: { vista: VistaSemana }) {
 
 export function Semana() {
   const [params, setParams] = useSearchParams();
-  const hoy = hoyEnMadrid(new Date());
+  // Al volver a la app otro día, o a medianoche, las dos semanas y "Hoy toca" se ponen al día solas.
+  const hoy = useHoy();
   const pedido = params.get('ver');
   const ver: Segmento = pedido === 'esta' || pedido === 'viene' ? pedido : semanaQueSeAbre(hoy);
   const lunesEsta = lunesDe(hoy);
@@ -478,15 +480,16 @@ export function Semana() {
           </Link>
         </div>
 
-        {/* Mientras la copia no responde solo se pinta el segmentado. */}
+        {/* Mientras la copia no responde solo se pinta el segmentado. El título sale de la vista, no de hoy: al cambiar
+            de día, la semana nueva tarda un momento en leerse y el título no se adelanta a lo que hay debajo. */}
         {vista && vistaEsta && (
           <>
             <section id="p-esta" role="tabpanel" aria-labelledby="t-esta" hidden={ver !== 'esta'}>
-              <EstaSemana vista={vistaEsta} hoy={hoy} titulo={rangoDeFechas(lunesEsta)} />
+              <EstaSemana vista={vistaEsta} hoy={hoy} titulo={rangoDeFechas(vistaEsta.lunes)} />
             </section>
             <section id="p-viene" role="tabpanel" aria-labelledby="t-viene" hidden={ver !== 'viene'}>
               <header>
-                <h1>{rangoDeFechas(lunesViene)}</h1>
+                <h1>{rangoDeFechas(vista.lunes)}</h1>
               </header>
               <LaQueViene vista={vista} />
             </section>

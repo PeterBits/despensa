@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useNavigationType } from 'react-router';
-import { hoyEnMadrid, lunesDe, sumarDias } from '../../shared/fechas';
+import { lunesDe, sumarDias } from '../../shared/fechas';
 import { coincide, formatearMinutos, fraseTipos } from '../../shared/recetas';
 import type { Dia } from '../../shared/semana';
 import { BarraPestanas } from '../componentes/BarraPestanas';
 import { DiasDelPlato } from '../componentes/DiasDelPlato';
 import { FilaReceta } from '../componentes/FilaReceta';
 import { useGuiaLarga } from '../componentes/useGuiaLarga';
+import { useHoy } from '../datos/hoy';
 import { useRecetas, type ResumenReceta } from '../datos/recetas';
 import { useSemana, type PlatoEnSemana, type VistaSemana } from '../datos/semana';
 import '../estilos/recetas.css';
@@ -97,7 +98,7 @@ function SeccionSemana({
 
 export function Recetas() {
   const recetas = useRecetas();
-  const hoy = hoyEnMadrid(new Date());
+  const hoy = useHoy();
   const lunesEsta = lunesDe(hoy);
   const esta = useSemana(lunesEsta);
   const viene = useSemana(sumarDias(lunesEsta, 7));
