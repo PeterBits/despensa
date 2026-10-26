@@ -349,7 +349,9 @@ principal de cada punto:
     actualizarla; cambiar los días no, porque cada receta se cocina una vez.
 32. "Hacer la lista" rehace desde cero los productos que salen de recetas; "Actualizar la
     lista" conserva el estado de los que siguen. Lo añadido a mano no se toca nunca, aunque
-    se llame igual que un ingrediente.
+    se llame igual que un ingrediente. Un producto que sale de recetas tiene id fijo, sacado
+    del hogar y de su nombre: si los dos móviles hacen la lista sin sincronizar, escriben las
+    mismas filas y la lista no sale doble.
 33. Ajustes se abre desde Semana. Invitar usa la hoja de compartir del iPhone y, si no la
     hay, copia el enlace. Cerrar sesión envía antes lo pendiente.
 34. La versión que enseña Ajustes es la de `package.json`: 0.3.0 con este plan.

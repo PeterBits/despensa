@@ -33,6 +33,39 @@ export const idSemana = (lunes: string): string => idFijo(lunes);
 export const idDia = (lunes: string, dia: number): string => idFijo(lunes, `-d${dia}`);
 export const idHueco = (lunes: string, hueco: Hueco): string => idFijo(lunes, `-h${hueco}`);
 
+const MAX_ID = 100;
+
+// Huella de 53 bits (cyrb53). Síncrona: dentro de una transacción de Dexie no se puede esperar a crypto.subtle.
+function huella(texto: string): string {
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let i = 0; i < texto.length; i++) {
+    const c = texto.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 2654435761);
+    h2 = Math.imul(h2 ^ c, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+}
+
+// Un producto que sale de recetas tiene id fijo, `lista-<hogarId>-<nombre normalizado>`: dos móviles que hacen la
+// lista sin sincronizar escriben las mismas filas y no la duplican. Un nombre muy largo se corta y lleva su huella,
+// para no pasar de 100 caracteres sin juntar dos nombres que empiezan igual. Lo añadido a mano sigue con UUID.
+export function idProducto(nombre: string): string {
+  const base = `lista-${hogarActual()}-`;
+  const clave = normalizar(nombre);
+  if (base.length + clave.length <= MAX_ID) return base + clave;
+  const sufijo = `~${huella(clave)}`;
+  let corto = '';
+  // Por puntos de código, para no partir un carácter en dos.
+  for (const c of clave) {
+    if (base.length + corto.length + c.length + sufijo.length > MAX_ID) break;
+    corto += c;
+  }
+  return base + corto + sufijo;
+}
+
 export type RecetaDelMenu = { id: string; nombre: string; corto: string; tipos: Tipo[]; energetica: boolean };
 export type PlatoEnSemana = {
   hueco: Hueco;
@@ -327,27 +360,23 @@ export async function hacerLista(lunes: string): Promise<number> {
 
     // Los de origen nulo los añadió una persona: no se tocan.
     const deRecetas = (await db.producto.toArray()).filter((p) => p.origen != null);
-    const conservables = new Map<string, string>();
-    if (teniaLista) {
-      for (const p of deRecetas) {
-        const clave = normalizar(String(p.nombre));
-        if (!conservables.has(clave)) conservables.set(clave, p.id as string);
-      }
-    }
-    const conservados = new Set<string>();
+    const previos = new Set(deRecetas.map((p) => p.id as string));
+    const escritos = new Set<string>();
     for (const l of lineas) {
+      const id = idProducto(l.nombre);
+      escritos.add(id);
       const campos = { nombre: l.nombre, cantidad: l.cantidad, seccion: l.seccion, origen: l.origen.join(' · ') };
-      const id = conservables.get(normalizar(l.nombre));
-      if (id) {
+      if (teniaLista && previos.has(id)) {
         // Sin `estado` ni `cogido_por`: escribir mezcla con la fila local y los conserva.
-        conservados.add(id);
         await escribir('producto', { id, ...campos });
       } else {
-        await escribir('producto', { id: crypto.randomUUID(), ...campos, estado: 'pendiente', cogido_por: null });
+        // Una lista nueva rehace desde cero lo que sale de recetas: el mismo id se reescribe y vuelve a pendiente.
+        await escribir('producto', { id, ...campos, estado: 'pendiente', cogido_por: null });
       }
     }
-    for (const p of deRecetas) {
-      if (!conservados.has(p.id as string)) await escribir('producto', { id: p.id as string }, { borrar: true });
+    // Se borran solo los que ya no salen: un id que se reescribe no se borra y se vuelve a añadir.
+    for (const id of previos) {
+      if (!escritos.has(id)) await escribir('producto', { id }, { borrar: true });
     }
     return lineas.length;
   });
