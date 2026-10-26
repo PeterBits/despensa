@@ -59,7 +59,9 @@ async function guardarLentejas(): Promise<string> {
 const parte = (nombre: 'Receta' | 'Ingredientes' | 'Pasos') => screen.getByRole('tab', { name: nombre });
 
 describe('Editor', () => {
-  it('crea una receta y abre su vista', async () => {
+  // Escribe letra a letra unos 60 caracteres: solo tarda unos 2 s, pero con toda la suite en paralelo
+  // pasaba a veces de los 5 s por defecto, y lo que quedaba por escribir caía en la prueba siguiente.
+  it('crea una receta y abre su vista', { timeout: 15_000 }, async () => {
     const usuario = userEvent.setup();
     pintar();
     expect(screen.getByRole('heading', { level: 1, name: 'Nueva receta' })).toBeInTheDocument();

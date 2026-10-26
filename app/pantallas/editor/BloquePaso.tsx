@@ -99,7 +99,7 @@ export function BloquePaso({
             <span aria-hidden="true">min</span>
           </label>
           <button id={`quitar-${paso.id}`} className="quiet" type="button" onClick={quitar}>
-            Quitar<span className="sr"> paso {n}</span>
+            Quitar <span className="sr">paso {n}</span>
           </button>
         </div>
       </div>

@@ -154,13 +154,13 @@ describe('Receta', () => {
       entradas: ['/recetas', { pathname: `/recetas/${recetaId}`, state: { desde: 'indice' } }],
       initialIndex: 1,
     });
-    await userEvent.click(within(await screen.findByRole('main')).getByRole('button', { name: 'Recetas' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Recetas' }));
     expect(await screen.findByText('Índice de prueba')).toBeInTheDocument();
   });
 
   it('"Recetas" va al índice si no se vino de él (reemplazando la entrada)', async () => {
     pintar(undefined, { entradas: ['/semana', `/recetas/${recetaId}`], initialIndex: 1 });
-    await userEvent.click(within(await screen.findByRole('main')).getByRole('button', { name: 'Recetas' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Recetas' }));
     expect(await screen.findByText('Índice de prueba')).toBeInTheDocument();
   });
 

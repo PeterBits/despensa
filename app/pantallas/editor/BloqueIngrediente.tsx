@@ -87,7 +87,7 @@ export function BloqueIngrediente({
           <span className="sr"> (más opciones de {quien})</span>
         </button>
         <button id={`quitar-${i.id}`} className="quiet" type="button" onClick={quitar}>
-          Quitar<span className="sr"> ingrediente {n}</span>
+          Quitar <span className="sr">ingrediente {n}</span>
         </button>
       </div>
       {/* Plegado con hidden, no fuera del DOM: el control sigue ahí aunque no se vea. */}
