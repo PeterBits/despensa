@@ -1,10 +1,15 @@
 // Solo para desarrollo: las diez recetas inventadas de prototipo/recetas.html, con ids fijos `ejemplo-*`.
 // main.tsx la carga con un import dinámico bajo import.meta.env.DEV, así no entra en el build de producción.
 
+import { hoyEnMadrid, lunesDe, sumarDias } from '../../shared/fechas';
 import { quitarMarcas } from '../../shared/pasos';
 import { esBasico, type Tipo } from '../../shared/recetas';
 import { seccionDe } from '../../shared/secciones';
+import { DIAS } from '../../shared/semana';
+import { copia } from './local';
 import { guardarReceta, type BorradorReceta } from './recetas';
+import { idHueco, idSemana } from './semana';
+import { escribir } from './sync';
 
 // [nombre, cantidad, tipo]. El aceite de oliva es la grasa de las cinco recetas con `grasas`; en el resto,
 // y en la sal, no lleva tipo. La compra sale del nombre (ajo, pimentón, vino).
@@ -141,8 +146,43 @@ export const RECETAS_DE_EJEMPLO: BorradorReceta[] = [
   ]),
 ];
 
-// Guarda las diez recetas; repetirlo las sobrescribe con los mismos ids, sin duplicar.
-export async function cargarSemilla(): Promise<number> {
+// Las seis semanas anteriores: [energética, nota] y [otra, nota]. La energética se come L, X y V; la otra, M, J y S.
+const HISTORIAL: readonly (readonly [readonly [string, number], readonly [string, number]])[] = [
+  [['macarrones', 7], ['albondigas', 9]],
+  [['salmon', 8], ['merluza', 7]],
+  [['lentejas', 8], ['pisto', 8]],
+  [['arroz', 9], ['crema', 6]],
+  [['garbanzos', 6], ['albondigas', 9]],
+  [['curry', 8], ['pisto', 9]],
+];
+
+// Guarda las diez recetas, planifica esta semana y apunta seis semanas de comidas con una nota cada una.
+// Repetirlo las sobrescribe con los mismos ids, sin duplicar.
+export async function cargarSemilla(hoy: string = hoyEnMadrid(new Date())): Promise<number> {
   for (const r of RECETAS_DE_EJEMPLO) await guardarReceta(r);
+
+  const lunes = lunesDe(hoy);
+  const db = copia();
+  await db.transaction('rw', [db.semana, db.semana_plato, db.comida, db.nota, db.cola], async () => {
+    await escribir('semana', { id: idSemana(lunes), lunes, propuesta_aceptada: 1 });
+    for (const [hueco, clave] of [['1', 'curry'], ['2', 'crema']] as const) {
+      await escribir('semana_plato', {
+        id: idHueco(lunes, hueco), semana_id: idSemana(lunes), hueco, receta_id: `ejemplo-${clave}`, sustituye_a: null,
+      });
+    }
+
+    for (const [i, [energetica, otra]] of HISTORIAL.entries()) {
+      const atras = i + 1;
+      const lunesAtras = sumarDias(lunes, -7 * atras);
+      for (const [d, dia] of DIAS.entries()) {
+        const [clave, valor] = d % 2 === 0 ? energetica : otra;
+        if (dia === 'D') continue;
+        const id = `ejemplo-comida-${atras}-${dia}`;
+        await escribir('comida', { id, fecha: sumarDias(lunesAtras, d), receta_id: `ejemplo-${clave}` });
+        // Sin miembro_id: lo pone el servidor.
+        await escribir('nota', { id: `ejemplo-nota-${atras}-${dia}`, comida_id: id, valor });
+      }
+    }
+  });
   return RECETAS_DE_EJEMPLO.length;
 }

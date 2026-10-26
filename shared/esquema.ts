@@ -43,7 +43,8 @@ export const TABLAS_SYNC = {
   paso: z.strictObject({
     id: idTexto, receta_id: idTexto, orden: entero.default(0), texto: textoLargo, minutos: enteroOpcional,
   }),
-  semana: z.strictObject({ id: idTexto, lunes: fecha, propuesta_aceptada: booleano(0) }),
+  // lista: el JSON con los ids de las recetas del menú cuando se hizo la lista.
+  semana: z.strictObject({ id: idTexto, lunes: fecha, propuesta_aceptada: booleano(0), lista: textoOpcional }),
   semana_dia: z.strictObject({
     id: idTexto, semana_id: idTexto, dia: z.number().int().min(0).max(6), activo: booleano(1), fuera: booleano(0),
   }),
