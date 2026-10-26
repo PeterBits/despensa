@@ -101,7 +101,9 @@ describe('Semana, la que viene', () => {
     expect(await screen.findByText(/^Lista hecha con \d+ productos$/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Ver la lista' })).toHaveAttribute('href', '/lista');
     await userEvent.click(screen.getByRole('button', { name: 'martes 3' }));
+    await waitFor(() => expect(fila('Lentejas estofadas')).toHaveTextContent(/L · M · X · V/));
     expect(screen.getByRole('link', { name: 'Ver la lista' })).toBeInTheDocument();
+    expect(screen.queryByText('Has cambiado el menú desde que hiciste la lista')).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Cambiar por lentejas' }));
     expect(await screen.findByText('Has cambiado el menú desde que hiciste la lista')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Actualizar la lista de la compra' })).toBeInTheDocument();

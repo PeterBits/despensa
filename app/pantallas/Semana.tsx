@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { hoyEnMadrid, lunesDe, rangoDeFechas, sumarDias } from '../../shared/fechas';
 import { formatearNota } from '../../shared/notas';
@@ -51,8 +51,8 @@ function FilaPlato({
 }) {
   const { receta, enLugarDe, dias, vaAActivos } = plato;
   const fig = (
-    <span className={`fig${dias.length === 0 ? ' none' : ''}`}>
-      <DiasDelPlato dias={dias} activo={vaAActivos} />
+    <span className={`fig${dias.length === 0 ? ' none' : vaAActivos ? ' on' : ''}`}>
+      <DiasDelPlato dias={dias} />
     </span>
   );
   if (!receta) {
@@ -120,8 +120,9 @@ function FilaSugerencia({ sugerencia, alCambiar }: { sugerencia: Sugerencia; alC
 
 function LaQueViene({ vista }: { vista: VistaSemana }) {
   const { lunes } = vista;
-  // El hueco cuyo plato se está tachando, y el que acaba de entrar (con la receta, para animar solo ese nombre).
-  const [tachando, setTachando] = useState<Hueco | null>(null);
+  // El cambio de plato en marcha: el viejo sigue tachado hasta que la vista trae el nuevo. Luego entra el nuevo
+  // (con la receta, para animar solo ese nombre).
+  const [cambio, setCambio] = useState<{ hueco: Hueco; id: string; tacha: boolean } | null>(null);
   const [entra, setEntra] = useState<{ hueco: Hueco; id: string } | null>(null);
   const [escribiendo, setEscribiendo] = useState(false);
   const ocupado = useRef(false);
@@ -149,36 +150,49 @@ function LaQueViene({ vista }: { vista: VistaSemana }) {
   }, [vista]);
 
   // Las letras de los días son elementos sueltos: se anota dónde están antes de escribir el cambio.
-  const moverLetras = (cambio: () => Promise<void>) => {
-    if (!sinMovimiento() && menu.current) {
-      const posiciones = new Map<string, DOMRect>();
-      menu.current.querySelectorAll<HTMLElement>('.dl').forEach((e) => posiciones.set(e.dataset.d!, e.getBoundingClientRect()));
-      previas.current = posiciones;
-      // Si el cambio no mueve nada, las posiciones no se quedan esperando a otra actualización.
-      setTimeout(() => {
-        previas.current = null;
-      }, 1000);
-    }
-    return cambio().catch((error: unknown) => console.debug('No se pudo cambiar el día', error));
+  const anotarLetras = () => {
+    if (sinMovimiento() || !menu.current) return;
+    const posiciones = new Map<string, DOMRect>();
+    menu.current.querySelectorAll<HTMLElement>('.dl').forEach((e) => posiciones.set(e.dataset.d!, e.getBoundingClientRect()));
+    previas.current = posiciones;
+    // Si el cambio no mueve nada, las posiciones no se quedan esperando a otra actualización.
+    setTimeout(() => {
+      previas.current = null;
+    }, 1000);
   };
+  const moverLetras = (escribirDia: () => Promise<void>) => {
+    anotarLetras();
+    return escribirDia().catch((error: unknown) => console.debug('No se pudo cambiar el día', error));
+  };
+
+  // Cuando la vista trae el plato nuevo, el trazo acaba y el nombre entra.
+  useEffect(() => {
+    if (!cambio) return;
+    if (vista.menu.find((p) => p.hueco === cambio.hueco)?.receta?.id !== cambio.id) return;
+    setCambio(null);
+    setEntra(sinMovimiento() ? null : { hueco: cambio.hueco, id: cambio.id });
+    ocupado.current = false;
+  }, [vista, cambio]);
 
   // Tacha el plato del hueco (0,3 s) y escribe el nuevo; un hueco sin plato no tiene nada que tachar.
   const poner = async (hueco: Hueco, recetaId: string) => {
     if (ocupado.current) return;
     ocupado.current = true;
+    const tacha = vista.menu.find((p) => p.hueco === hueco)?.receta != null && !sinMovimiento();
+    setCambio({ hueco, id: recetaId, tacha });
     try {
-      const hayPlato = vista.menu.find((p) => p.hueco === hueco)?.receta != null;
-      if (hayPlato && !sinMovimiento()) {
-        setTachando(hueco);
-        await new Promise((resolver) => setTimeout(resolver, MS_TRAZO));
-      }
+      if (tacha) await new Promise((resolver) => setTimeout(resolver, MS_TRAZO));
+      anotarLetras();
       await ponerPlato(lunes, hueco, recetaId);
-      if (!sinMovimiento()) setEntra({ hueco, id: recetaId });
+      // Por si la vista no cambiara, el cambio no se queda esperando.
+      setTimeout(() => {
+        ocupado.current = false;
+        setCambio((c) => (c?.id === recetaId ? null : c));
+      }, 2000);
     } catch (error) {
       console.debug('No se pudo cambiar el plato', error);
-    } finally {
-      setTachando(null);
       ocupado.current = false;
+      setCambio(null);
     }
   };
 
@@ -238,7 +252,7 @@ function LaQueViene({ vista }: { vista: VistaSemana }) {
           <FilaPlato
             key={plato.hueco}
             plato={plato}
-            tachando={tachando === plato.hueco}
+            tachando={cambio?.tacha === true && cambio.hueco === plato.hueco && plato.receta?.id !== cambio.id}
             entrando={entra?.hueco === plato.hueco && entra.id === plato.receta?.id}
             alDeshacer={(recetaId) => poner(plato.hueco, recetaId)}
           />
