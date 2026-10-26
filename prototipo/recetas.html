@@ -63,10 +63,14 @@ h1{font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.02em;text-wr
 #indice .sec{margin-top:32px;font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.015em}
 ul,ol{list-style:none}
 .row{display:block;padding:10px 20px}
+button.row{width:100%;text-align:left}
 .row:active .line,.row:active .from{opacity:.6}
 .row:focus-visible{outline-offset:-2px}
 .line{display:flex;align-items:baseline;align-items:last baseline;gap:10px}
-.leader{flex:1;min-width:32px;border-bottom:2px dotted var(--rule);transform:translateY(-5px)}
+.row .name{text-wrap:balance}
+/* Si el nombre parte línea, el trazo se alarga hacia la izquierda hasta 8px después de la última palabra; la caja no cambia */
+.leader{position:relative;flex:1;min-width:32px;transform:translateY(-5px)}
+.leader::before{content:"";position:absolute;left:calc(-1 * var(--ext, 0px));right:0;bottom:-2px;border-bottom:2px dotted var(--rule)}
 .fig{font-weight:600;white-space:nowrap}
 .fig.on{color:var(--tint-ink)}
 .fig .lab{font-size:13px;font-weight:500;color:var(--ink-2);margin-right:5px}
@@ -92,6 +96,15 @@ ul,ol{list-style:none}
 
 /* Índice vacío: una frase y el botón principal, sin buscador ni secciones */
 .vacio-todo{margin:12px 20px 0;font-size:17px;color:var(--ink-2);text-wrap:pretty}
+
+/* Modo elegir (desde Semana): una tarea que se cierra con Cancelar o eligiendo, sin barra de pestañas */
+.top-elegir{padding:0 20px}
+.cancel{min-height:44px;font-size:15px;font-weight:500;color:var(--ink-2)}
+.cancel:active{opacity:.6}
+.en-lugar{margin-top:8px;font-size:17px;color:var(--ink-2);text-wrap:pretty}
+.en-lugar strong{color:var(--ink);font-weight:600}
+body.elegir .screen{padding-bottom:calc(env(safe-area-inset-bottom) + 40px)}
+body.elegir .tabs{display:none}
 .cta{display:flex;align-items:center;justify-content:center;gap:6px;height:52px;margin:24px 20px 0;border-radius:14px;background:var(--fill);color:var(--on-fill);font-weight:600;transition:transform .12s var(--ease)}
 .cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 .cta:active{transform:scale(.98)}
@@ -153,8 +166,9 @@ ul,ol{list-style:none}
 <body>
 <main class="screen">
   <section id="indice" aria-labelledby="t-indice">
+    <div class="top top-elegir" id="top-elegir" hidden><button class="cancel" id="cancelar" type="button">Cancelar</button></div>
     <div class="top top-indice" id="top-indice"><a class="accion" href="editor.html?estado=nueva"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva receta</a></div>
-    <header><h1 id="t-indice">Recetas</h1></header>
+    <header><h1 id="t-indice">Recetas</h1><p class="en-lugar" id="en-lugar" hidden></p></header>
     <div id="vacio-todo" hidden>
       <p class="vacio-todo">Todavía no hay recetas. Empezad por una que cocinéis a menudo: con dos o tres ya se puede planificar la semana.</p>
       <a class="cta" href="editor.html?estado=nueva"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva receta</a>
@@ -304,12 +318,13 @@ const MARCA = /\{([^|}]+)\|([^}]+)\}/g;
 const usa = paso => [...paso[0].matchAll(MARCA)].map(m => m[2]);
 
 // Índice
-function filaIndice(id, der, extra) {
+function filaIndice(id, der, extra, boton) {
   const r = RECETAS[id];
+  const abre = boton ? `<button class="row" type="button" data-elegir="${id}">` : `<a class="row" href="#${id}">`;
   // Sin cifra a la derecha (una receta sin notas), la fila no lleva puntos guía
-  return `<li><a class="row" href="#${id}"><span class="line"><span class="name">${r.nombre}</span>`
+  return `<li>${abre}<span class="line"><span class="name">${r.nombre}</span>`
     + (der ? `<span class="leader" aria-hidden="true"></span>${der}` : '') + '</span>'
-    + `<span class="from">${extra ? extra + ' · ' : ''}${frase(r.tipos)} · ${r.tiempo}</span></a></li>`;
+    + `<span class="from">${extra ? extra + ' · ' : ''}${frase(r.tipos)} · ${r.tiempo}</span>${boton ? '</button>' : '</a>'}</li>`;
 }
 const dias = (letras, activo, hoy) => `<span class="fig${activo ? ' on' : ''}">` + letras.map(d =>
   `<span class="dl${hoy !== undefined && DIAS.indexOf(d) < hoy ? ' past' : ''}">${d}</span>`).join('<span aria-hidden="true"> · </span>') + '</span>';
@@ -318,17 +333,36 @@ const nota = id => RECETAS[id].nota ? `<span class="fig"><span class="lab">nota<
 // ?vacio=1 enseña el primer arranque, sin ninguna receta
 const vacio = params.get('vacio') === '1';
 const borradas = new Set();
+// ?elegir=1&hueco=0&en=lentejas&fuera=lentejas,merluza: el modo elegir que abre Semana para un hueco del menú.
+// No ofrece las recetas que ya están en el menú; al elegir, vuelve a Semana con la receta en su hueco.
+const elegir = params.get('elegir') === '1';
+const enMenu = new Set((params.get('fuera') || '').split(',').filter(Boolean));
+const conTema = tema ? '&tema=' + tema : '';
+if (elegir) {
+  document.body.classList.add('elegir');
+  $('top-elegir').hidden = false;
+  $('t-indice').textContent = 'Elegir receta';
+  const en = RECETAS[params.get('en')];
+  if (en) { $('en-lugar').hidden = false; $('en-lugar').innerHTML = `En lugar de <strong>${en.nombre}</strong>`; }
+  document.title = 'Despensa · Elegir receta';
+}
 function pintarIndice() {
   $('vacio-todo').hidden = !vacio;
-  $('top-indice').hidden = $('buscar').hidden = $('recetario').hidden = vacio;
+  $('top-indice').hidden = elegir || vacio;
+  $('buscar').hidden = $('recetario').hidden = vacio;
   if (vacio) return;
   const q = llano($('q').value.trim());
-  const todas = Object.keys(RECETAS).filter(id => !borradas.has(id)).sort((a, b) => RECETAS[a].nombre.localeCompare(RECETAS[b].nombre, 'es'));
+  const todas = Object.keys(RECETAS).filter(id => !borradas.has(id) && !(elegir && enMenu.has(id)))
+    .sort((a, b) => RECETAS[a].nombre.localeCompare(RECETAS[b].nombre, 'es'));
   if (q) {
     const halla = todas.filter(id => llano(RECETAS[id].nombre).includes(q) || RECETAS[id].ing.some(i => llano(i[1]).includes(q)));
     $('recetario').innerHTML = `<h2 class="sec">Resultados <small>${halla.length}</small></h2>`
-      + (halla.length ? `<ul>${halla.map(id => filaIndice(id, nota(id))).join('')}</ul>`
+      + (halla.length ? `<ul>${halla.map(id => filaIndice(id, nota(id), '', elegir)).join('')}</ul>`
         : `<p class="vacio">Ninguna receta coincide con «${esc($('q').value.trim())}».</p>`);
+    return;
+  }
+  if (elegir) {
+    $('recetario').innerHTML = `<h2 class="sec">Todas <small>${todas.length}</small></h2><ul>${todas.map(id => filaIndice(id, nota(id), '', true)).join('')}</ul>`;
     return;
   }
   $('recetario').innerHTML = SEMANAS.map(s => `<h2 class="sec">${s.titulo}</h2><ul class="menu">`
@@ -336,7 +370,30 @@ function pintarIndice() {
       s.hoy !== undefined && letras.includes(DIAS[s.hoy]) ? 'Hoy' : '')).join('') + '</ul>').join('')
     + `<h2 class="sec">Todas <small>${todas.length}</small></h2><ul>${todas.map(id => filaIndice(id, nota(id))).join('')}</ul>`;
 }
+// Si el nombre ocupa dos líneas, los puntos guía se alargan hasta donde acaba la última
+function guias() {
+  document.querySelectorAll('#recetario .row .line').forEach(l => {
+    const guia = l.querySelector('.leader'), nombre = l.querySelector('.name');
+    if (!guia) return;
+    const r = document.createRange();
+    r.selectNodeContents(nombre);
+    guia.style.setProperty('--ext', '0px');
+    const lineas = r.getClientRects();
+    const desde = lineas.length > 1 ? lineas[lineas.length - 1].right + 8 : guia.getBoundingClientRect().left;
+    guia.style.setProperty('--ext', Math.max(0, guia.getBoundingClientRect().left - desde) + 'px');
+  });
+}
+new MutationObserver(guias).observe($('recetario'), {childList: true});
+addEventListener('resize', guias);
 $('q').addEventListener('input', pintarIndice);
+$('recetario').addEventListener('click', e => {
+  const b = e.target.closest('[data-elegir]');
+  if (b) location.href = `semana.html?hueco=${params.get('hueco')}&receta=${b.dataset.elegir}${conTema}`;
+});
+$('cancelar').addEventListener('click', () => {
+  if (document.referrer.includes('semana.html')) history.back();
+  else location.href = 'semana.html' + (tema ? '?tema=' + tema : '');
+});
 $('buscar').addEventListener('submit', e => { e.preventDefault(); $('q').blur(); });
 
 // Receta: los pasos hechos se tachan y, con ellos, los ingredientes que ya no se van a usar

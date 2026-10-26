@@ -333,6 +333,41 @@ components:
     backgroundColor: "{colors.seg}"
     rounded: "{rounded.segment}"
     size: "72px"
+  settings-button:
+    textColor: "{colors.ink-2}"
+    size: "44px"
+  sunday-row:
+    textColor: "{colors.ink-3}"
+    typography: "{typography.body}"
+  sunday-row-home:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.body}"
+  empty-slot:
+    textColor: "{colors.ink-3}"
+    typography: "{typography.body}"
+  action-line:
+    textColor: "{colors.ink}"
+    typography: "{typography.body-secondary}"
+  empty-week:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.body}"
+  picker-top:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.body-secondary}"
+    padding: "0 20px"
+    height: "44px"
+  picker-instead:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.body}"
+  settings-section:
+    textColor: "{colors.ink}"
+    typography: "{typography.title}"
+  settings-text:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.body-secondary}"
+  settings-version:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.label}"
 ---
 
 # Design System: Despensa
@@ -366,8 +401,8 @@ Neutros grafito con un leve matiz verde, un naranja de sistema y nada más.
 - **Blanco** (`ground`) / **Grafito verdoso** (`ground-dark`): la única superficie de la pantalla, también bajo el botón principal fijo.
 - **Barra** (`bar` / `bar-dark`): fondo de la barra de pestañas; un paso más hundido que el suelo, nunca más.
 - **Tinta grafito** (`ink`) / **Tinta blanca cálida** (`ink-dark`): nombres de plato, títulos, enlaces, números de día.
-- **Tinta secundaria** (`ink-2` / `ink-2-dark`): fecha de hoy, descripción del plato, leyenda, estado del botón, letras de día.
-- **Tinta apagada** (`ink-3` / `ink-3-dark`): lo que queda fuera o ya pasó: domingo, días pasados, "En lugar de", pestañas no seleccionadas.
+- **Tinta secundaria** (`ink-2` / `ink-2-dark`): fecha de hoy, descripción del plato, leyenda, estado del botón, letras de día, el domingo en casa y el engranaje de Ajustes.
+- **Tinta apagada** (`ink-3` / `ink-3-dark`): lo que queda fuera, falta o ya pasó: domingo fuera, hueco "Sin plato", días pasados, "En lugar de", pestañas no seleccionadas.
 - **Raya** (`rule` / `rule-dark`): puntos guía, subrayado de enlaces, barra de desplazamiento.
 - **Pelo** (`hair` / `hair-dark`): filete superior de la barra de pestañas y contorno del botón tranquilo. En el editor, también el filete entre bloques y sobre la línea de estado, y el anillo de reposo de los botones de tipo y del interruptor.
 - **Relleno** (`fill` / `fill-dark`) con **sobre relleno** (`on-fill` / `on-fill-dark`): el botón principal es tinta sólida, invertido en cada tema. También el tipo de ingrediente elegido y la pista del interruptor encendido, con su botón en `on-fill`.
@@ -409,6 +444,8 @@ La parte inferior está fija y apilada: barra de pestañas (58px más el área s
 
 La tira de días es una rejilla de siete columnas iguales (L M X J V S D): letra arriba, número en círculo debajo.
 
+En Semana, la fila de arriba lleva el segmentado y, a su derecha y separado 4px, el engranaje de Ajustes en un área táctil de 44px; la fila tiene 20px de relleno a la izquierda y 8px a la derecha, para que el icono quede dentro del margen de 20px. Sin recetas, Semana solo enseña el segmentado, el título de fechas, una frase y el botón principal "Nueva receta" en el flujo de la columna: sin tira, menú ni botón fijo.
+
 En una pantalla sin botón fijo (Recetas) el contenido reserva 112px más el área segura al final: la barra de pestañas y, cuando aparece, la línea de estado. Una pestaña puede tener dos vistas en la misma columna (índice y detalle), enlazadas por la URL; al volver, el índice recupera la posición donde estaba.
 
 Registro tampoco tiene botón fijo y reserva los mismos 112px más el área segura. Cada día es una fila en rejilla de dos columnas: 36px para la fecha y el resto para el cuerpo, separadas 10px, con 10px de relleno vertical y el margen de 20px. La escala de nota y el panel "Comimos otra cosa" ocupan el ancho entero de la fila, por debajo de las dos columnas. Las semanas van de la más reciente a la más antigua y, dentro de cada una, el día más reciente arriba.
@@ -416,6 +453,10 @@ Registro tampoco tiene botón fijo y reserva los mismos 112px más el área segu
 El editor de receta no lleva barra de pestañas: es una tarea que se cierra con Cancelar o Guardar. Arriba, la fila de 44px con las dos acciones; debajo, el título en display y el segmentado de tres partes, 16px por debajo. Cada parte es una columna de campos separados 16px, con el margen de 20px; los dos campos cortos comparten fila en dos columnas iguales separadas 12px. Los bloques que se repiten (un ingrediente, un paso) llevan 16px arriba y 4px abajo y se separan con un filete de 0,5px en `hair`. "Borrar receta" queda 40px por debajo de la foto, al final de Receta. El contenido reserva 96px más el área segura al final para la línea de estado.
 
 En el índice de Recetas, la fila de arriba lleva la acción ("Nueva receta") alineada a la derecha, por encima del título, y se mete 20px en el aire del título para no empujarlo hacia abajo. En la receta, la cabecera es una rejilla de dos columnas: el título a la izquierda y la miniatura de la foto a la derecha, separadas 16px; la línea de tipos, raciones y tiempo, y la de la pantalla encendida, ocupan el ancho entero por debajo. Sin foto, el título ocupa la fila entera.
+
+El modo elegir de Recetas (abierto desde Semana para un hueco del menú) es una tarea, como el editor: sin barra de pestañas, el contenido reserva solo 40px más el área segura al final. Arriba, la fila de 44px con "Cancelar" a la izquierda; debajo, el título en display y, 8px por debajo, la línea "En lugar de …".
+
+Ajustes es una página corta de la misma columna, con barra de pestañas (Semana seleccionada) y la reserva de 112px más el área segura. Arriba, la fila de 44px con "‹ Semana"; debajo, "Ajustes" en display. Cada parte empieza 32px más abajo con su título de sección y sigue con una frase (6px por debajo) y su botón (16px por debajo), con el margen de 20px y sin cajas ni filetes. La versión cierra la página, 40px por debajo de la última parte.
 
 ## Elevation & Depth
 
@@ -441,6 +482,8 @@ En el registro, hoy lleva en la columna de fechas el mismo anillo interior de 2p
 
 En el editor todo campo toma la forma del campo de añadir (pista `seg`, 9px): nombre, cantidades, la sección, el paso que crece y los minutos (36px de alto). Los botones de tipo son de 32px con el mismo radio de 9px y, en reposo, el anillo interior de 1,5px en `hair` del botón tranquilo; el elegido pierde el anillo y se rellena de `fill`. El interruptor es una pista de 44×26px con los extremos redondos (13px). El hueco de la foto es un cuadrado de 88px y la miniatura de la receta uno de 72px, ambos con radio de 9px sobre `seg`; la foto abierta, a lo ancho en 4:3, conserva los 9px. Los chevrones del resumen plegado y del selector son de trazo de 14px (trazo 2).
 
+El engranaje de Ajustes es un icono de trazo de 24px (trazo 1,7), el mismo trazo que las pestañas; el icono de compartir del botón principal es de trazo de 20px (trazo 2), como el del botón tranquilo.
+
 ## Components
 
 ### Segmented Control
@@ -453,20 +496,27 @@ En el editor, el mismo control lleva tres segmentos (Receta · Ingredientes · P
 - **Activo:** círculo relleno de `tint` con número en `on-tint`.
 - **Hoy:** anillo interior de 2px en `ink`; si además es activo, anillo de `ink` separado del relleno por 2px de `ground`.
 - **Pasado:** número tachado en `ink-3`, peso 500; si fue activo, conserva un anillo de 2px en `tint` sin relleno.
-- **Fuera (domingo):** `ink-3`, peso 500, deshabilitado.
+- **Fuera (domingo):** el domingo empieza fuera: `ink-3`, peso 500, deshabilitado y sin plato. Se cambia a casa desde su fila del menú ("Comer en casa"); en casa es un día normal de la tira, se puede activar y sus días se reparten con los platos como los demás. Al volver a fuera deja de ser activo.
 - **Pulsación:** el círculo se encoge a 0,9.
 - Debajo, una leyenda de 13px con un punto de 10px en `tint`.
 
 ### Menu Row (firma)
-El nombre del plato (title) a la izquierda, puntos guía flexibles (mín. 32px) y los días a la derecha separados por " · ", alineados por la última línea base. Los días del plato que va a los días activos van en `tint-ink`; los del otro, en tinta. Debajo, la descripción en 15px `ink-2` (tipos de ingrediente · destino). La fila "Domingo … fuera" baja a 17px, peso 500, `ink-3`. En sugerencias, la cifra a la derecha es la nota con un rótulo "nota" de 13px en `ink-2` en el sitio del precio.
+El nombre del plato (title) a la izquierda, puntos guía flexibles (mín. 32px) y los días a la derecha separados por " · ", alineados por la última línea base. Los días del plato que va a los días activos van en `tint-ink`; los del otro, en tinta. Debajo, la descripción en 15px `ink-2` (tipos de ingrediente · destino). En sugerencias, la cifra a la derecha es la nota con un rótulo "nota" de 13px en `ink-2` en el sitio del precio.
+- **Acción del plato:** en La que viene, cada plato lleva su propia línea de acción, 4px por debajo de la descripción: "Elegir otra receta" como enlace de tinta de 15px (con nombre accesible "Elegir otra receta en lugar de …"). Abre el modo elegir de Recetas; la receta elegida vuelve a su hueco con "En lugar de ~~plato anterior~~ · Deshacer". En Esta semana no hay acciones.
+- **Domingo:** la fila "Domingo … fuera" baja a 17px, peso 500, `ink-3`. En casa dice "Domingo … en casa" en `ink-2`: `ink-3` es solo para lo que queda fuera. En La que viene lleva su acción 2px por debajo, "Comer en casa" o "Comer fuera" (nombres accesibles "Comer en casa el domingo" / "Comer fuera el domingo"), y el foco vuelve al enlace al cambiar. En Esta semana, un domingo en casa no tiene fila: sus días ya están en los platos.
+- **Hueco sin plato:** si la receta de un hueco desaparece, la fila dice "Sin plato" en 17px peso 500 `ink-3` y conserva sus días a la derecha con los puntos guía (en tinta, o en `tint-ink` si es el hueco de los días activos), para que se vea qué días se quedan sin comida. Debajo, la acción "Elegir receta". Al llenarse, el plato entra desde 6px abajo sin trazo previo: no había nada que tachar.
+- **Sugerencia sin notas:** sin puntos guía ni cifra; la descripción dice "Por probar" en lugar de "Hace N semanas".
+- **Sugerencia a un hueco vacío:** el enlace dice "Poner en el menú" en lugar de "Cambiar por …".
+- Cambiar un día no cambia la lista de la compra; solo cambiar un plato la marca como cambiada.
 
 **The Strike, Don't Erase Rule.** Un cambio nunca borra en silencio. Al sustituir un plato, un trazo de 2px tacha el nombre (0,3s), y el nuevo entra desde 6px abajo (0,34s); debajo queda "En lugar de ~~plato anterior~~ · Deshacer" en 13px `ink-3`. Los días pasados se tachan, no se ocultan.
 
 **The Moving Letters Rule.** Al activar o desactivar un día, cada letra viaja de su fila a la nueva (FLIP, 420ms, `cubic-bezier(.16,1,.3,1)`), para que se vea a dónde ha ido el día.
 
 ### Buttons
-- **Principal:** ancho completo, 52px, radio 14px, relleno `fill` con texto `on-fill` en 17px peso 600. Pulsación: escala 0,98.
-- **Tranquilo:** mismo tamaño, transparente, tinta, contorno interior de 1,5px en `hair`; admite icono de trazo de 20px a la izquierda. Se usa cuando la acción ya está hecha ("Ver la lista").
+- **Principal:** ancho completo, 52px, radio 14px, relleno `fill` con texto `on-fill` en 17px peso 600. Pulsación: escala 0,98. Admite un icono de trazo de 20px a la izquierda, como el tranquilo: el "+" de "Nueva receta" o el de compartir de "Invitar a tu pareja".
+- **Tranquilo:** mismo tamaño, transparente, tinta, contorno interior de 1,5px en `hair`; admite icono de trazo de 20px a la izquierda. Se usa cuando la acción ya está hecha ("Ver la lista") y, en una pantalla, para la acción secundaria que no debe llamar la atención ("Cerrar sesión" en Ajustes).
+- **Ocupado:** mientras una acción espera al servidor, el botón baja a opacidad 0,6, no responde a la pulsación y lleva `aria-busy`; el error se escribe debajo en la frase de 13px peso 600 en tinta.
 - **Tranquilo mientras falta algo:** en el súper, "Terminar la compra" va como botón tranquilo mientras quedan productos pendientes y pasa a principal cuando todo está en el carro.
 - **Enlace:** texto en tinta, peso 600, subrayado de 1px en `rule` con 3px de separación; área táctil ampliada 14px en vertical y 10px en horizontal. Pulsación: opacidad 0,6.
 - **Foco:** contorno de 2px en `tint` separado 3px.
@@ -480,6 +530,8 @@ Barra de cuatro pestañas fija abajo (Semana, Recetas, Lista, Registro) sobre `b
 - **Volver:** "‹ Recetas" arriba a la izquierda, en tinta de 17px peso 600 con un chevrón de trazo de 22px (trazo 2,2), 44px de alto táctil y sin fondo. Pulsación: opacidad 0,6.
 - **Acción del detalle:** "Editar" va a la derecha de "‹ Recetas", en la misma fila, como acción de la fila de arriba.
 - **Editor:** no lleva barra de pestañas; se sale por Cancelar o Guardar.
+- **Ajustes:** se abre desde Semana con el engranaje de la fila del segmentado (24px, trazo 1,7, en `ink-2`, 44px de área táctil, nombre accesible "Ajustes"; pulsación: opacidad 0,6). Ajustes vuelve con "‹ Semana" y mantiene la pestaña Semana seleccionada.
+- **Modo elegir:** Recetas abierta para elegir no lleva barra de pestañas; se sale por "Cancelar" (vuelve a Semana sin cambiar nada) o eligiendo una receta, que vuelve a Semana con ella en su hueco.
 
 ### List Row (firma, en la lista)
 La fila de carta aplicada a la compra, un paso por debajo del menú: el producto en 17px peso 400 a la izquierda, puntos guía y la cantidad en 17px a la derecha, alineados por la última línea base. Debajo, de qué plato sale ("lentejas · merluza", "añadido a mano", "lo cogió tu pareja") en 13px peso 500 `ink-3`. Toda la fila es un botón: al pulsar, línea y origen bajan a opacidad 0,6, y el anillo de foco va por dentro de la fila. Sin casillas: el estado es el tachado.
@@ -523,7 +575,16 @@ El índice de Recetas es la carta entera. Arriba, "Recetas" en display y el busc
 - Cada fila es un enlace a la receta con 10px de relleno vertical; al pulsar, la fila baja a opacidad 0,6, y el anillo de foco va por dentro.
 - **Fila de arriba:** "+ Nueva receta" a la derecha, por encima del título, como acción de la fila de arriba.
 - **Receta sin notas:** en "Todas" y "Resultados", una receta que nadie ha puntuado no lleva puntos guía ni cifra; solo el nombre y, debajo, tipos y tiempo.
+- **Nombre en dos líneas:** el nombre se equilibra (`text-wrap: balance`) y los puntos guía empiezan 8px después de la última palabra, con la misma técnica que el registro: un script mide la última línea y alarga solo el trazo hacia la izquierda, sin tocar la caja.
 - **Índice vacío (primer arranque):** bajo el título, una sola frase de 17px en `ink-2` y, 24px por debajo, el botón principal "Nueva receta" con su "+" de trazo de 20px, en el flujo de la columna y no fijo abajo. Sin buscador, sin secciones y sin la acción de la fila de arriba.
+- **Semana vacía (sin recetas):** Semana repite este patrón bajo su título de fechas: la frase de 17px en `ink-2` y, 24px por debajo, "Nueva receta" principal con su "+", en el flujo. Sin tira de días, menú, sugerencias ni botón fijo; el segmentado y el engranaje se quedan.
+- **Modo elegir:** ver Recipe Picker.
+
+### Recipe Picker (modo elegir)
+El índice de Recetas convertido en una tarea de un toque, abierta desde la acción de un plato de Semana.
+- **Arriba:** "Cancelar" a la izquierda como cancelar tranquilo (15px peso 500 `ink-2`, 44px); sin "Nueva receta". Debajo, "Elegir receta" en display y, 8px por debajo, "En lugar de **plato**" en 17px `ink-2` con el plato en tinta peso 600; en un hueco sin plato no hay línea.
+- **Lista:** el mismo buscador y una sola sección "Todas" con su recuento; cada receta es un botón de ancho completo con la anatomía de la fila del índice (nombre, puntos guía y nota, tipos y tiempo debajo). Las recetas que ya están en el menú no aparecen. Sin resultados, la misma frase del buscador.
+- **Elegir:** al tocar una receta se vuelve a Semana con ella en el hueco y "En lugar de ~~plato anterior~~ · Deshacer" debajo (The Strike, Don't Erase Rule).
 
 ### Ingredient Row
 La fila de carta compacta: nombre de 15px a la izquierda, puntos guía y la cantidad en 15px `ink-2` a la derecha, con 4px de relleno vertical y 8px entre piezas, para que todos los ingredientes se lean de un vistazo encima de los pasos. No es un botón: el ingrediente no se toca, se tacha solo.
@@ -615,8 +676,17 @@ El paso del editor guarda la columna de la receta: el número en una columna de 
 - **Usa:** debajo, a 6px, "Usa: Lentejas pardinas, Agua" en 13px peso 500 `ink-3`, con los nombres en 600 `ink-2`. Se escribe sola mientras se teclea; cada ingrediente que se nombra por primera vez entra subiendo 6px con opacidad (0,34s). Si el paso no nombra ninguno, no hay línea. Es una región `aria-live` educada.
 - **Pie:** el campo de minutos (112px de ancho y 36px de alto, la forma del campo, cifras de 15px y el sufijo "min" en 13px `ink-2`) a la izquierda y "Quitar" tranquilo a la derecha.
 
+### Settings (Ajustes)
+Una página corta de la misma carta, no una lista agrupada de iOS: cada parte es un título de sección, una frase y su botón, sin cajas, filetes ni chevrones. Sin naranja: aquí no hay actividad.
+- **Título de sección:** 19px peso 600 (-0,01em), 32px por encima, sin fondo ni filete, como List Sections.
+- **Frase:** 15px `ink-2`, 6px por debajo del título; el botón va 16px por debajo.
+- **Tu pareja:** botón principal "Invitar a tu pareja" con el icono de compartir de 20px. Debajo, la línea de estado de la app (13px `ink-2`, centrada, `role="status"`): "Invitación lista. Vale 24 horas y una sola vez." o "Enlace copiado. …". Si no hay hoja de compartir ni portapapeles, el enlace queda en un campo con rótulo ("Enlace de invitación"), de solo lectura, seleccionado y con el foco, con la forma del campo (44px, `seg`, 9px) y texto de 15px. Con los dos dentro, la parte es solo la frase "Ya estáis los dos en este hogar." en 17px tinta.
+- **Sesión:** una frase y "Cerrar sesión" como botón tranquilo: secundaria y sin rojo.
+- **Error:** la frase de 13px peso 600 en tinta bajo su botón ("No hay conexión. Inténtalo otra vez."), en `role="alert"`.
+- **Versión:** "Versión 0.3.0" en 13px `ink-2`, 40px por debajo de la última parte.
+
 ### Pendientes
-Sin decidir y fuera de este sistema hasta que se decidan: icono relleno para la pestaña seleccionada, filete al hacer scroll bajo las barras, título grande que se pliega y qué segmento se abre entre semana. El domingo se puede cambiar a día de comer (decidido); falta diseñar cómo, en el plan 3.
+Sin decidir y fuera de este sistema hasta que se decidan: icono relleno para la pestaña seleccionada, filete al hacer scroll bajo las barras y título grande que se pliega.
 
 ## Do's and Don'ts
 

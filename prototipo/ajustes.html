@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e2422">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:,">
+<title>Despensa · Ajustes</title>
+<style>
+:root{
+  --ground:#ffffff;--bar:#f6f6f3;--ink:#1b1f1d;--ink-2:#5c6360;--ink-3:#6b726e;
+  --rule:rgba(27,31,29,.22);--hair:rgba(27,31,29,.14);
+  --tint:#ff9f0a;--tint-ink:#a65200;--on-tint:#1b1f1d;--fill:#1b1f1d;--on-fill:#ffffff;
+  --seg:#ecece8;--seg-on:#ffffff;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#1e2422;--bar:#161b19;--ink:#f2f1ec;--ink-2:#a7aea9;--ink-3:#8d9590;
+  --rule:rgba(242,241,236,.2);--hair:rgba(242,241,236,.12);
+  --tint:#ff9f0a;--tint-ink:#ff9f0a;--on-tint:#161b19;--fill:#f2f1ec;--on-fill:#161b19;
+  --seg:#2a312e;--seg-on:#47504c;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ground:#1e2422;--bar:#161b19;--ink:#f2f1ec;--ink-2:#a7aea9;--ink-3:#8d9590;
+  --rule:rgba(242,241,236,.2);--hair:rgba(242,241,236,.12);
+  --tint:#ff9f0a;--tint-ink:#ff9f0a;--on-tint:#161b19;--fill:#f2f1ec;--on-fill:#161b19;
+  --seg:#2a312e;--seg-on:#47504c;
+  color-scheme:dark}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:var(--ground);scrollbar-width:thin;scrollbar-color:var(--rule) transparent}
+body{min-height:100dvh;background:var(--ground);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.35;
+  font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;caret-color:var(--tint)}
+::selection{background:var(--tint);color:var(--on-tint)}
+button,input{font:inherit;color:inherit;background:none;border:0}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--tint);outline-offset:3px;border-radius:6px}
+
+.screen{max-width:440px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 0 calc(env(safe-area-inset-bottom) + 112px)}
+/* Fila de arriba: volver a Semana, como "‹ Recetas" en la receta */
+.top{display:flex;align-items:center;min-height:44px}
+.back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 20px 0 12px;font-weight:600}
+.back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.back:active{opacity:.6}
+header{padding:4px 20px 0}
+h1{font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+
+/* Cada parte, un título de sección sin fondo ni filete y una frase corta; nada de listas agrupadas en cajas */
+.sec{margin:32px 20px 0;font-size:19px;font-weight:600;letter-spacing:-.01em}
+.txt{margin:6px 20px 0;font-size:15px;color:var(--ink-2);text-wrap:pretty}
+.dentro{margin:6px 20px 0;font-size:17px;text-wrap:pretty}
+.cta{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 40px);height:52px;margin:16px 20px 0;border-radius:14px;
+  background:var(--fill);color:var(--on-fill);font-weight:600;transition:transform .12s var(--ease),opacity .2s var(--ease)}
+.cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cta:active{transform:scale(.98)}
+.cta.quiet{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--hair)}
+.cta[aria-disabled="true"]{opacity:.6;cursor:default}
+.cta[aria-disabled="true"]:active{transform:none}
+.cta[aria-busy="true"]{cursor:progress}
+/* El estado tras invitar es la línea de estado de la app; el error, la frase de 13px peso 600 en tinta */
+.estado{margin:10px 20px 0;font-size:13px;color:var(--ink-2);text-align:center}
+.error{margin:10px 20px 0;font-size:13px;font-weight:600}
+.estado:empty,.error:empty{display:none}
+/* Sin hoja de compartir ni portapapeles: el enlace en un campo para copiarlo a mano */
+.campo{display:block;margin:16px 20px 0}
+.campo[hidden]{display:none}
+.rot{display:block;margin-bottom:6px;font-size:13px;font-weight:500;color:var(--ink-2)}
+.campo input{display:block;width:100%;height:44px;padding:0 12px;border-radius:9px;background:var(--seg);font-size:15px;outline:0;text-overflow:ellipsis}
+.campo input:focus-visible{outline:2px solid var(--tint);outline-offset:3px}
+.version{margin:40px 20px 0;font-size:13px;color:var(--ink-2)}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--bar);border-top:.5px solid var(--hair);padding:6px 8px env(safe-area-inset-bottom)}
+.tabs-in{max-width:440px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:58px}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:500;color:var(--ink-3)}
+.tab[aria-current="page"]{color:var(--tint-ink)}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+@media (prefers-reduced-motion:reduce){*,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="top"><a class="back" id="volver" href="semana.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Semana</a></div>
+  <header><h1>Ajustes</h1></header>
+
+  <section aria-labelledby="t-pareja">
+    <h2 class="sec" id="t-pareja">Tu pareja</h2>
+    <div id="solo">
+      <p class="txt">Mándale un enlace para que entre en vuestra Despensa desde su iPhone.</p>
+      <button class="cta" id="invitar" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Invitar a tu pareja</button>
+      <label class="campo" id="a-mano" hidden><span class="rot">Enlace de invitación</span><input id="enlace" readonly></label>
+      <p class="estado" id="estado" role="status"></p>
+      <p class="error" id="error-invitar" role="alert"></p>
+    </div>
+    <p class="dentro" id="los-dos" hidden>Ya estáis los dos en este hogar.</p>
+  </section>
+
+  <section aria-labelledby="t-sesion">
+    <h2 class="sec" id="t-sesion">Sesión</h2>
+    <p class="txt">Para volver a entrar en este iPhone, usa tu passkey.</p>
+    <button class="cta quiet" id="salir" type="button">Cerrar sesión</button>
+    <p class="error" id="error-salir" role="alert"></p>
+  </section>
+
+  <p class="version">Versión 0.3.0</p>
+</main>
+
+<nav class="tabs" aria-label="Secciones">
+  <div class="tabs-in">
+    <a class="tab" aria-current="page" href="semana.html"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semana</a>
+    <a class="tab" href="recetas.html"><svg viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z"/><path d="M5 16.5a3 3 0 0 1 3-3h11"/></svg>Recetas</a>
+    <a class="tab" href="lista.html"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2"/><circle cx="5" cy="18" r="1"/></svg>Lista</a>
+    <a class="tab" href="registro.html"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Registro</a>
+  </div>
+</nav>
+
+<script>
+const params = new URLSearchParams(location.search);
+const tema = params.get('tema');
+if (tema === 'claro') document.documentElement.dataset.theme = 'light';
+if (tema === 'oscuro') document.documentElement.dataset.theme = 'dark';
+document.querySelectorAll('a[href$=".html"]').forEach(a => { a.search = tema ? '?tema=' + tema : ''; });
+const $ = id => document.getElementById(id);
+
+// ?pareja=1: el hogar ya tiene a los dos. ?compartir=copia: sin hoja de compartir, el enlace se copia.
+// ?compartir=mano: ni hoja ni portapapeles, el enlace queda en un campo. ?sinred=1: sin conexión.
+const losDos = params.get('pareja') === '1';
+const compartir = params.get('compartir');
+const sinRed = params.get('sinred') === '1';
+$('solo').hidden = losDos;
+$('los-dos').hidden = !losDos;
+
+// Enlace inventado: en la app es el que devuelve /api/invitaciones, de un solo uso
+const ENLACE = 'https://despensa.ejemplo.workers.dev/invitacion#k2x9QpL4vT';
+const ocupado = (b, si) => { b.setAttribute('aria-disabled', String(si)); b.setAttribute('aria-busy', String(si)); };
+
+$('invitar').addEventListener('click', () => {
+  const b = $('invitar');
+  if (b.getAttribute('aria-disabled') === 'true') return;
+  $('estado').textContent = $('error-invitar').textContent = '';
+  ocupado(b, true);
+  setTimeout(() => {
+    ocupado(b, false);
+    if (sinRed) { $('error-invitar').textContent = 'No hay conexión. Inténtalo otra vez.'; return; }
+    if (compartir === 'mano') {
+      $('a-mano').hidden = false;
+      $('enlace').value = ENLACE;
+      $('enlace').focus();
+      $('enlace').select();
+      $('estado').textContent = 'Vale 24 horas y una sola vez.';
+      return;
+    }
+    $('estado').textContent = compartir === 'copia'
+      ? 'Enlace copiado. Vale 24 horas y una sola vez.'
+      : 'Invitación lista. Vale 24 horas y una sola vez.';
+  }, 400);
+});
+
+$('salir').addEventListener('click', () => {
+  const b = $('salir');
+  if (b.getAttribute('aria-disabled') === 'true') return;
+  $('error-salir').textContent = '';
+  ocupado(b, true);
+  setTimeout(() => {
+    ocupado(b, false);
+    // En la app, al salir se vuelve a la bienvenida; el prototipo se queda aquí
+    if (sinRed) $('error-salir').textContent = 'No hay conexión. Inténtalo otra vez.';
+  }, 600);
+});
+</script>
+</body>
+</html>

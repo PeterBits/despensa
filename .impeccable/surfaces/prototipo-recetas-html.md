@@ -16,7 +16,10 @@ perder el sitio. Lo más probable es abrir uno de los platos de esta semana o de
 Estados que importan: índice con los platos de esta semana y la que viene; búsqueda por plato
 o ingrediente, también sin resultados; receta sin empezar; pasos hechos tachados con sus
 ingredientes ya usados tachados arriba; receta terminada; pantalla que no se apaga mientras la
-receta está abierta (solo si el navegador lo permite).
+receta está abierta (solo si el navegador lo permite); modo elegir (plan 3): el recetario que
+abre Semana para poner cualquier receta en un hueco del menú, con "Cancelar" arriba, "Elegir
+receta", "En lugar de <plato>", el buscador y cada receta como botón, sin las que ya están en
+el menú y sin barra de pestañas.
 
 Restricciones fijadas por el usuario: cocinar con la receta es el uso principal; cada receta
 lleva pasos; mismo mundo visual que Semana y Lista (DESIGN.md), claro y oscuro según el

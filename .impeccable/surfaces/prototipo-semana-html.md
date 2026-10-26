@@ -13,15 +13,19 @@ Tarea: decidir los dos o tres platos de la semana que viene en un par de minutos
 días activos y hacer la lista de la compra. También consultar qué toca esta semana.
 
 Estados que importan: propuesta de la semana que viene, días activos cambiados, plato
-cambiado por una sugerencia (con deshacer), domingo fuera, lista hecha, vista de esta semana
-con el día de hoy.
+cambiado por una sugerencia (con deshacer), plato elegido en el recetario (vuelve con "En
+lugar de"), domingo fuera y domingo en casa, hueco sin plato, sugerencia sin notas ("Por
+probar"), sin recetas, lista hecha y menú cambiado desde la lista, vista de esta semana con el
+día de hoy.
 
 Restricciones fijadas por el usuario: sin colores de tiza ni letra a mano; aspecto de las
 apps de Apple; modo claro y oscuro según el ajuste del iPhone (uno usa claro, el otro
-oscuro); los dos usan iPhone.
+oscuro); los dos usan iPhone. El domingo empieza fuera pero se puede cambiar (22/10/2026).
 
-Pendiente: qué se ve en la pestaña al abrirla entre semana (esta semana o la que viene);
-domingo editable o no.
+Decidido en el plan 3 (supuestos principales, el usuario pidió continuar sin preguntas): de
+lunes a jueves se abre Esta semana y de viernes a domingo La que viene; el domingo se cambia
+desde su propia fila del menú ("Comer en casa" / "Comer fuera"); cada plato lleva su "Elegir
+otra receta" en una línea propia; Ajustes se abre con el engranaje a la derecha del segmentado.
 
 ## Direction contract
 
