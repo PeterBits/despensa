@@ -87,18 +87,25 @@ const delMenu = (r: FilaDe<'receta'>): RecetaDelMenu => {
   return { id: r.id, nombre: r.nombre, corto: r.corto ?? cortoDe(r.nombre), tipos, energetica: esEnergetica(tipos) };
 };
 
-// Lo planificado en las semanas guardadas anteriores: sus platos repartidos con sus días.
-function planificadasAntes(lunes: string, f: FilasDeLaSemana, energetica: (id: string) => boolean | undefined) {
+// Los ids de la semana son `semana-<lunes>`: el lunes sale del id, sin pasar por la fila `semana`.
+const lunesDeId = (semanaId: string): string => semanaId.slice('semana-'.length);
+
+type DiaGuardado = { lunes: string; dia: number; activo: boolean; fuera: boolean };
+
+// Lo planificado en las semanas guardadas anteriores: sus platos repartidos con los días que mostraban.
+function planificadasAntes(
+  lunes: string,
+  f: FilasDeLaSemana,
+  energetica: (id: string) => boolean | undefined,
+  guardados: DiaGuardado[],
+) {
   const planificadas: { fecha: string; receta_id: string }[] = [];
-  for (const semana of f.semanas.filter((s) => s.lunes < lunes)) {
-    const platos = f.platos.filter((p) => p.semana_id === semana.id && p.receta_id !== null);
+  const anteriores = new Set(f.platos.map((p) => lunesDeId(p.semana_id)).filter((l) => l < lunes));
+  for (const anterior of anteriores) {
+    const platos = f.platos.filter((p) => p.semana_id === idSemana(anterior) && p.receta_id !== null);
     const conReceta = platos.filter((p) => energetica(p.receta_id as string) !== undefined);
     if (conReceta.length === 0) continue;
-    const guardados = f.dias
-      .map((d) => ({ d, semana: f.semanas.find((s) => s.id === d.semana_id) }))
-      .filter((x) => x.semana?.lunes === semana.lunes)
-      .map(({ d }) => ({ lunes: semana.lunes, dia: d.dia, activo: d.activo === 1, fuera: d.fuera === 1 }));
-    const dias = diasDeLaSemana(semana.lunes, guardados);
+    const dias = diasDeLaSemana(anterior, guardados);
     const reparto = repartir(
       conReceta.map((p) => ({ id: p.hueco, energetico: energetica(p.receta_id as string) === true })),
       DIAS.filter((_, i) => dias[i]!.activo),
@@ -107,7 +114,7 @@ function planificadasAntes(lunes: string, f: FilasDeLaSemana, energetica: (id: s
     DIAS.forEach((dia, i) => {
       const hueco = reparto[dia];
       const receta_id = conReceta.find((p) => p.hueco === hueco)?.receta_id;
-      if (receta_id) planificadas.push({ fecha: sumarDias(semana.lunes, i), receta_id });
+      if (receta_id) planificadas.push({ fecha: sumarDias(anterior, i), receta_id });
     });
   }
   return planificadas;
@@ -120,8 +127,13 @@ export function componerSemana(lunes: string, f: FilasDeLaSemana): VistaSemana {
     const r = recetas.get(id);
     return r ? esEnergetica(leerTipos(r.tipos)) : undefined;
   };
-  const medias = mediasPorReceta(f.comidas, f.notas);
-  const ultimas = ultimaVezPorReceta(f.comidas, planificadasAntes(lunes, f, energetica), lunes);
+  const guardados: DiaGuardado[] = f.dias.map((d) => ({
+    lunes: lunesDeId(d.semana_id), dia: d.dia, activo: d.activo === 1, fuera: d.fuera === 1,
+  }));
+  // Propuesta y sugerencias solo miran lo anterior al lunes: el menú de una semana no cambia durante ella.
+  const anteriores = f.comidas.filter((c) => c.fecha < lunes);
+  const medias = mediasPorReceta(anteriores, f.notas);
+  const ultimas = ultimaVezPorReceta(f.comidas, planificadasAntes(lunes, f, energetica, guardados), lunes);
   const resumenes: RecetaResumen[] = f.recetas.map((r) => ({
     id: r.id,
     energetica: energetica(r.id) === true,
@@ -130,15 +142,20 @@ export function componerSemana(lunes: string, f: FilasDeLaSemana): VistaSemana {
   }));
 
   const semana = f.semanas.find((s) => s.id === idSemana(lunes));
-  const propuesta = proponerHuecos(resumenes, lunes);
-  const guardados = f.dias
-    .map((d) => ({ d, semana: f.semanas.find((s) => s.id === d.semana_id) }))
-    .filter((x) => x.semana !== undefined)
-    .map(({ d, semana: s }) => ({ lunes: s!.lunes, dia: d.dia, activo: d.activo === 1, fuera: d.fuera === 1 }));
+  const guardado = (hueco: Hueco) => f.platos.find((p) => p.id === idHueco(lunes, hueco));
+  // Un hueco sin guardar no repite la receta que ya tiene guardada el otro: cada receta cuenta una vez.
+  const propuestaSin = (otro: Hueco) => {
+    const ya = guardado(otro)?.receta_id;
+    return proponerHuecos(ya ? resumenes.filter((r) => r.id !== ya) : resumenes, lunes);
+  };
+  const propuesta: Record<Hueco, string | null> = {
+    '1': guardado('1') ? null : propuestaSin('2')['1'],
+    '2': guardado('2') ? null : propuestaSin('1')['2'],
+  };
   const dias = diasDeLaSemana(lunes, guardados);
 
   const elegidos = HUECOS.map((hueco) => {
-    const fila = f.platos.find((p) => p.id === idHueco(lunes, hueco));
+    const fila = guardado(hueco);
     const recetaId = fila ? fila.receta_id : propuesta[hueco];
     const receta = recetaId ? recetas.get(recetaId) : undefined;
     const viejo = fila?.sustituye_a ? recetas.get(fila.sustituye_a) : undefined;
@@ -191,7 +208,9 @@ export function componerSemana(lunes: string, f: FilasDeLaSemana): VistaSemana {
 }
 
 function lineasDelMenu(menu: PlatoEnSemana[], f: FilasDeLaSemana): LineaLista[] {
-  const recetas: RecetaParaLista[] = menu.flatMap((p) =>
+  // Cada receta cuenta una vez, aunque esté en los dos huecos.
+  const unicos = menu.filter((p, i) => p.receta && menu.findIndex((q) => q.receta?.id === p.receta!.id) === i);
+  const recetas: RecetaParaLista[] = unicos.flatMap((p) =>
     p.receta
       ? [
           {
@@ -229,8 +248,9 @@ function tablasDeLaSemana() {
   ];
 }
 
-// La fila `semana` va en cada gesto: existe en cuanto hay algo guardado de esa semana.
-const escribirSemana = (lunes: string, resto: Record<string, unknown> = {}) =>
+// Los gestos escriben solo su fila: la `semana` es de hacerLista, para que un móvil sin sincronizar
+// no reenvíe una `lista` vieja con cada cambio.
+const escribirSemana = (lunes: string, resto: Record<string, unknown>) =>
   escribir('semana', { id: idSemana(lunes), lunes, ...resto });
 
 export async function cambiarDia(lunes: string, dia: Dia): Promise<void> {
@@ -240,7 +260,6 @@ export async function cambiarDia(lunes: string, dia: Dia): Promise<void> {
     const actual = vista.dias.find((d) => d.dia === dia)!;
     if (actual.fuera) return;
     const i = DIAS.indexOf(dia);
-    await escribirSemana(lunes);
     await escribir('semana_dia', {
       id: idDia(lunes, i), semana_id: idSemana(lunes), dia: i, activo: actual.activo ? 0 : 1, fuera: 0,
     });
@@ -252,7 +271,6 @@ export async function cambiarFuera(lunes: string, dia: Dia, fuera: boolean): Pro
   const db = copia();
   await db.transaction('rw', tablasDeLaSemana(), async () => {
     const i = DIAS.indexOf(dia);
-    await escribirSemana(lunes);
     await escribir('semana_dia', {
       id: idDia(lunes, i), semana_id: idSemana(lunes), dia: i, activo: 0, fuera: fuera ? 1 : 0,
     });
@@ -267,7 +285,6 @@ export async function ponerPlato(lunes: string, hueco: Hueco, recetaId: string):
     const antes = filas.platos.find((p) => p.id === idHueco(lunes, hueco))?.sustituye_a ?? null;
     // Volver al plato de antes quita el "En lugar de"; si no, se recuerda el primero que se sustituyó.
     const sustituye = antes === recetaId ? null : (antes ?? viejo);
-    await escribirSemana(lunes);
     await escribir('semana_plato', {
       id: idHueco(lunes, hueco),
       semana_id: idSemana(lunes),

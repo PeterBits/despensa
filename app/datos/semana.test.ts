@@ -35,11 +35,12 @@ describe('la semana en la copia local', () => {
     expect((await copia().cola.toArray()).filter((o) => o.tabla.startsWith('semana'))).toHaveLength(0);
   });
 
-  it('cambiar un día escribe solo la semana y ese día, con ids fijos', async () => {
+  it('cambiar un día escribe solo ese día, con id fijo', async () => {
     const antes = await copia().cola.count();
     await cambiarDia(LUNES, 'M');
     const ops = (await copia().cola.toArray()).slice(antes).map((o) => [o.tabla, o.fila.id]);
-    expect(ops).toEqual([['semana', 'semana-2026-11-02'], ['semana_dia', 'semana-2026-11-02-d1']]);
+    expect(ops).toEqual([['semana_dia', 'semana-2026-11-02-d1']]);
+    expect(await copia().semana.count()).toBe(0);
     expect((await leerSemana(LUNES)).menu[0]!.dias).toEqual(['L', 'M', 'X', 'V']);
   });
 
@@ -116,5 +117,43 @@ describe('la semana en la copia local', () => {
     const antes = (await leerSemana(LUNES)).menu.map((p) => p.receta?.id);
     await escribir('comida', { id: 'c-hoy', fecha: '2026-11-03', receta_id: 'ejemplo-lentejas' });
     expect((await leerSemana(LUNES)).menu.map((p) => p.receta?.id)).toEqual(antes);
+  });
+
+  it('las medias y la última vez solo miran antes del lunes: el menú no cambia durante la semana', async () => {
+    const antes = await leerSemana(LUNES);
+    await escribir('comida', { id: 'c-nueva', fecha: '2026-11-03', receta_id: 'ejemplo-lentejas' });
+    await escribir('nota', { id: 'n-nueva', comida_id: 'c-nueva', valor: 2 });
+    const despues = await leerSemana(LUNES);
+    expect(despues.menu.map((p) => p.receta?.id)).toEqual(antes.menu.map((p) => p.receta?.id));
+    expect(despues.sugerencias).toEqual(antes.sugerencias);
+  });
+
+  it('un hueco sin guardar no repite la receta guardada en el otro', async () => {
+    await ponerPlato(LUNES, '2', 'ejemplo-lentejas');
+    const s = await leerSemana(LUNES);
+    expect(s.menu[0]!.receta?.id).not.toBe('ejemplo-lentejas');
+    expect(s.menu[1]!.receta?.id).toBe('ejemplo-lentejas');
+  });
+
+  it('con la misma receta en los dos huecos, la lista cuenta cada ingrediente una vez', async () => {
+    await ponerPlato(LUNES, '1', 'ejemplo-lentejas');
+    await ponerPlato(LUNES, '2', 'ejemplo-lentejas');
+    const n = await hacerLista(LUNES);
+    const productos = await copia().producto.toArray();
+    expect(productos).toHaveLength(n);
+    expect(productos.filter((p) => p.nombre === 'Ajo')).toHaveLength(1);
+    expect(productos.find((p) => p.nombre === 'Lentejas pardinas')).toMatchObject({ cantidad: '500 g' });
+  });
+
+  it('los gestos de un día no necesitan la fila de la semana', async () => {
+    await cambiarDia(LUNES, 'M');
+    expect(await copia().semana.count()).toBe(0);
+    expect((await leerSemana(LUNES)).dias.map((d) => d.activo)).toEqual([true, true, true, false, true, false, false]);
+  });
+
+  it('una semana pasada con solo sus platos guardados cuenta en la última vez', async () => {
+    await ponerPlato('2026-10-26', '2', 'ejemplo-merluza');
+    expect(await copia().semana.count()).toBe(0);
+    expect((await leerSemana(LUNES)).menu.map((p) => p.receta?.id)).toEqual(['ejemplo-lentejas', 'ejemplo-pisto']);
   });
 });
