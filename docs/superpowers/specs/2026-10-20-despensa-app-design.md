@@ -325,7 +325,10 @@ principal de cada punto:
     domingo (el supuesto del apartado 14). El segmento elegido va en la dirección
     (`/semana?ver=viene`), así se conserva al volver de elegir una receta.
 25. La propuesta no se guarda hasta que alguien toca la semana, y cada gesto escribe solo lo
-    que toca (un día o un hueco) con ids fijos sacados del lunes. Los dos móviles escriben las
+    que toca (un día o un hueco) con ids fijos sacados del hogar y del lunes:
+    `semana-<hogarId>-<lunes>`, más `-d<n>` para un día y `-h<n>` para un hueco. El hogar va
+    dentro porque el id de D1 es único entre todos los hogares: sin él, el servidor ignoraría
+    sin avisar la semana del segundo hogar que planificara ese lunes. Los dos móviles escriben las
     mismas filas y nunca hay dos semanas para el mismo lunes. La fila de la semana solo la
     escribe "Hacer la lista", que fija el menú y los siete días: así un móvil sin sincronizar
     no deshace, al tocar un día, la lista que hizo el otro.

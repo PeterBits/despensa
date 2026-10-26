@@ -229,7 +229,7 @@ permite probar las passkeys con un autenticador virtual.
    Carga las diez recetas inventadas de los prototipos y un historial también inventado: esta semana
    planificada y seis semanas de comidas con una nota cada una, para que Semana tenga qué proponer y
    qué sugerir. Solo existe en desarrollo (`npm run dev`) y se puede repetir sin duplicar nada. Hazlo
-   en un solo hogar: la semilla usa ids fijos.
+   en un solo hogar: las recetas de la semilla usan ids fijos.
 
 ### Comandos
 

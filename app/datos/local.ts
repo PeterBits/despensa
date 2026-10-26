@@ -38,13 +38,15 @@ export type CopiaLocal = BaseDespensa & TablasLocales;
 
 let actual: CopiaLocal | null = null;
 
+const PREFIJO = 'despensa-';
+
 // La cola y el cursor `meta.version` son de un hogar: si viajaran a otro, sus operaciones irían al hogar
 // equivocado (y el servidor las anularía sin avisar) y el cursor se saltaría filas. Por eso cada hogar tiene su base.
 // Abrir la de otro hogar cierra la anterior, pero no la borra: lo pendiente sigue ahí si se vuelve a ese hogar.
 // El plan 2 conecta las pantallas: llamará a abrirCopia con el hogarId de /api/yo.
 export function abrirCopia(hogarId: string): CopiaLocal {
   if (!hogarId) throw new Error('Falta el hogar para abrir la copia local.');
-  const nombre = 'despensa-' + hogarId;
+  const nombre = PREFIJO + hogarId;
   if (actual?.name === nombre) return actual;
   actual?.close();
   actual = new BaseDespensa(nombre) as CopiaLocal;
@@ -54,4 +56,10 @@ export function abrirCopia(hogarId: string): CopiaLocal {
 export function copia(): CopiaLocal {
   if (!actual) throw new Error('No hay ninguna copia local abierta: antes hay que llamar a abrirCopia con el hogar.');
   return actual;
+}
+
+// El hogar de la copia abierta, sacado del nombre de su base: los ids fijos lo llevan dentro, porque el id de D1
+// es único entre todos los hogares. Sin copia abierta lanza, como `copia()`.
+export function hogarActual(): string {
+  return copia().name.slice(PREFIJO.length);
 }

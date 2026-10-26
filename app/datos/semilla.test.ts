@@ -36,6 +36,20 @@ describe('semilla de desarrollo', () => {
     ]);
   });
 
+  it('las comidas, las notas y la semana llevan el hogar en su id; las recetas no', async () => {
+    const hogar = crypto.randomUUID();
+    abrirCopia(hogar);
+    await cargarSemilla('2026-10-28');
+    for (const tabla of ['comida', 'nota', 'semana', 'semana_plato'] as const) {
+      const ids = (await copia()[tabla].toArray()).map((f) => String(f.id));
+      expect(ids.length, tabla).toBeGreaterThan(0);
+      expect(ids.every((id) => id.includes(hogar) && id.length <= 100), tabla).toBe(true);
+    }
+    const comidas = new Set((await copia().comida.toArray()).map((c) => c.id));
+    expect((await copia().nota.toArray()).every((n) => comidas.has(n.comida_id))).toBe(true);
+    expect(await copia().receta.get('ejemplo-lentejas')).toBeDefined();
+  });
+
   it('cada paso marca ingredientes de su propia receta', async () => {
     await cargarSemilla();
     const ingredientes = await copia().ingrediente.toArray();

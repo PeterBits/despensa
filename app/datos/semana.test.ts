@@ -7,10 +7,12 @@ import { cambiarDia, cambiarFuera, hacerLista, leerSemana, ponerPlato } from './
 import { escribir } from './sync';
 
 const LUNES = '2026-11-02';
+let hogar = '';
 
 // Cada prueba abre una copia nueva con cuatro recetas de ejemplo y tres comidas apuntadas.
 beforeEach(async () => {
-  abrirCopia(crypto.randomUUID());
+  hogar = crypto.randomUUID();
+  abrirCopia(hogar);
   for (const clave of ['lentejas', 'merluza', 'arroz', 'pisto']) {
     await guardarReceta(RECETAS_DE_EJEMPLO.find((r) => r.id === `ejemplo-${clave}`)!);
   }
@@ -39,9 +41,34 @@ describe('la semana en la copia local', () => {
     const antes = await copia().cola.count();
     await cambiarDia(LUNES, 'M');
     const ops = (await copia().cola.toArray()).slice(antes).map((o) => [o.tabla, o.fila.id]);
-    expect(ops).toEqual([['semana_dia', 'semana-2026-11-02-d1']]);
+    expect(ops).toEqual([['semana_dia', `semana-${hogar}-2026-11-02-d1`]]);
     expect(await copia().semana.count()).toBe(0);
     expect((await leerSemana(LUNES)).menu[0]!.dias).toEqual(['L', 'M', 'X', 'V']);
+  });
+
+  it('dos hogares que planifican el mismo lunes escriben ids distintos, cada uno con su hogar', async () => {
+    // El id de D1 es único entre todos los hogares: con el mismo id, el servidor ignoraría la semana del segundo.
+    const idsDe = async (h: string) => {
+      abrirCopia(h);
+      for (const clave of ['lentejas', 'merluza']) {
+        await guardarReceta(RECETAS_DE_EJEMPLO.find((r) => r.id === `ejemplo-${clave}`)!);
+      }
+      await cambiarDia(LUNES, 'M');
+      await ponerPlato(LUNES, '2', 'ejemplo-lentejas');
+      await hacerLista(LUNES);
+      return (await copia().cola.toArray())
+        .filter((o) => o.tabla.startsWith('semana'))
+        .flatMap((o) => [o.fila.id, ...(o.fila.semana_id ? [String(o.fila.semana_id)] : [])]);
+    };
+    const [a, b] = [crypto.randomUUID(), crypto.randomUUID()];
+    const deA = await idsDe(a);
+    const deB = await idsDe(b);
+    expect(deA).toContain(`semana-${a}-${LUNES}`);
+    expect(deA).toContain(`semana-${a}-${LUNES}-d1`);
+    expect(deA).toContain(`semana-${a}-${LUNES}-h2`);
+    expect(deA.every((id) => id.includes(a) && id.length <= 100)).toBe(true);
+    expect(deB.every((id) => id.includes(b) && id.length <= 100)).toBe(true);
+    expect(deA.filter((id) => deB.includes(id))).toEqual([]);
   });
 
   it('el domingo en casa entra en el reparto y fuera sale', async () => {

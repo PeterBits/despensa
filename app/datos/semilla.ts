@@ -1,12 +1,13 @@
 // Solo para desarrollo: las diez recetas inventadas de prototipo/recetas.html, con ids fijos `ejemplo-*`.
 // main.tsx la carga con un import dinámico bajo import.meta.env.DEV, así no entra en el build de producción.
+// Las recetas son para un solo hogar (lo avisa el README); las comidas, las notas y la semana llevan el hogar en el id.
 
 import { hoyEnMadrid, lunesDe, sumarDias } from '../../shared/fechas';
 import { quitarMarcas } from '../../shared/pasos';
 import { esBasico, type Tipo } from '../../shared/recetas';
 import { seccionDe } from '../../shared/secciones';
 import { DIAS } from '../../shared/semana';
-import { copia } from './local';
+import { copia, hogarActual } from './local';
 import { guardarReceta, type BorradorReceta } from './recetas';
 import { idHueco, idSemana } from './semana';
 import { escribir } from './sync';
@@ -163,6 +164,7 @@ export async function cargarSemilla(hoy: string = hoyEnMadrid(new Date())): Prom
 
   const lunes = lunesDe(hoy);
   const db = copia();
+  const hogar = hogarActual();
   await db.transaction('rw', [db.semana, db.semana_plato, db.comida, db.nota, db.cola], async () => {
     await escribir('semana', { id: idSemana(lunes), lunes, propuesta_aceptada: 1 });
     for (const [hueco, clave] of [['1', 'curry'], ['2', 'crema']] as const) {
@@ -177,10 +179,10 @@ export async function cargarSemilla(hoy: string = hoyEnMadrid(new Date())): Prom
       for (const [d, dia] of DIAS.entries()) {
         const [clave, valor] = d % 2 === 0 ? energetica : otra;
         if (dia === 'D') continue;
-        const id = `ejemplo-comida-${atras}-${dia}`;
+        const id = `ejemplo-comida-${hogar}-${atras}-${dia}`;
         await escribir('comida', { id, fecha: sumarDias(lunesAtras, d), receta_id: `ejemplo-${clave}` });
         // Sin miembro_id: lo pone el servidor.
-        await escribir('nota', { id: `ejemplo-nota-${atras}-${dia}`, comida_id: id, valor });
+        await escribir('nota', { id: `ejemplo-nota-${hogar}-${atras}-${dia}`, comida_id: id, valor });
       }
     }
   });

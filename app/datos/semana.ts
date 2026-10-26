@@ -22,12 +22,16 @@ import {
   type Hueco,
   type RecetaResumen,
 } from '../../shared/semana';
-import { copia } from './local';
+import { copia, hogarActual } from './local';
 import { escribir } from './sync';
 
-export const idSemana = (lunes: string): string => `semana-${lunes}`;
-export const idDia = (lunes: string, dia: number): string => `semana-${lunes}-d${dia}`;
-export const idHueco = (lunes: string, hueco: Hueco): string => `semana-${lunes}-h${hueco}`;
+// Ids fijos de la semana: `semana-<hogarId>-<lunes>`, más `-d<n>` para un día y `-h<n>` para un hueco. El id de D1 es
+// único entre todos los hogares: sin el hogar dentro, el servidor ignoraría sin avisar la semana del segundo hogar.
+// El hogar sale de la copia abierta, nunca de quien llama. Con un UUID de hogar no pasan de 60 caracteres (máximo 100).
+const idFijo = (lunes: string, sufijo = ''): string => `semana-${hogarActual()}-${lunes}${sufijo}`;
+export const idSemana = (lunes: string): string => idFijo(lunes);
+export const idDia = (lunes: string, dia: number): string => idFijo(lunes, `-d${dia}`);
+export const idHueco = (lunes: string, hueco: Hueco): string => idFijo(lunes, `-h${hueco}`);
 
 export type RecetaDelMenu = { id: string; nombre: string; corto: string; tipos: Tipo[]; energetica: boolean };
 export type PlatoEnSemana = {
@@ -87,8 +91,8 @@ const delMenu = (r: FilaDe<'receta'>): RecetaDelMenu => {
   return { id: r.id, nombre: r.nombre, corto: r.corto ?? cortoDe(r.nombre), tipos, energetica: esEnergetica(tipos) };
 };
 
-// Los ids de la semana son `semana-<lunes>`: el lunes sale del id, sin pasar por la fila `semana`.
-const lunesDeId = (semanaId: string): string => semanaId.slice('semana-'.length);
+// Los ids de la semana acaban en su lunes (YYYY-MM-DD): sale del final del id, sin pasar por la fila `semana`.
+const lunesDeId = (semanaId: string): string => semanaId.slice(-'YYYY-MM-DD'.length);
 
 type DiaGuardado = { lunes: string; dia: number; activo: boolean; fuera: boolean };
 
@@ -120,7 +124,8 @@ function planificadasAntes(
   return planificadas;
 }
 
-// Función pura: de las filas leídas a lo que ve la pantalla. Una receta borrada deja su hueco en "Sin plato".
+// De las filas leídas a lo que ve la pantalla; solo lee la copia para el hogar de los ids fijos.
+// Una receta borrada deja su hueco en "Sin plato".
 export function componerSemana(lunes: string, f: FilasDeLaSemana): VistaSemana {
   const recetas = new Map(f.recetas.map((r) => [r.id, r]));
   const energetica = (id: string) => {

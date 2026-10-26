@@ -152,6 +152,43 @@ describe('aplicarOps', () => {
   });
 });
 
+describe('ids fijos de la semana', () => {
+  // Las filas que escribe app/datos/semana.ts para un lunes, con su formato de ids: `semana-<hogarId>-<lunes>`.
+  const filasDeSemana = (semanaId: string, lunes: string, recetaId: string) => [
+    { id: id(), tabla: 'semana' as const, fila: { id: semanaId, lunes, propuesta_aceptada: 1 } },
+    { id: id(), tabla: 'semana_dia' as const, fila: { id: `${semanaId}-d1`, semana_id: semanaId, dia: 1, activo: 1, fuera: 0 } },
+    { id: id(), tabla: 'semana_plato' as const, fila: { id: `${semanaId}-h1`, semana_id: semanaId, hueco: '1', receta_id: recetaId } },
+  ];
+  const idsDe = (filas: Record<string, unknown>[] | undefined) => filas?.map((f) => [f.id, f.receta_id ?? null]);
+
+  it('dos hogares que planifican el mismo lunes leen cada uno sus filas', async () => {
+    const [A, B] = [id(), id()];
+    const [HA, HB] = [await hogarCon(A), await hogarCon(B)];
+    const lunes = '2026-11-02';
+    await aplicarOps(env.DB, HA, A, filasDeSemana(`semana-${HA}-${lunes}`, lunes, 'receta-a'));
+    await aplicarOps(env.DB, HB, B, filasDeSemana(`semana-${HB}-${lunes}`, lunes, 'receta-b'));
+    for (const [H, receta] of [[HA, 'receta-a'], [HB, 'receta-b']] as const) {
+      const { filas } = await cambiosDesde(env.DB, H, 0);
+      expect(idsDe(filas.semana)).toEqual([[`semana-${H}-${lunes}`, null]]);
+      expect(idsDe(filas.semana_dia)).toEqual([[`semana-${H}-${lunes}-d1`, null]]);
+      expect(idsDe(filas.semana_plato)).toEqual([[`semana-${H}-${lunes}-h1`, receta]]);
+    }
+  });
+
+  it('con el mismo id en dos hogares, el segundo pierde sus filas sin error: por eso el id lleva el hogar', async () => {
+    const [A, B] = [id(), id()];
+    const [HA, HB] = [await hogarCon(A), await hogarCon(B)];
+    // El formato de antes, igual para todos los hogares (con un sufijo para no pisar a otras pruebas del fichero).
+    const lunes = '2026-11-09';
+    const sinHogar = `semana-${lunes}-${id()}`;
+    await aplicarOps(env.DB, HA, A, filasDeSemana(sinHogar, lunes, 'receta-a'));
+    const r = await aplicarOps(env.DB, HB, B, filasDeSemana(sinHogar, lunes, 'receta-b'));
+    expect(r.aplicadas).toBe(3);
+    expect((await cambiosDesde(env.DB, HB, 0)).filas).toEqual({});
+    expect(idsDe((await cambiosDesde(env.DB, HA, 0)).filas.semana_plato)).toEqual([[`${sinHogar}-h1`, 'receta-a']]);
+  });
+});
+
 describe('POST /api/ops y GET /api/cambios', () => {
   async function conSesion() {
     const m = id();
